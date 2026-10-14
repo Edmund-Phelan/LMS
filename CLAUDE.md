@@ -47,7 +47,7 @@ Hosting notes:
    Private repo needs GitHub Pro (free with the Student Developer Pack); otherwise make the repo public.
 4. Auth email: Supabase's built-in email sender is heavily rate-limited and may only deliver to project team members.
    Check, and if so set up custom SMTP (e.g. Resend free tier) before inviting the lads.
-   Edit the "Magic Link" email template to show the 6-digit code (`{{ .Token }}`), not a link.
+   Edit the "Magic Link" email template to show the 8-digit code (`{{ .Token }}`), not a link.
 5. Copy `crests/` → `public/crests/` and `teams.json` → `src/data/teams.json` (both in this handoff folder).
 6. Seed: teams (from teams.json), rounds 2–4 with lock times, matches for rounds 2–4, players.
 
@@ -132,7 +132,7 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 
 ## 6. Screens
 
-- **Login:** email → 6-digit code (`signInWithOtp` with `shouldCreateUser: false`). Only pre-created players can sign in.
+- **Login:** email → 8-digit code (`signInWithOtp` with `shouldCreateUser: false`). Only pre-created players can sign in.
   Not magic links — on iPhone they open in the wrong browser and the session doesn't stick.
 - **First login:** upload a photo (crop to a circle), pick a nickname and kit colour.
 - **Home ("the field"):** a pitch with every player's avatar. Survivors on the pitch; knocked-out players in the stands.
