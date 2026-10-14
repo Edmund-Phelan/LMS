@@ -1,0 +1,194 @@
+[
+  {
+    "slug": "union-bordeaux-begles",
+    "name": "Bordeaux-Bègles",
+    "primary": "#713042",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/union-bordeaux-begles.png"
+  },
+  {
+    "slug": "bath-rugby",
+    "name": "Bath",
+    "primary": "#0054a6",
+    "secondary": "#000000",
+    "text": "#ffffff",
+    "crest": "crests/bath-rugby.png"
+  },
+  {
+    "slug": "bristol-bears",
+    "name": "Bristol",
+    "primary": "#212e83",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/bristol-bears.png"
+  },
+  {
+    "slug": "vodacom-bulls",
+    "name": "Bulls",
+    "primary": "#2581c4",
+    "secondary": "#e30714",
+    "text": "#ffffff",
+    "crest": "crests/vodacom-bulls.png"
+  },
+  {
+    "slug": "cardiff-rugby",
+    "name": "Cardiff",
+    "primary": "#89bde3",
+    "secondary": "#1b1310",
+    "text": "#000000",
+    "crest": "crests/cardiff-rugby.png"
+  },
+  {
+    "slug": "asm-clermont-auvergne",
+    "name": "Clermont",
+    "primary": "#fdea00",
+    "secondary": "#002f6c",
+    "text": "#000000",
+    "crest": "crests/asm-clermont-auvergne.png"
+  },
+  {
+    "slug": "connacht",
+    "name": "Connacht",
+    "primary": "#00853f",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/connacht.png"
+  },
+  {
+    "slug": "exeter-chiefs",
+    "name": "Exeter",
+    "primary": "#000000",
+    "secondary": "#fecc00",
+    "text": "#ffffff",
+    "crest": "crests/exeter-chiefs.png"
+  },
+  {
+    "slug": "glasgow-warriors",
+    "name": "Glasgow",
+    "primary": "#000000",
+    "secondary": "#84aed1",
+    "text": "#ffffff",
+    "crest": "crests/glasgow-warriors.png"
+  },
+  {
+    "slug": "gloucester-rugby",
+    "name": "Gloucester",
+    "primary": "#dd1a32",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/gloucester-rugby.png"
+  },
+  {
+    "slug": "leicester-tigers",
+    "name": "Leicester",
+    "primary": "#094438",
+    "secondary": "#c8102e",
+    "text": "#ffffff",
+    "crest": "crests/leicester-tigers.png"
+  },
+  {
+    "slug": "leinster",
+    "name": "Leinster",
+    "primary": "#0053a1",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/leinster.png"
+  },
+  {
+    "slug": "emirates-lions",
+    "name": "Lions",
+    "primary": "#dc2129",
+    "secondary": "#140404",
+    "text": "#ffffff",
+    "crest": "crests/emirates-lions.png"
+  },
+  {
+    "slug": "montpellier-herault-rugby",
+    "name": "Montpellier",
+    "primary": "#002c5b",
+    "secondary": "#0090d4",
+    "text": "#ffffff",
+    "crest": "crests/montpellier-herault-rugby.png"
+  },
+  {
+    "slug": "munster-rugby",
+    "name": "Munster",
+    "primary": "#c8102e",
+    "secondary": "#122053",
+    "text": "#ffffff",
+    "crest": "crests/munster-rugby.png"
+  },
+  {
+    "slug": "northampton-saints",
+    "name": "Northampton",
+    "primary": "#0e6240",
+    "secondary": "#f2b226",
+    "text": "#ffffff",
+    "crest": "crests/northampton-saints.png"
+  },
+  {
+    "slug": "section-paloise",
+    "name": "Pau",
+    "primary": "#004231",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/section-paloise.png"
+  },
+  {
+    "slug": "racing-92",
+    "name": "Racing 92",
+    "primary": "#c2e0f7",
+    "secondary": "#ffffff",
+    "text": "#000000",
+    "crest": "crests/racing-92.png"
+  },
+  {
+    "slug": "stade-rochelais",
+    "name": "La Rochelle",
+    "primary": "#171412",
+    "secondary": "#fed100",
+    "text": "#ffffff",
+    "crest": "crests/stade-rochelais.png"
+  },
+  {
+    "slug": "sale-sharks",
+    "name": "Sale",
+    "primary": "#000050",
+    "secondary": "#ffffff",
+    "text": "#ffffff",
+    "crest": "crests/sale-sharks.png"
+  },
+  {
+    "slug": "saracens",
+    "name": "Saracens",
+    "primary": "#120a09",
+    "secondary": "#c8102e",
+    "text": "#ffffff",
+    "crest": "crests/saracens.png"
+  },
+  {
+    "slug": "stade-francais-paris",
+    "name": "Stade Français",
+    "primary": "#ea5097",
+    "secondary": "#002c5b",
+    "text": "#ffffff",
+    "crest": "crests/stade-francais-paris.png"
+  },
+  {
+    "slug": "dhl-stormers",
+    "name": "Stormers",
+    "primary": "#00358e",
+    "secondary": "#fec20c",
+    "text": "#ffffff",
+    "crest": "crests/dhl-stormers.png"
+  },
+  {
+    "slug": "stade-toulousain",
+    "name": "Toulouse",
+    "primary": "#d30c14",
+    "secondary": "#040000",
+    "text": "#ffffff",
+    "crest": "crests/stade-toulousain.png"
+  }
+]
