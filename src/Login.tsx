@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from './lib/supabase'
 
-// Email → one-time code (length is a Supabase setting, 6–10). No magic links (they open in the wrong browser on iPhone), no sign-ups.
+// Email → 8-digit code (Supabase Auth OTP length; change both together). No magic links (they open in the wrong browser on iPhone), no sign-ups.
 export default function Login() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -47,13 +47,13 @@ export default function Login() {
         </>
       ) : (
         <>
-          <label htmlFor="code">Code sent to {email}</label>
+          <label htmlFor="code">8-digit code sent to {email}</label>
           <input
             id="code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            pattern="[0-9]{6,10}"
-            maxLength={10}
+            pattern="[0-9]{8}"
+            maxLength={8}
             required
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
