@@ -8,7 +8,7 @@ section 5 below is the same rules, written for the engine.
 ## 1. What this is
 
 A private web app for a Last Man Standing comp on the 2026/27 Investec Champions Cup, played by
-~11 mates who share a WhatsApp group. Run by Eddie (owner) and Khan (second admin).
+~11 mates who share a WhatsApp group. Run by Eddie (owner) and Conn (second admin).
 
 - Every round, each player picks one team to win. Win → through. Loss or draw → out. Last one standing takes the pot.
 - Round 1 (16–18 Oct) runs on a Google Form. **The app takes over from Round 2, whose picks lock Fri 11 Dec 2026, 8pm Irish time.**
@@ -144,7 +144,7 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 - **Pay:** "Pay €10" opens Eddie's revolut.me link (TODO: username); "I've paid" creates a claimed payment. Paid badge once confirmed.
   Buy-back request flows the same way and shows pending until confirmed.
 - **Rules:** in-app rules page, linking to the rules doc, including the note that the owner can see the raw database.
-- **Admin (Eddie, Khan):** enter final scores (+ knockout winner, postponed flag), Settle (engine preview → confirm),
+- **Admin (Eddie, Conn):** enter final scores (+ knockout winner, postponed flag), Settle (engine preview → confirm),
   confirm payments, manage rounds/lock times/featured match, import Round 1 CSV, export picks + results CSV after each settle.
 - **Share cards:** render an image (canvas / `html-to-image`) for knockouts and round summaries in the losing team's colours,
   with a random banter line from a template bank (30–40 lines with `{name}`, `{team}`, `{margin}` slots). Share via the Web
@@ -192,13 +192,13 @@ Season:
 | Week 2 | Admin: results, settle, payments, Round 1 import, CSV export. |
 | Week 3 | Rules engine complete with tests for every rule in section 5. |
 | Weeks 4–5 | Experience: field, team takeover, reveal, share cards, haptics, avatars. |
-| Last week | Dry run of a fake round with Khan + two of the lads, fix, ship by Fri 4 Dec. |
+| Last week | Dry run of a fake round with Conn + two of the lads, fix, ship by Fri 4 Dec. |
 
 Correctness before polish: no animation work until the lock, privacy and engine are proven.
 
 ## 10. Open — ask Eddie
 
-- Players' names and emails (Khan is the second admin).
+- Players' names and emails (Conn is the second admin).
 - Revolut.me username for the Pay button.
 - App name (and whether to use a custom domain).
 - Who names each round's featured match, and when.
