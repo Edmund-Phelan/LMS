@@ -17,6 +17,7 @@ const lockNow = (round: number) =>
 
 beforeEach(async () => {
   db = await freshDb()
+  await db.query('delete from matches') // tests use their own fixtures; the seeded ones are checked by their migration
   for (const [id, name, admin] of [
     [EDDIE, 'Eddie', true],
     [BEN, 'Ben', false],
