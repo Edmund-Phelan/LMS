@@ -32,3 +32,10 @@ export function pickState(m: Match, teamId: number, knockout: boolean, now: numb
   if (s === 'upcoming') return day.format(now) === day.format(Date.parse(m.kickoff_at)) ? 'locked' : 'later'
   return s
 }
+
+/** Why a final match knocked `teamId`'s picker out (§17): "a draw is a loss", "lost by 7". */
+export function koReason(m: Match, teamId: number, knockout: boolean) {
+  const margin = Math.abs(m.home_score! - m.away_score!)
+  if (margin === 0) return knockout ? 'out on the kicking competition' : 'a draw is a loss'
+  return won(m, teamId, knockout) ? 'through' : `lost by ${margin}`
+}
