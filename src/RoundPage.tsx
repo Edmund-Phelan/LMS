@@ -40,13 +40,14 @@ type Data = {
   predictions: { player_id: string; home_score: number; away_score: number }[]
   jinxes: { jinxer_id: string; target_id: string }[]
   payments: PaymentRow[]
+  squad: { player_id: string; has_pick: boolean }[] // round_pick_status: never a team
 }
 
 async function load(number: number): Promise<Data> {
   const { data: rounds } = await supabase.from('rounds').select('*').order('number').returns<Round[]>()
   const round = rounds?.find((r) => r.number === number) ?? null
   const rid = round?.id ?? -1
-  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, user] = await Promise.all([
+  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, user, squad] = await Promise.all([
     supabase.from('teams').select('*').returns<Team[]>(),
     supabase.from('matches').select('*').eq('round_id', rid).order('kickoff_at').returns<Match[]>(),
     supabase
@@ -61,6 +62,7 @@ async function load(number: number): Promise<Data> {
     supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', rid),
     loadPayments(),
     supabase.auth.getUser(),
+    supabase.rpc('round_pick_status', { r: rid }),
   ])
   const me = user.data.user?.id
   return {
@@ -80,6 +82,7 @@ async function load(number: number): Promise<Data> {
     predictions: predictions.data ?? [],
     jinxes: jinxes.data ?? [],
     payments: payments.data ?? [],
+    squad: (squad.data ?? []) as Data['squad'],
   }
 }
 
@@ -362,6 +365,7 @@ export default function RoundPage({ me }: { me: string }) {
             ms={Date.parse(round.lock_at) - now}
             pot={potEur(data.payments)}
             stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+            picked={{ n: data.squad.filter((s) => s.has_pick).length, of: data.squad.length }}
           />
           {error && (
             <p role="alert" className="rounded-2xl bg-out-text/15 p-3 text-out-text">
@@ -447,12 +451,7 @@ export default function RoundPage({ me }: { me: string }) {
           )}
 
           {locked && <Reveal data={data} name={name} />}
-          <Squad
-            players={players.filter((p) => data.alive.get(p.id) === true)}
-            payments={data.payments}
-            me={me}
-            locked={locked}
-          />
+          <Squad squad={data.squad} players={players} payments={data.payments} me={me} locked={locked} />
         </div>
       </div>
     </Shell>
@@ -568,22 +567,40 @@ function Prediction({
   )
 }
 
+/** §3.5. Picked / not picked from round_pick_status; never shows a team before the lock. */
 function Squad({
+  squad,
   players,
   payments,
   me,
   locked,
 }: {
+  squad: Data['squad']
   players: Player[]
   payments: PaymentRow[]
   me: string
   locked: boolean
 }) {
+  const n = squad.filter((s) => s.has_pick).length
+  const word = locked ? 'locked in' : 'picked'
   return (
     <section className="flex flex-col gap-2.5">
-      <h2 className="disp text-[22px] font-extrabold">The squad</h2>
+      <div className="flex items-baseline justify-between">
+        <h2 className="disp text-[22px] font-extrabold">The squad</h2>
+        <span className="text-[13px] font-semibold text-muted">
+          {n} of {squad.length} {word}
+        </span>
+      </div>
+      <div aria-hidden className="h-1.5 overflow-hidden rounded-[3px] bg-white/8">
+        <div
+          className="h-full rounded-[3px] bg-blue transition-[width] duration-600 ease-[cubic-bezier(.2,.8,.2,1)]"
+          style={{ width: `${squad.length ? Math.round((n / squad.length) * 100) : 0}%` }}
+        />
+      </div>
       <ul className="hairline overflow-hidden rounded-[20px] bg-navy-800">
-        {players.map((p) => {
+        {squad.map(({ player_id, has_pick }) => {
+          const p = players.find((p) => p.id === player_id)
+          if (!p) return null
           const paid = entryOf(payments, p.id)?.status
           return (
             <li key={p.id} className="flex items-center gap-3 border-t border-white/6 px-3.5 py-3 first:border-0">
@@ -597,6 +614,18 @@ function Squad({
                   {paid === 'confirmed' ? 'Paid' : paid === 'claimed' ? 'Payment waiting for a confirm' : 'Entry not paid yet'}
                 </span>
               </span>
+              {has_pick ? (
+                <span
+                  className={`pop flex items-center gap-[5px] rounded-full px-2.5 py-[5px] text-xs font-bold ${locked ? 'bg-gold/16 text-gold' : 'bg-blue/18 text-blue-text'}`}
+                >
+                  {Icon.check(13, 3)}
+                  {locked ? 'Locked in' : 'Picked'}
+                </span>
+              ) : (
+                <span className="rounded-full border border-dashed border-white/25 px-2.5 py-[5px] text-xs font-semibold text-muted">
+                  {locked ? 'No pick' : 'Thinking…'}
+                </span>
+              )}
             </li>
           )
         })}
