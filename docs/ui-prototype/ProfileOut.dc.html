@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Out player's profile from the table</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050a1f}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;color:#f4f1e8;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif;font-weight:800}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cursor:pointer}
+p,h1,h2{margin:0}
+</style>
+</helmet>
+<div class="app" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #050a1f">
+  <header style="padding: 16px 16px 12px">
+    <p style="font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a8b3d1">Last Man Standing</p>
+    <p class="disp" style="font-size: 21px; line-height: 1.05">Points table</p>
+  </header>
+  <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <div style="border-radius: 18px; padding: 12px 14px; background: linear-gradient(160deg, #f2b226, #d9951a); color: #0b1742">
+        <p style="font-size: 11px; font-weight: 800; letter-spacing: .1em">LAST MAN · 80%</p>
+        <p class="disp" style="font-size: 30px">€88</p>
+      </div>
+      <div style="border-radius: 18px; padding: 12px 14px; background: #14224f">
+        <p style="font-size: 11px; font-weight: 800; letter-spacing: .1em; color: #a8b3d1">TOP OF TABLE · 20%</p>
+        <p class="disp" style="font-size: 30px">€22</p>
+      </div>
+    </div>
+    <div style="border-radius: 20px; background: #14224f; overflow: hidden">
+      <button type="button" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; text-align: left">
+        <span class="disp" style="width: 20px; font-size: 20px; color: #f2b226">1</span>
+        <span class="disp" style="width: 34px; height: 34px; border-radius: 50%; background: #233873; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #00853f">B</span>
+        <span style="flex: 1"><span style="display: block; font-weight: 600">Bonzo</span><span style="display: block; font-size: 11px; font-weight: 700; color: #6fe3a1">STILL IN</span></span>
+        <span class="disp" style="font-size: 22px">8</span>
+      </button>
+      <button type="button" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; text-align: left; border-top: 1px solid rgba(255,255,255,.06); background: rgba(242,178,38,.1)">
+        <span class="disp" style="width: 20px; font-size: 20px">2</span>
+        <span class="disp" style="width: 34px; height: 34px; border-radius: 50%; background: #233873; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px #ff6b00">B</span>
+        <span style="flex: 1"><span style="display: block; font-weight: 600">Big Ed</span><span style="display: block; font-size: 11px; font-weight: 700; color: #ff8a8a">OUT · IN THE STANDS</span></span>
+        <span class="disp" style="font-size: 22px">7</span>
+      </button>
+    </div>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(3,6,20,.62)"></div>
+  <section role="dialog" aria-label="Big Ed profile" style="position: absolute; left: 0; right: 0; bottom: 0; height: 724px; box-sizing: border-box; border-radius: 28px 28px 0 0; background: #14224f; box-shadow: 0 -20px 60px rgba(0,0,0,.5); padding: 10px 18px 26px; display: flex; flex-direction: column; gap: 14px">
+    <span aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.3)"></span>
+    <button type="button" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #a8b3d1">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </button>
+
+    <div style="display: flex; align-items: center; gap: 16px; padding-top: 4px">
+      <span class="disp" style="width: 76px; height: 76px; flex-shrink: 0; border-radius: 50%; background: #233873; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 0 0 4px #ff6b00, 0 14px 30px rgba(0,0,0,.4); filter: saturate(.6)">B</span>
+      <div style="min-width: 0; display: flex; flex-direction: column; gap: 6px">
+        <p class="disp" style="font-size: 32px; line-height: .95">Big Ed</p>
+        <p style="font-size: 14px; color: #cdd5ea">Ed</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; background: rgba(255,138,138,.14); color: #ff8a8a">
+            <span aria-hidden="true" style="width: 9px; height: 12px; border-radius: 2px; background: #e11d2e; transform: rotate(-8deg)"></span>Out · Round 2
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,.07); color: #cdd5ea">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Entry paid
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <div style="border-radius: 16px; background: #0b1742; padding: 12px 6px; text-align: center">
+        <p class="disp" style="font-size: 32px; line-height: 1.05; color: #f2b226">7</p>
+        <p style="font-size: 12px; color: #cdd5ea">Points</p>
+      </div>
+      <div style="border-radius: 16px; background: #0b1742; padding: 12px 6px; text-align: center">
+        <p class="disp" style="font-size: 32px; line-height: 1.05">#2</p>
+        <p style="font-size: 12px; color: #cdd5ea">of 11 on the table</p>
+      </div>
+      <div style="border-radius: 16px; background: #0b1742; padding: 12px 6px; text-align: center">
+        <p class="disp" style="font-size: 32px; line-height: 1.05">1</p>
+        <p style="font-size: 12px; color: #cdd5ea">Exact scores</p>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="font-size: 18px">Their road</h2>
+        <span style="font-size: 12px; color: #a8b3d1">2 of 24 teams used</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+        <div style="background: #c8102e; color: #ffffff; height: 106px; box-sizing: border-box; border-radius: 14px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: .1em; opacity: .85">R1</span>
+          <span style="width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center"><img src="../../public/crests/munster-rugby.png" alt="" style="width: 25px; height: 25px; object-fit: contain"></span>
+          <span class="disp" style="font-size: 14px; line-height: 1.05">Munster</span>
+          <span style="font-size: 10px; font-weight: 700; opacity: .85; line-height: 1.15">Beat Racing 24–17</span>
+        </div>
+        <div style="background: #3a1020; color: #ff8a8a; box-shadow: inset 0 0 0 2px #e5484d; height: 106px; box-sizing: border-box; border-radius: 14px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: .1em">R2 · OUT</span>
+          <span style="width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; filter: grayscale(1)"><img src="../../public/crests/racing-92.png" alt="" style="width: 25px; height: 25px; object-fit: contain"></span>
+          <span class="disp" style="font-size: 14px; line-height: 1.05; color: #f4f1e8">Racing 92</span>
+          <span style="font-size: 10px; font-weight: 700; line-height: 1.15">Lost 18–24 to Gloucester</span>
+        </div>
+        <div style="border: 1.5px dashed rgba(255,255,255,.14); color: #6f7ba0; height: 106px; box-sizing: border-box; border-radius: 14px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: .1em">R3</span>
+          <span class="disp" style="font-size: 14px; line-height: 1.05">In the stands</span>
+        </div>
+        <div style="border: 1.5px dashed rgba(255,255,255,.14); color: #6f7ba0; height: 106px; box-sizing: border-box; border-radius: 14px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center">
+          <span style="font-size: 10px; font-weight: 800; letter-spacing: .1em">R4</span>
+          <span class="disp" style="font-size: 14px; line-height: 1.05">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="font-size: 18px">Featured-match predictions</h2>
+        <span style="font-size: 12px; color: #a8b3d1">Jinx points: 0</span>
+      </div>
+      <div style="border-radius: 16px; background: #0b1742; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px">
+          <span class="disp" style="width: 26px; font-size: 15px; color: #a8b3d1">R1</span>
+          <span style="flex: 1; min-width: 0"><span style="display: block; font-size: 13px; font-weight: 600">Gloucester v Bordeaux-Bègles</span><span style="display: block; font-size: 12px; color: #a8b3d1">Said 20–27 · finished 20–27</span></span>
+          <span class="disp" style="font-size: 18px; color: #f2b226">5 ★</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid rgba(255,255,255,.06)">
+          <span class="disp" style="width: 26px; font-size: 15px; color: #a8b3d1">R2</span>
+          <span style="flex: 1; min-width: 0"><span style="display: block; font-size: 13px; font-weight: 600">Leinster v Sale</span><span style="display: block; font-size: 12px; color: #a8b3d1">Said 26–18 · finished 31–20</span></span>
+          <span class="disp" style="font-size: 18px">2 pts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

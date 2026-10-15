@@ -497,3 +497,85 @@ its own sound, scheduled on the Web Audio clock at the same times as the CSS:
   unsettle → resettle shows the recap again; DB test: `seen_recap_round` own row only. On a real iPhone (sound on),
   side by side with the prototype: the clash, shatter, slam and every sound land on the same beats; left tap goes back
   and replays, right tap skips the clash then advances, hold pauses picture and sound; a draw breaks both plates.
+
+## 20. Player profiles (Eddie, 15 Oct: "who is that nickname?")
+Prototype: `docs/ui-prototype/Profile.dc.html` (interactive: tap rows, the sheet slides up) and `ProfileOut.dc.html`.
+- **Entry points:** every row of the Squad (§3.5) and every row of the Table (§6) opens that player's profile sheet. Rows
+  become buttons with a 16 px chevron (`#6f7ba0`) on the right. Your own row goes to `/me` instead. Out players drop off
+  the squad, so the Table is how you reach them.
+- **Squad row subtitle:** the real name goes in front of the paid line when the player has a nickname that differs from
+  their name: "Harvey · Paid", "Cboh · Payment waiting for a confirm". No nickname: unchanged ("Paid").
+- **Sheet:** bottom sheet over a `rgba(3,6,20,.62)` backdrop, ~86% of the viewport tall, `max-w-[480px]`, top radius 28,
+  navy-800, drag handle, a 44 px close X top right. Closes on the X, a backdrop tap, a swipe down > 80 px or Escape.
+  Scrolls inside if the phone is short. Top to bottom:
+  1. **Identity:** Avatar 76 px (4 px kit ring + deep shadow), nickname condensed 32/800, real name 14 px chalk-2
+     ("No nickname" if none) + " · Admin" for admins. Pills: status — "Still standing" (green dot), "Out · Round N" (red,
+     mini red card), "Bought back" (gold), "Not in this year" (grey, §22) — and payment — "Entry paid" (check),
+     "Payment pending" / "Not paid" (warn).
+  2. **Three stat tiles** (navy-900): **Points** (gold), **#rank** "of N on the table" (shared ranks as `rankOf`),
+     **Exact scores**. From `points_table()`.
+  3. **Their road** (header right: "X of 24 teams used"): 4-column grid of 106 px tiles, R1–R4 then knockouts as they're
+     added. Picked: the team's card colours, crest in a white circle, short name, result line from the match ("Beat
+     Exeter 38–12", "Won at Bristol 25–23", "Lost 18–24 to Gloucester", "Drew 20–20", "Postponed · team back"). The round
+     they went out in: `#3a1020` tile, 2 px `#e5484d` inset ring, greyscale crest, "R2 · OUT". Locked but not settled:
+     the team + "Locked in". **Current round before its lock: dashed tile with a lock icon, "Hidden till Fri 20:00"**.
+     Rounds after their exit: dashed "In the stands". Future: dashed "—".
+  4. **Featured-match predictions:** one row per settled round: "R1", the fixture, "Said 21–26 · finished 20–27", points
+     on the right ("5 ★" gold, 0 muted). Header right "Jinx points: N" when they have any.
+- **Privacy:** read-only, from data already readable: `players`, `points_table()`, `round_results`, and picks/predictions
+  for **locked** rounds only (RLS already hides the rest). No new RPC, no RLS change. The sheet must never show the current
+  round's pick, prediction or jinx before the lock; a test renders another player's profile before a lock and checks it.
+- **Motion (all under 1.5 s, skippable by closing):** backdrop fades in .25 s; the sheet **slides up from the bottom** .38 s
+  `cubic-bezier(.3,1.25,.5,1)` (the §18 `sheetUp`); the content rises in a stagger (`rise` .45 s, steps of 60 ms from
+  .10 s); the avatar pops (.45 s, .12 s delay); road tiles pop one after another (from .30 s, +70 ms each); **Points
+  count up** from 0 over .6 s (ease-out cubic) starting at .25 s. Close: the sheet slides down .22 s ease-in while the
+  backdrop fades, then unmounts. Reduced motion: appears and disappears instantly, no count-up. No sound, no haptic (it's
+  browsing, not an action).
+
+## 21. Removing your pick: hold to remove (Eddie, 15 Oct)
+Replaces §18's one-tap "Remove pick". Prototype: `docs/ui-prototype/RemoveHold.dc.html`.
+- Same mechanics as "Hold to back": `HOLD_MS` 600, pointer + Space/Enter handlers, `touch-none`, no context menu, a light
+  tick on press and the thud when the hold completes, refused once locked.
+- **Red:** track `rgba(229,72,77,.2)` with a 1 px `rgba(255,138,138,.55)` inset edge; the fill `#e5484d` grows left to
+  right, linear, over 600 ms; white label "Hold to remove Munster" → "Keep holding…", same hand icon. "Keep Munster"
+  underneath as before.
+- **The filling bar is the only animation in the remove flow** (Eddie): when the sheet opens from your pick card it
+  appears without the `sheet` spring and without the `sheet-crest` pop; early release shows "Keep holding to remove" as
+  plain text (no `nudge` shake); on completion the sheet closes at once, `clear_pick` runs and the card shows "No pick
+  yet". No takeover, no sound.
+
+## 22. Not in this year (players who never got in)
+Prototype: `docs/ui-prototype/NotIn.dc.html`. Today (A2 on the design canvas) they get a normal countdown hero, a "Pay €10"
+card, fixtures that silently don't respond and a jinx picker.
+- **Who:** Round 1 is settled and their Round 1 `round_results.outcome` is `already_out` (no confirmed entry, or no Round 1
+  pick). Not the same as `out` (§17).
+- **Round screen, later rounds:** grey hero (stripes `#1a2140`/`#161c38`, hairline), a ticket-with-a-slash icon, "NOT IN
+  THIS YEAR" condensed 38/800, "You didn't have a confirmed €10 entry and a pick at the Round 1 lock. You can still follow
+  every round.", chips: pot, N still in, lock time. Under it, muted: "Think that's wrong? Message Eddie or Conn." Then
+  "Round N fixtures · VIEW ONLY" (cards as plain tiles, not buttons), the squad (rows open §20), the reveal after the lock.
+  **Hidden:** the pay card, pick card, jinx picker, Get back in, Still playing.
+- **Side game: decided 15 Oct (Eddie).** We will always get everybody in, so this path is a fallback only. If it still
+  happens: no prediction card and no jinx picker, and nothing server-side changes.
+- **Between the Round 1 lock and the settle:** a player with a pick and only a *claimed* entry sees, in place of the pay
+  card: "Payment pending. Eddie or Conn must confirm it before Sunday's settle, or your pick doesn't count." After the
+  Round 1 settle the pay card is gone for everyone.
+- **Round 1 page after the settle**, non-entrant with a pick: the pick card reads "NOT COUNTED · no confirmed entry"
+  (grey ring) instead of a result chip.
+- **Me:** status pill "Not in this year" (grey). **Table:** listed at the bottom at 50% opacity, "NOT IN THIS YEAR".
+- **Admin, Round 1 settle preview:** a warn panel above Confirm: "Not counted: Harvey (claim not confirmed), Rory (no pick)"
+  with a Confirm-payment button per unconfirmed claim, so nobody is dropped by accident.
+
+## 23. Back in after a buy-back
+Prototype: `docs/ui-prototype/BoughtBack.dc.html`. Today (B2 on the design canvas) a confirmed buy-back still shows "You're
+out", can't pick, isn't auto-picked, and the settle then fails. The server half is NEXT.md packet 7.
+- **When:** a confirmed `buyback` payment claimed before this round's lock, unused, pool stage (Rounds 2–4).
+- **Hero:** stripes with a gold glow (`radial rgba(242,178,38,.28)`, hairline `rgba(242,178,38,.35)`); a "BOUGHT BACK" pill
+  (ticket icon, gold on gold/18); "YOU'RE BACK IN" condensed 44/800; the cost in one line from `reentryBurns()` + used
+  teams ("Munster burned · Clermont used · pick like everyone else"); then "Picks lock in" + the countdown (62 px boxes,
+  32 px digits) and the pot / still in / picked chips.
+- **Below:** the normal pick flow: "No pick yet" card, fixtures with burned teams greyed, name struck through, "burned",
+  and used ones "used R1"; the prediction. **Hidden:** jinx picker, resurrection card, Get back in. The red card doesn't
+  replay.
+- **Squad:** they're listed, subtitle in gold "Conor · Bought back". **Me:** "Bought back" pill (today it's keyed on
+  `alive`, which is false until the settle: key it on this state too).
+- Claimed but not confirmed: B1 as built ("Claim sent. Back in once Eddie or Conn confirms.").

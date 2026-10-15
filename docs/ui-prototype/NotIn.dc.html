@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Not in this year (proposed)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050a1f}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;color:#f4f1e8;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif;font-weight:800}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cursor:pointer}
+p,h1,h2{margin:0}
+.pill{display:flex;flex-direction:column;align-items:center;justify-content:center;height:52px;min-width:58px;flex-shrink:0;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);box-sizing:border-box;padding:0 10px;color:#f4f1e8;text-decoration:none}
+.pill b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;line-height:1}
+.pill i{font-style:normal;font-size:10px;font-weight:600;opacity:.75;margin-top:3px}
+.pill.on{background:#f2b226;border-color:#f2b226;color:#0b1742}
+.chip{border-radius:999px;background:rgba(0,0,0,.3);padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.day{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.14em;color:#a8b3d1;text-transform:uppercase;margin-top:6px}
+.ko{font-size:12px;font-weight:600;color:#a8b3d1;display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.fx{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);align-items:center}
+.v{text-align:center;color:#a8b3d1;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px}
+.tc{height:96px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;box-sizing:border-box;min-width:0;width:100%}
+.tc img{width:40px;height:40px;object-fit:contain}
+.tn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;line-height:1.05}
+.row{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:11px 12px 11px 14px;border-top:1px solid rgba(255,255,255,.06);text-align:left}
+.av{width:38px;height:38px;flex-shrink:0;border-radius:50%;background:#233873;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px}
+.ok{border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;background:rgba(94,154,211,.18);color:#9cc3ec}
+.th{border-radius:999px;border:1px dashed rgba(255,255,255,.25);padding:4px 10px;font-size:12px;font-weight:600;color:#a8b3d1}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#a8b3d1;text-decoration:none;font-size:11px;font-weight:700}
+</style>
+</helmet>
+<div class="app" style="width: 390px; height: 1500px; position: relative; overflow: hidden; background: #050a1f">
+  <header style="padding: 16px 16px 10px">
+    <p style="font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a8b3d1">Last Man Standing</p>
+    <p class="disp" style="font-size: 21px; line-height: 1.05">Round 2</p>
+  </header>
+  <div style="padding: 0 16px 100px; display: flex; flex-direction: column; gap: 18px">
+    <nav aria-label="Rounds" style="display: flex; gap: 8px; overflow: hidden">
+      <a href="#" class="pill"><b>R1</b><i>16 Oct</i></a>
+      <a href="#" class="pill on"><b>R2</b><i>11 Dec</i></a>
+      <a href="#" class="pill"><b>R3</b><i>8 Jan</i></a>
+      <a href="#" class="pill"><b>R4</b><i>15 Jan</i></a>
+      <a href="#" class="pill"><b>R16</b><i>2 Apr</i></a>
+    </nav>
+
+    <section style="border-radius: 24px; padding: 24px 18px 18px; background: repeating-linear-gradient(90deg, #1a2140 0 12.5%, #161c38 12.5% 25%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#a8b3d1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 0 0-4V5H3z"></path><path d="M4 4l16 16"></path></svg>
+      <p class="disp" style="font-size: 38px; line-height: .95; text-transform: uppercase">Not in this year</p>
+      <p style="font-size: 14px; color: #cdd5ea; max-width: 290px">You didn’t have a confirmed €10 entry and a pick at the Round 1 lock. You can still follow every round.</p>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px">
+        <span class="chip">Pot <b style="color: #ffd166">€100</b></span>
+        <span class="chip">8 still in</span>
+        <span class="chip">Locks Fri 20:00</span>
+      </div>
+    </section>
+
+    <p style="font-size: 13px; color: #a8b3d1; text-align: center">Think that’s wrong? Message Eddie or Conn.</p>
+
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="font-size: 22px">Round 2 fixtures</h2>
+        <span style="font-size: 12px; font-weight: 700; color: #a8b3d1">VIEW ONLY</span>
+      </div>
+      <h2 class="day">Sat 12 Dec</h2>
+      <div>
+        <p class="ko">17:30 · Featured</p>
+        <div class="fx">
+          <div class="tc" style="background: #0053a1; color: #fff"><img src="../../public/crests/leinster.png" alt=""><span class="tn">Leinster</span></div>
+          <span class="v">v</span>
+          <div class="tc" style="background: #000050; color: #fff"><img src="../../public/crests/sale-sharks.png" alt=""><span class="tn">Sale</span></div>
+        </div>
+      </div>
+      <h2 class="day">Sun 13 Dec</h2>
+      <div>
+        <p class="ko">17:30</p>
+        <div class="fx">
+          <div class="tc" style="background: #c2e0f7; color: #000"><img src="../../public/crests/racing-92.png" alt=""><span class="tn">Racing 92</span></div>
+          <span class="v">v</span>
+          <div class="tc" style="background: #dd1a32; color: #fff"><img src="../../public/crests/gloucester-rugby.png" alt=""><span class="tn">Gloucester</span></div>
+        </div>
+      </div>
+      <p style="text-align: center; font-size: 13px; color: #a8b3d1">+ 10 more</p>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="font-size: 22px">The squad</h2>
+        <span style="font-size: 13px; font-weight: 600; color: #a8b3d1">3 of 8 picked</span>
+      </div>
+      <div style="border-radius: 20px; background: #14224f; overflow: hidden">
+        <button type="button" class="row" style="border-top: 0"><span class="av" style="box-shadow: 0 0 0 3px #00853f">B</span><span style="flex: 1"><span style="display: block; font-weight: 600">Bonzo</span><span style="display: block; font-size: 12px; color: #a8b3d1">Cboh · Paid</span></span><span class="ok">✓ Picked</span></button>
+        <button type="button" class="row"><span class="av" style="box-shadow: 0 0 0 3px #0053a1">C</span><span style="flex: 1"><span style="display: block; font-weight: 600">Conn</span><span style="display: block; font-size: 12px; color: #a8b3d1">Paid</span></span><span class="ok">✓ Picked</span></button>
+        <button type="button" class="row"><span class="av" style="box-shadow: 0 0 0 3px #f2b226">T</span><span style="flex: 1"><span style="display: block; font-weight: 600">The Tank</span><span style="display: block; font-size: 12px; color: #a8b3d1">Harvey · Paid</span></span><span class="th">Thinking…</span></button>
+      </div>
+    </section>
+  </div>
+
+  <nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 82px; padding-bottom: 16px; box-sizing: border-box; background: #0b1742; box-shadow: 0 -1px 0 rgba(255,255,255,.08); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+    <a href="#" class="tab" style="color: #f2b226">Round</a>
+    <a href="#" class="tab">Pools</a>
+    <a href="#" class="tab">Table</a>
+    <a href="#" class="tab">Me</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -252,8 +252,8 @@ const wkHhmm = new Intl.DateTimeFormat('en-IE', {
 })
 
 /**
- * Pick confirmation sheet (docs/UI-REDESIGN.md §18, prototype docs/ui-prototype/PickConfirm.dc.html). Nothing is
- * saved until the 0.6 s hold completes; "Pick another", the backdrop, Esc or a swipe down close it with no write.
+ * Pick confirmation sheet (docs/UI-REDESIGN.md §18 / §21). Nothing is saved (or cleared) until the 0.6 s hold
+ * completes; "Pick another" / "Keep {team}", the backdrop, Esc or a swipe down close it with no write.
  */
 export function PickSheet({
   team,
@@ -305,15 +305,16 @@ export function PickSheet({
     }
   }, [locked])
 
-  const start = () => {
+  const start = (remove: boolean) => {
     if (holding || locked) return
     vibrate() // light tick from the touch itself (§7: haptics only inside a user tap)
-    sfx.unlock()
+    if (!remove) sfx.unlock() // §21: remove has no sound
     holdAt.current = Date.now()
     clearTimeout(holdTimer.current)
     holdTimer.current = window.setTimeout(() => {
       setHolding(false)
-      onConfirm()
+      if (remove) onRemove()
+      else onConfirm()
     }, HOLD_MS)
     setHolding(true)
     setHint(false)
@@ -333,13 +334,19 @@ export function PickSheet({
   const home = match.home_team_id === team.id
   const [wk, time] = wkHhmm.format(new Date(match.kickoff_at)).split(' ')
   const fixture = `${teams.get(match.home_team_id)?.name} v ${teams.get(match.away_team_id)?.name} · ${wk.replace(',', '')} ${time} · ${home ? 'Home' : 'Away'}`
-  const label = locked ? 'Picks are locked' : holding ? 'Keep holding…' : `Hold to back ${team.name}`
+  const label = locked
+    ? 'Picks are locked'
+    : holding
+      ? 'Keep holding…'
+      : removing
+        ? `Hold to remove ${team.name}`
+        : `Hold to back ${team.name}`
 
   return (
     <div className="fixed inset-0 z-40">
       <button
         type="button"
-        aria-label="Pick another"
+        aria-label={removing ? `Keep ${team.name}` : 'Pick another'}
         onClick={onCancel}
         className="backdrop absolute inset-0 cursor-pointer bg-[rgba(3,7,24,.66)]"
       />
@@ -352,7 +359,7 @@ export function PickSheet({
           if (swipeY.current !== null && e.changedTouches[0].clientY - swipeY.current > 80) onCancel()
           swipeY.current = null
         }}
-        className="sheet absolute inset-x-0 bottom-0 mx-auto max-w-[480px] overflow-hidden rounded-t-[28px] bg-navy-800 shadow-[0_-20px_60px_rgba(0,0,0,.45)]"
+        className={`${removing ? '' : 'sheet '}absolute inset-x-0 bottom-0 mx-auto max-w-[480px] overflow-hidden rounded-t-[28px] bg-navy-800 shadow-[0_-20px_60px_rgba(0,0,0,.45)]`}
       >
         <div className="relative h-28 overflow-hidden" style={{ background: team.primary }}>
           <span
@@ -363,7 +370,9 @@ export function PickSheet({
           <span aria-hidden className="absolute top-2.5 left-1/2 -ml-5 h-[5px] w-10 rounded-[3px] bg-white/50" />
         </div>
         <div className="relative -mt-[52px] flex flex-col items-center gap-1.5 px-[22px] pb-[calc(26px+env(safe-area-inset-bottom))] text-center">
-          <span className="sheet-crest flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-[0_14px_34px_rgba(0,0,0,.35)]">
+          <span
+            className={`${removing ? '' : 'sheet-crest '}flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-[0_14px_34px_rgba(0,0,0,.35)]`}
+          >
             <img src={crestUrl(team)} alt="" className="h-[70px] w-[70px] object-contain" />
           </span>
           <span className="disp mt-2 text-[13px] font-bold tracking-[.2em] text-gold">
@@ -410,87 +419,73 @@ export function PickSheet({
             )}
           </div>
 
-          {removing ? (
-            <>
-              <button
-                type="button"
-                disabled={locked}
-                onClick={onRemove}
-                className="press h-14 w-full rounded-2xl border border-out-text/60 text-lg font-extrabold text-out-text disabled:opacity-40"
+          <button
+            type="button"
+            disabled={locked}
+            onPointerDown={(e) => {
+              e.preventDefault()
+              start(removing)
+            }}
+            onPointerUp={end}
+            onPointerLeave={end}
+            onPointerCancel={end}
+            onKeyDown={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              e.preventDefault()
+              if (!e.repeat) start(removing)
+            }}
+            onKeyUp={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              e.preventDefault()
+              end()
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-label={label}
+            className={`relative h-14 w-full cursor-pointer touch-none overflow-hidden rounded-2xl select-none [-webkit-touch-callout:none] disabled:cursor-default disabled:opacity-40 ${
+              removing
+                ? 'bg-[rgba(229,72,77,.2)] text-white shadow-[inset_0_0_0_1px_rgba(255,138,138,.55)]'
+                : `hold-btn bg-[rgba(242,178,38,.22)] text-navy-900 ${holding ? 'holding' : ''}`
+            }`}
+          >
+            {!removing && <span aria-hidden className="absolute inset-0 bg-gold opacity-55" />}
+            {holding && (
+              <span
+                aria-hidden
+                className={`hold-fill absolute inset-0 origin-left ${removing ? 'bg-[#e5484d]' : 'bg-gold'}`}
+                style={{ animationDuration: `${HOLD_MS}ms`, '--hold': `${HOLD_MS}ms` } as CSSProperties}
+              />
+            )}
+            <span className="disp relative flex items-center justify-center gap-2 text-xl font-extrabold tracking-[.02em]">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
               >
-                {locked ? 'Picks are locked' : 'Remove pick'}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="press mt-2 h-[50px] w-full rounded-2xl border border-white/[.18] text-base font-bold text-chalk"
-              >
-                Keep {team.name}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                disabled={locked}
-                onPointerDown={(e) => {
-                  e.preventDefault()
-                  start()
-                }}
-                onPointerUp={end}
-                onPointerLeave={end}
-                onPointerCancel={end}
-                onKeyDown={(e) => {
-                  if (e.key !== ' ' && e.key !== 'Enter') return
-                  e.preventDefault()
-                  if (!e.repeat) start()
-                }}
-                onKeyUp={(e) => {
-                  if (e.key !== ' ' && e.key !== 'Enter') return
-                  e.preventDefault()
-                  end()
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-                aria-label={locked ? 'Picks are locked' : `Hold to back ${team.name}`}
-                className={`hold-btn relative h-14 w-full cursor-pointer touch-none overflow-hidden rounded-2xl bg-[rgba(242,178,38,.22)] text-navy-900 select-none [-webkit-touch-callout:none] disabled:cursor-default disabled:opacity-40 ${holding ? 'holding' : ''}`}
-              >
-                <span aria-hidden className="absolute inset-0 bg-gold opacity-55" />
-                {holding && (
-                  <span
-                    aria-hidden
-                    className="hold-fill absolute inset-0 origin-left bg-gold"
-                    style={{ animationDuration: `${HOLD_MS}ms`, '--hold': `${HOLD_MS}ms` } as CSSProperties}
-                  />
-                )}
-                <span className="disp relative flex items-center justify-center gap-2 text-xl font-extrabold tracking-[.02em]">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M9 11V6a2 2 0 0 1 4 0v5" />
-                    <path d="M13 10.5V9a2 2 0 0 1 4 0v4.5" />
-                    <path d="M17 12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L4 16a2 2 0 0 1 3.2-2.4L9 15.5V11" />
-                  </svg>
-                  {label}
-                </span>
-              </button>
-              {hint && <span className="nudge text-[13px] font-semibold text-[#ffcf7a]">Keep holding to confirm</span>}
-              <button
-                type="button"
-                onClick={onCancel}
-                className="press mt-2 h-[50px] w-full rounded-2xl border border-white/[.18] text-base font-bold text-chalk"
-              >
-                Pick another
-              </button>
-            </>
+                <path d="M9 11V6a2 2 0 0 1 4 0v5" />
+                <path d="M13 10.5V9a2 2 0 0 1 4 0v4.5" />
+                <path d="M17 12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L4 16a2 2 0 0 1 3.2-2.4L9 15.5V11" />
+              </svg>
+              {label}
+            </span>
+          </button>
+          {hint && (
+            <span className={`${removing ? '' : 'nudge '}text-[13px] font-semibold text-[#ffcf7a]`}>
+              Keep holding to {removing ? 'remove' : 'confirm'}
+            </span>
           )}
+          <button
+            type="button"
+            onClick={onCancel}
+            className="press mt-2 h-[50px] w-full rounded-2xl border border-white/[.18] text-base font-bold text-chalk"
+          >
+            {removing ? `Keep ${team.name}` : 'Pick another'}
+          </button>
         </div>
       </section>
     </div>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Back in after a buy-back (proposed)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050a1f}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;color:#f4f1e8;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif;font-weight:800}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cursor:pointer}
+p,h1,h2{margin:0}
+.pill{display:flex;flex-direction:column;align-items:center;justify-content:center;height:52px;min-width:58px;flex-shrink:0;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);box-sizing:border-box;padding:0 10px;color:#f4f1e8;text-decoration:none}
+.pill b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;line-height:1}
+.pill i{font-style:normal;font-size:10px;font-weight:600;opacity:.75;margin-top:3px}
+.pill.on{background:#f2b226;border-color:#f2b226;color:#0b1742}
+.chip{border-radius:999px;background:rgba(0,0,0,.3);padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.cd{width:62px;border-radius:14px;background:rgba(0,0,0,.32);padding:9px 0 7px;text-align:center}
+.cd b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;line-height:1}
+.cd i{display:block;font-style:normal;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:4px}
+.day{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.14em;color:#a8b3d1;text-transform:uppercase;margin-top:6px}
+.ko{font-size:12px;font-weight:600;color:#a8b3d1;display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.fx{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);align-items:center}
+.v{text-align:center;color:#f2b226;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px}
+.tc{height:118px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;box-sizing:border-box;min-width:0;width:100%}
+.tc img{width:48px;height:48px;object-fit:contain}
+.tc.gone{opacity:.32;filter:grayscale(1);cursor:default}
+.tn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;line-height:1.05}
+.ts{font-size:11px;font-weight:600;opacity:.75}
+.feat{border-radius:999px;background:#f2b226;color:#0b1742;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:.08em}
+.row{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:11px 12px 11px 14px;border-top:1px solid rgba(255,255,255,.06);text-align:left}
+.av{width:38px;height:38px;flex-shrink:0;border-radius:50%;background:#233873;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px}
+.ok{border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;background:rgba(94,154,211,.18);color:#9cc3ec}
+.th{border-radius:999px;border:1px dashed rgba(255,255,255,.25);padding:4px 10px;font-size:12px;font-weight:600;color:#a8b3d1}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#a8b3d1;text-decoration:none;font-size:11px;font-weight:700}
+</style>
+</helmet>
+<div class="app" style="width: 390px; height: 1700px; position: relative; overflow: hidden; background: #050a1f">
+  <header style="padding: 16px 16px 10px">
+    <p style="font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a8b3d1">Last Man Standing</p>
+    <p class="disp" style="font-size: 21px; line-height: 1.05">Round 2</p>
+  </header>
+  <div style="padding: 0 16px 100px; display: flex; flex-direction: column; gap: 18px">
+    <nav aria-label="Rounds" style="display: flex; gap: 8px; overflow: hidden">
+      <a href="#" class="pill"><b>R1</b><i>16 Oct</i></a>
+      <a href="#" class="pill on"><b>R2</b><i>11 Dec</i></a>
+      <a href="#" class="pill"><b>R3</b><i>8 Jan</i></a>
+      <a href="#" class="pill"><b>R4</b><i>15 Jan</i></a>
+      <a href="#" class="pill"><b>R16</b><i>2 Apr</i></a>
+    </nav>
+
+    <section style="border-radius: 24px; padding: 20px 18px 18px; background: radial-gradient(120% 80% at 50% -20%, rgba(242,178,38,.28), transparent 60%), repeating-linear-gradient(90deg, #13235a 0 12.5%, #0f1d4c 12.5% 25%); box-shadow: inset 0 0 0 1px rgba(242,178,38,.35); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: rgba(242,178,38,.18); color: #ffd166; padding: 5px 12px; font-size: 12px; font-weight: 800; letter-spacing: .1em">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 0 0-4V5H3z"></path><path d="M13 5v2M13 11v2M13 17v0"></path></svg>
+        BOUGHT BACK
+      </span>
+      <p class="disp" style="font-size: 44px; line-height: .9; text-transform: uppercase">You’re back in</p>
+      <p style="font-size: 13px; color: #cdd5ea">Munster burned · Clermont used · pick like everyone else</p>
+      <p class="disp" style="font-size: 13px; font-weight: 700; letter-spacing: .22em; color: #f2b226; text-transform: uppercase; margin-top: 4px">Picks lock in</p>
+      <div role="timer" style="display: flex; gap: 8px">
+        <div class="cd"><b>56</b><i>days</i></div>
+        <div class="cd"><b>05</b><i>hrs</i></div>
+        <div class="cd"><b>44</b><i>min</i></div>
+        <div class="cd"><b>10</b><i>sec</i></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px">
+        <span class="chip">Pot <b style="color: #ffd166">€110</b></span>
+        <span class="chip">9 still in</span>
+        <span class="chip">3/9 picked</span>
+      </div>
+    </section>
+
+    <div style="display: flex; align-items: center; gap: 14px; border-radius: 20px; border: 2px dashed #f2b226; background: rgba(242,178,38,.07); padding: 16px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      <div>
+        <p class="disp" style="font-size: 22px">No pick yet</p>
+        <p style="font-size: 13px; color: #cdd5ea">No pick by the lock gets you a random team you haven’t used.</p>
+      </div>
+    </div>
+
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="day">Sat 12 Dec</h2>
+      <div>
+        <p class="ko">15:15</p>
+        <div class="fx">
+          <button type="button" class="tc" style="background: #094438; color: #fff"><img src="../../public/crests/leicester-tigers.png" alt=""><span class="tn">Leicester</span><span class="ts">Home</span></button>
+          <span class="v">v</span>
+          <button type="button" disabled class="tc gone" style="background: #fdea00; color: #000"><img src="../../public/crests/asm-clermont-auvergne.png" alt=""><span class="tn">Clermont</span><span class="ts">Away · used R1</span></button>
+        </div>
+      </div>
+      <div>
+        <p class="ko">17:30 <span class="feat">FEATURED</span></p>
+        <div class="fx">
+          <button type="button" class="tc" style="background: #0053a1; color: #fff"><img src="../../public/crests/leinster.png" alt=""><span class="tn">Leinster</span><span class="ts">Home</span></button>
+          <span class="v">v</span>
+          <button type="button" class="tc" style="background: #000050; color: #fff"><img src="../../public/crests/sale-sharks.png" alt=""><span class="tn">Sale</span><span class="ts">Away</span></button>
+        </div>
+      </div>
+      <div>
+        <p class="ko">20:00</p>
+        <div class="fx">
+          <button type="button" class="tc" style="background: #212e83; color: #fff"><img src="../../public/crests/bristol-bears.png" alt=""><span class="tn">Bristol</span><span class="ts">Home</span></button>
+          <span class="v">v</span>
+          <button type="button" disabled class="tc gone" style="background: #c8102e; color: #fff"><img src="../../public/crests/munster-rugby.png" alt=""><span class="tn" style="text-decoration: line-through">Munster</span><span class="ts">Away · burned</span></button>
+        </div>
+      </div>
+      <p style="text-align: center; font-size: 13px; color: #a8b3d1">+ 9 more</p>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="font-size: 22px">The squad</h2>
+        <span style="font-size: 13px; font-weight: 600; color: #a8b3d1">3 of 9 picked</span>
+      </div>
+      <div style="border-radius: 20px; background: #14224f; overflow: hidden">
+        <button type="button" class="row" style="border-top: 0"><span class="av" style="box-shadow: 0 0 0 3px #00853f">B</span><span style="flex: 1"><span style="display: block; font-weight: 600">Bonzo</span><span style="display: block; font-size: 12px; color: #a8b3d1">Cboh · Paid</span></span><span class="ok">✓ Picked</span></button>
+        <button type="button" class="row"><span class="av" style="box-shadow: 0 0 0 3px #713042">C</span><span style="flex: 1"><span style="display: block; font-weight: 600">Cono (you)</span><span style="display: block; font-size: 12px; color: #ffd166">Conor · Bought back</span></span><span class="th">Thinking…</span></button>
+        <button type="button" class="row"><span class="av" style="box-shadow: 0 0 0 3px #0053a1">C</span><span style="flex: 1"><span style="display: block; font-weight: 600">Conn</span><span style="display: block; font-size: 12px; color: #a8b3d1">Paid</span></span><span class="ok">✓ Picked</span></button>
+      </div>
+    </section>
+  </div>
+
+  <nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 82px; padding-bottom: 16px; box-sizing: border-box; background: #0b1742; box-shadow: 0 -1px 0 rgba(255,255,255,.08); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+    <a href="#" class="tab" style="color: #f2b226">Round</a>
+    <a href="#" class="tab">Pools</a>
+    <a href="#" class="tab">Table</a>
+    <a href="#" class="tab">Me</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

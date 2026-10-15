@@ -505,6 +505,7 @@ export default function RoundPage({ me }: { me: string }) {
           round1={round.number === 1}
           onCancel={endConfirm}
           onRemove={async () => {
+            thud() // still inside the touch, same as confirm
             setConfirming(null)
             setError(null)
             const { error } = await supabase.rpc('clear_pick', { p_round_id: round.id })

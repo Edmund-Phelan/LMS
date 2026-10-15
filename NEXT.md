@@ -1,4 +1,4 @@
-# NEXT.md — work packets (updated 15 Oct, midday)
+# NEXT.md — work packets (updated 15 Oct, afternoon)
 
 Read CLAUDE.md first; it is the spec. **Change from the spec: Round 1 runs on the app, not the Google Form.**
 Round 1 picks lock **Fri 16 Oct 2026, 8pm Irish time** (first kick-off). That is the deadline for packets 1–4.
@@ -76,6 +76,11 @@ In this order; each step shippable on its own:
    sheet; "Pick another" or hold-to-confirm "Hold to back Munster" (0.6 s). Takeover only after the confirm. Prototype:
    `docs/ui-prototype/PickConfirm.dc.html` (signed off). Do this before 1–7's polish if time is short: it changes how every
    pick is made on Friday.
+9. **Hold to remove your pick (Eddie, 15 Oct afternoon).** Spec `docs/UI-REDESIGN.md` §21, prototype
+   `docs/ui-prototype/RemoveHold.dc.html`. Same 0.6 s hold as backing a team, in red; the filling bar is the only
+   animation (no sheet spring, no crest pop, no nudge shake, no takeover). **Built 15 Oct** (`src/Pick.tsx`). Still to
+   do: on a real iPhone, tap your pick → hold → the red bar fills → the card shows "No pick yet"; letting go early
+   leaves the pick in place; refused after the lock.
 - **Done means:** on a real iPhone from the home-screen icon: log in, set up profile, pick (takeover + haptic), change pick,
   see the countdown and pot.
 
@@ -91,6 +96,21 @@ In this order; each step shippable on its own:
 - Run open → results → settle → unsettle → settle on a throwaway round (local Supabase via `supabase start`, not live).
   Fix whatever breaks. Then enter Round 1 results and settle it for real on Sunday night.
 - **Done means:** Round 1 settles; survivors, used teams and the stored tiebreak are right; Round 2 opens.
+
+## 5g. Not in this year (by the Round 1 settle, Sun 18 Oct night)
+Spec `docs/UI-REDESIGN.md` §22, prototype `docs/ui-prototype/NotIn.dc.html`. The first non-entrants appear the moment Round 1
+settles, and today they get a normal countdown, a pay card, dead fixtures and a jinx picker (their Round 1 outcome is
+`already_out`, which the Round screen doesn't handle; `loadKnockout` only looks for `out`).
+- **Admin first (needed for Sunday):** Round 1 settle preview lists who won't count and why (claim not confirmed / no pick),
+  with a Confirm button per unconfirmed claim.
+- Round screen "Not in this year" state; pay card copy between the Round 1 lock and settle; "NOT COUNTED" on their Round 1
+  pick card; Me pill; Table at the bottom, greyed.
+- **Decided 15 Oct (Eddie): we will always get everybody in.** Chase picks and confirm every entry before Sunday's
+  settle so nobody lands on this screen. The Not-in UI is a fallback if a pick or payment is still missing; hide
+  prediction and jinx there (no engine change — today a jinx from a non-entrant would still score). The admin preview
+  is how you catch that before you confirm the settle.
+- **Done means:** PGlite test: a Round 1 with one unconfirmed claim and one no-pick → the preview names both; after the
+  settle both see the Not-in screen in Round 2 with no pay card, pick, jinx or prediction.
 
 ---
 
@@ -135,11 +155,30 @@ In this order; each step shippable on its own:
    story shell + clash + outcome + prediction; the jinx cards can follow before Round 2 (no one is out until Round 1
    settles). Its "Done means" is in §19.
 
+5f. **Player profiles (Eddie, 15 Oct).** Spec `docs/UI-REDESIGN.md` §20, prototypes `docs/ui-prototype/Profile.dc.html`
+   (interactive) and `ProfileOut.dc.html`. Tap any Squad or Table row → a bottom sheet slides up: nickname + real name,
+   still in / out / bought back, paid, points, rank, exact scores, their road (locked rounds only) and their prediction
+   record. Squad rows also show the real name under a nickname. Read-only, no migration, no RLS change: safe to ship before
+   the Round 1 lock if packets 1–5 are done, otherwise next week.
+   **Done means:** tap Bonzo → the sheet slides up, points count up, tiles pop in; before a lock it shows no current pick
+   (test); swipe down / backdrop / X close it with the slide down; reduced motion = instant.
+
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
-7. **Re-entry plumbing:** `make_pick` and the lock job accept bought-back players; pick screen greys out `reentryBurns()` and
-   `make_pick` refuses them (Q8); resurrection RPC for Round 4 (out players, away teams, unused/unburned, not with a buy-back).
-   Someone out in Round 1 can buy back for Round 2, so the buy-back half is needed by 11 Dec.
+7. **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
+   prototype `docs/ui-prototype/BoughtBack.dc.html`. **Today a confirmed buy-back breaks the round:** `alive()` stays false
+   until the settle, so `make_pick` refuses them ("You are not in this round"), the lock job doesn't auto-pick them, they're
+   not in `round_pick_status`, the jinx picker still shows, and the settle then throws ("has no pick but has teams left", or
+   "is still in and can't jinx" if they jinxed).
+   - Server: one helper (e.g. `in_round(p, r)` = `alive()` OR a confirmed, unused buy-back claimed before this round's lock in
+     a pool round ≤ 4) used by `make_pick`, `auto_pick_locked_rounds`, `round_pick_status` and the jinx insert policy (a
+     player who's in can't jinx). `make_pick` and the pick screen refuse the `reentryBurns()` teams (Q8): decide whether the
+     burns are written when the buy-back is confirmed (admin RPC with the engine preview) or computed in SQL; engine and
+     DB must agree. Ask Eddie if it isn't clear.
+   - UI: the §23 "You're back in" screen, Squad "Bought back" subtitle, Me pill keyed on the new state.
+   - Resurrection RPC for Round 4 (out players, away teams, unused/unburned, not with a buy-back) as before.
+   - **Done means:** PGlite tests: confirmed buy-back → can pick, can't pick a burned team, the lock job auto-picks them
+     if they don't, can't jinx, Round 2 settles with them through or out; claimed-only → still out.
 8. **Round controls:** edit lock times, add/edit knockout fixtures, "who went through" field; knockout predictions allow draws (Q12).
    No changes once a round is locked.
 9. **CSV export:** one button after each settle downloads picks, results, payments and points (backup / disputes).
