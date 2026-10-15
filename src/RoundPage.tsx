@@ -11,7 +11,7 @@ import {
   type Round,
   type Team,
 } from './lib/supabase'
-import { loadPayments, PayEntry, PlayerList, type PaymentRow } from './Pay'
+import { loadPayments, PayEntry, PlayerList, potEur, type PaymentRow } from './Pay'
 import { FixtureList, Takeover, useThud } from './Pick'
 
 /** Lowest unsettled round. */
@@ -89,12 +89,56 @@ function useNow() {
   return now
 }
 
-function countdown(ms: number) {
-  const s = Math.floor(ms / 1000)
-  const d = Math.floor(s / 86400),
-    h = Math.floor((s % 86400) / 3600),
-    m = Math.floor((s % 3600) / 60)
-  return d ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s % 60}s`
+export function Hero({
+  round,
+  locked,
+  ms,
+  pot,
+  stillIn,
+}: {
+  round: Round
+  locked: boolean
+  ms: number
+  pot: number
+  stillIn: number
+}) {
+  return (
+    <header className="mb-6 overflow-hidden rounded-2xl bg-[#0f5132] bg-[repeating-linear-gradient(90deg,transparent_0_12.5%,rgba(0,0,0,.18)_12.5%_25%)] p-5 text-center text-[#f7f5ef]">
+      <p className="text-xs font-bold tracking-[0.2em] text-[#f2b226] uppercase">BBB Last Man Standing</p>
+      <h1 className="text-3xl font-black">{round.name}</h1>
+      {locked ? (
+        <p className="mt-3 text-lg font-bold">Picks locked {irishTime(round.lock_at)}</p>
+      ) : (
+        <>
+          <Countdown ms={ms} />
+          <p className="text-sm opacity-80">to the lock · {irishTime(round.lock_at)} Irish time</p>
+        </>
+      )}
+      <p className="mt-4 inline-block rounded-full bg-black/25 px-4 py-1 text-sm">
+        Pot <strong className="text-[#f2b226]">€{pot}</strong> · {stillIn} still in
+      </p>
+    </header>
+  )
+}
+
+function Countdown({ ms }: { ms: number }) {
+  const s = Math.max(0, Math.floor(ms / 1000))
+  const parts = [
+    [Math.floor(s / 86400), 'days'],
+    [Math.floor((s % 86400) / 3600), 'hrs'],
+    [Math.floor((s % 3600) / 60), 'min'],
+    [s % 60, 'sec'],
+  ] as const
+  return (
+    <div className="mt-3 flex justify-center gap-2" role="timer">
+      {parts.map(([n, unit]) => (
+        <div key={unit} className="w-16 rounded-lg bg-black/30 py-2">
+          <p className="text-3xl font-black tabular-nums">{String(n).padStart(2, '0')}</p>
+          <p className="text-[10px] tracking-widest uppercase opacity-75">{unit}</p>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default function RoundPage({ me }: { me: string }) {
@@ -169,16 +213,13 @@ export default function RoundPage({ me }: { me: string }) {
         </Link>
       </nav>
 
-      <h1 className="text-2xl font-bold">{round.name}</h1>
-      <p className="mb-4 text-gray-600">
-        {locked ? 'Locked' : 'Locks'} {irishTime(round.lock_at)} (Irish time)
-        {!locked && (
-          <>
-            {' '}
-            · <strong>{countdown(Date.parse(round.lock_at) - now)}</strong> to go
-          </>
-        )}
-      </p>
+      <Hero
+        round={round}
+        locked={locked}
+        ms={Date.parse(round.lock_at) - now}
+        pot={potEur(data.payments)}
+        stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+      />
       {error && (
         <p role="alert" className="mb-4 rounded bg-red-100 p-3 text-red-800">
           {error}
@@ -248,7 +289,7 @@ export default function RoundPage({ me }: { me: string }) {
           )}
         </>
       )}
-      <PlayerList players={players} payments={data.payments} name={name} />
+      <PlayerList players={players} payments={data.payments} alive={data.alive} name={name} />
     </main>
   )
 }

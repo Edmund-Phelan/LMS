@@ -74,19 +74,23 @@ export function PayEntry({
 export function PlayerList({
   players,
   payments,
+  alive,
   name,
 }: {
   players: Player[]
   payments: PaymentRow[]
+  alive: Map<string, boolean | null>
   name: (id: string) => string
 }) {
   return (
     <section className="mb-6">
-      <h2 className="mb-2 font-semibold">Players · pot €{potEur(payments)}</h2>
-      <ul className="flex flex-col gap-1">
+      <h2 className="mb-2 font-semibold">Who’s in</h2>
+      <ul className="flex flex-col divide-y divide-gray-200 rounded-xl border border-gray-200">
         {players.map((p) => (
-          <li key={p.id} className="flex justify-between">
-            {name(p.id)} <PaidBadge payments={payments} playerId={p.id} />
+          <li key={p.id} className="flex items-center gap-2 px-3 py-2">
+            <span className="flex-1">{name(p.id)}</span>
+            {alive.get(p.id) === false && <span className="text-sm font-bold text-red-600">OUT</span>}
+            <PaidBadge payments={payments} playerId={p.id} />
           </li>
         ))}
       </ul>
