@@ -24,7 +24,7 @@ export type Me = {
   avatar_url: string | null
   kit_colour: string | null
   is_admin: boolean
-  seen_elimination_round?: number | null
+  seen_recap_round?: number | null
 }
 
 export function Avatar({

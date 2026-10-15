@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { crestUrl, supabase, type Match, type Round, type Team } from './lib/supabase'
 import { koReason } from './live'
 
-// Knocked out (docs/UI-REDESIGN.md §17): the round that put me out, and the red-card overlay that plays once.
+// Knocked out (docs/UI-REDESIGN.md §17): the round that put me out, and the red-card moment (Replay on the out
+// screen). On open it plays as the recap's out card (Recap.tsx, §19).
 
 export type Knockout = {
   round: Round
@@ -49,28 +50,7 @@ export async function loadKnockout(me: string): Promise<Knockout | null> {
   }
 }
 
-/** App-level: the overlay plays once per elimination, on the first open after the settle. */
-export function EliminationOverlay({ me, seen }: { me: string; seen: number | null | undefined }) {
-  const { ko, dismiss } = useElimination(me, seen)
-  return <KnockedOut ko={ko} onDone={dismiss} />
-}
-
-/** Shown while `seen < round`, then stored on the player. */
-function useElimination(me: string, seen: number | null | undefined) {
-  const [ko, setKo] = useState<Knockout | null>(null)
-  const [done, setDone] = useState(false)
-  useEffect(() => {
-    loadKnockout(me).then(setKo)
-  }, [me])
-  const show = !!ko && !done && ko.round.number > (seen ?? 0)
-  const dismiss = () => {
-    setDone(true)
-    void supabase.from('players').update({ seen_elimination_round: ko!.round.number }).eq('id', me)
-  }
-  return { ko: show ? ko : null, dismiss }
-}
-
-/** Full-screen red card. Silent on its own (no tap yet); Replay plays the sound from its tap. Tap dismisses. */
+/** Full-screen red card for Replay, which plays the sound from its tap. Tap dismisses. */
 export function KnockedOut({ ko, onDone }: { ko: Knockout | null; onDone: () => void }) {
   const still = useReducedMotion()
   useEffect(() => {
