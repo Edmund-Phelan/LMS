@@ -48,7 +48,9 @@ type Data = {
   players: Player[]
   picks: Pick[] // own only before the lock (RLS), everyone's after
   used: Map<number, number> // team_id → round number it was used/burned in
-  alive: Map<string, boolean | null>
+  alive: Map<string, boolean | null> // in this round (round_status: a confirmed buy-back counts)
+  boughtBack: Set<string> // §23: in only by a pending buy-back
+  burned: Set<number> // my pending buy-back burns
   prediction: { home_score: number; away_score: number } | null
   predictions: { player_id: string; home_score: number; away_score: number }[]
   jinxes: { jinxer_id: string; target_id: string }[]
@@ -63,7 +65,7 @@ async function load(number: number, me: string): Promise<Data> {
   const { data: rounds } = await supabase.from('rounds').select('*').order('number').returns<Round[]>()
   const round = rounds?.find((r) => r.number === number) ?? null
   const rid = round?.id ?? -1
-  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, squad, result, ko] =
+  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, squad, result, ko, burned] =
     await Promise.all([
       supabase.from('teams').select('*').returns<Team[]>(),
       supabase.from('matches').select('*').eq('round_id', rid).order('kickoff_at').returns<Match[]>(),
@@ -81,7 +83,9 @@ async function load(number: number, me: string): Promise<Data> {
       supabase.rpc('round_pick_status', { r: rid }),
       supabase.from('round_results').select('round_id, outcome').eq('player_id', me),
       loadKnockout(me),
+      supabase.rpc('my_pending_burns', { r: rid }),
     ])
+  const st = (status.data ?? []) as { player_id: string; alive: boolean | null; bought_back: boolean }[]
   return {
     rounds: rounds ?? [],
     round,
@@ -92,9 +96,9 @@ async function load(number: number, me: string): Promise<Data> {
     used: new Map(
       ((used.data ?? []) as { team_id: number; round_number: number }[]).map((u) => [u.team_id, u.round_number]),
     ),
-    alive: new Map(
-      ((status.data ?? []) as { player_id: string; alive: boolean | null }[]).map((s) => [s.player_id, s.alive]),
-    ),
+    alive: new Map(st.map((s) => [s.player_id, s.alive])),
+    boughtBack: new Set(st.filter((s) => s.bought_back).map((s) => s.player_id)),
+    burned: new Set(((burned.data ?? []) as { team_id: number }[]).map((b) => b.team_id)),
     prediction: predictions.data?.find((p) => p.player_id === me) ?? null,
     predictions: predictions.data ?? [],
     jinxes: jinxes.data ?? [],
@@ -294,7 +298,63 @@ function NotInHero({ pot, stillIn, lock }: { pot: number; stillIn: number; lock:
   )
 }
 
-function Countdown({ ms }: { ms: number }) {
+/** §23: back in by a confirmed buy-back, before the lock. */
+function BackInHero({
+  cost,
+  ms,
+  pot,
+  stillIn,
+  picked,
+}: {
+  cost: string
+  ms: number
+  pot: number
+  stillIn: number
+  picked: { n: number; of: number }
+}) {
+  return (
+    <section className="stripes relative flex flex-col items-center gap-2.5 overflow-hidden rounded-3xl px-[18px] pt-5 pb-[18px] text-center shadow-[inset_0_0_0_1px_rgba(242,178,38,.35)]">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(242,178,38,.28),transparent_70%)]"
+      />
+      <span className="relative inline-flex items-center gap-1.5 rounded-full bg-gold/18 px-3 py-[5px] text-xs font-extrabold tracking-[.1em] text-gold">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 0 0-4V5H3z" />
+          <path d="M13 5v2M13 11v2M13 17v0" />
+        </svg>
+        BOUGHT BACK
+      </span>
+      <p className="disp relative text-[44px] leading-[.9] font-extrabold uppercase">You’re back in</p>
+      <p className="relative text-[13px] text-chalk-2">{cost}</p>
+      <p className="disp relative mt-1 text-[13px] font-bold tracking-[.22em] text-gold uppercase">Picks lock in</p>
+      <span className="relative">
+        <Countdown ms={ms} compact />
+      </span>
+      <div className="relative flex flex-wrap justify-center gap-2">
+        <Chip>
+          Pot <span className="shimmer font-extrabold">€{pot}</span>
+        </Chip>
+        <Chip>{stillIn} still in</Chip>
+        <Chip>
+          {picked.n}/{picked.of} picked
+        </Chip>
+      </div>
+    </section>
+  )
+}
+
+function Countdown({ ms, compact }: { ms: number; compact?: boolean }) {
   const s = Math.max(0, Math.floor(ms / 1000))
   const parts = [
     [Math.floor(s / 86400), 'days'],
@@ -309,10 +369,13 @@ function Countdown({ ms }: { ms: number }) {
       aria-label={`${parts.map(([n, u]) => `${n} ${u}`).join(' ')} to the lock`}
     >
       {parts.map(([n, unit]) => (
-        <div key={unit} className="w-[70px] overflow-hidden rounded-[14px] bg-black/32 pt-2.5 pb-2 text-center">
+        <div
+          key={unit}
+          className={`${compact ? 'w-[62px]' : 'w-[70px]'} overflow-hidden rounded-[14px] bg-black/32 pt-2.5 pb-2 text-center`}
+        >
           <p
             key={unit === 'sec' ? n : undefined}
-            className={`disp text-[38px] leading-none font-extrabold tabular-nums ${unit === 'sec' ? (s % 2 ? 'sec-a' : 'sec-b') : ''}`}
+            className={`disp ${compact ? 'text-[32px]' : 'text-[38px]'} leading-none font-extrabold tabular-nums ${unit === 'sec' ? (s % 2 ? 'sec-a' : 'sec-b') : ''}`}
           >
             {String(n).padStart(2, '0')}
           </p>
@@ -584,6 +647,18 @@ export default function RoundPage({ me }: { me: string }) {
               stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
               lock={locked ? 'Locked' : `Locks ${shortLock(round.lock_at)}`}
             />
+          ) : data.boughtBack.has(me) && !locked ? (
+            <BackInHero
+              cost={[
+                ...[...data.burned].map((t) => `${teams.get(t)?.name} burned`),
+                ...[...data.used.keys()].map((t) => `${teams.get(t)?.name} used`),
+                'pick like everyone else',
+              ].join(' · ')}
+              ms={Date.parse(round.lock_at) - now}
+              pot={potEur(data.payments)}
+              stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+              picked={{ n: data.squad.filter((s) => s.has_pick).length, of: data.squad.length }}
+            />
           ) : outView ? (
             <OutHero
               ko={data.ko!}
@@ -648,6 +723,7 @@ export default function RoundPage({ me }: { me: string }) {
               matches={matches}
               teams={teams}
               used={data.used}
+              burned={data.burned}
               picked={myPick?.team_id}
               featuredId={round.featured_match_id}
               locked={locked}
@@ -731,6 +807,7 @@ export default function RoundPage({ me }: { me: string }) {
             chipFor={chipFor}
             settled={!!round.settled_at}
             onOpen={setProfile}
+            boughtBack={data.boughtBack}
           />
         </div>
       </div>
@@ -886,6 +963,7 @@ function Squad({
   chipFor,
   settled,
   onOpen,
+  boughtBack,
 }: {
   squad: Data['squad']
   players: Player[]
@@ -897,6 +975,7 @@ function Squad({
   chipFor: (p?: Pick) => ReactNode
   settled: boolean
   onOpen: (p: Player) => void
+  boughtBack: Set<string>
 }) {
   const n = squad.filter((s) => s.has_pick).length
   const word = locked ? 'locked in' : 'picked'
@@ -940,6 +1019,8 @@ function Squad({
                     </span>
                     <span className="truncate">{team.name}</span>
                   </span>
+                ) : boughtBack.has(p.id) ? (
+                  <span className="block text-xs text-gold">{real}Bought back</span>
                 ) : (
                   <span className={`block text-xs ${paid === 'confirmed' ? 'text-muted' : 'text-warn'}`}>
                     {real}

@@ -168,7 +168,10 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
 
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
-7. **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
+7. **Built 15 Oct except the resurrection RPC** (migration `20261015170000_buyback_reentry.sql`, NOT yet applied to the
+   live project; test in `admin-flow.test.ts`). Burns are computed in SQL (`reentry_burns`, mirrors the engine; the test
+   checks they agree) and still written by the settle. Resurrection RPC for Round 4: still to do before 15 Jan.
+   **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
    prototype `docs/ui-prototype/BoughtBack.dc.html`. **Today a confirmed buy-back breaks the round:** `alive()` stays false
    until the settle, so `make_pick` refuses them ("You are not in this round"), the lock job doesn't auto-pick them, they're
    not in `round_pick_status`, the jinx picker still shows, and the settle then throws ("has no pick but has teams left", or
