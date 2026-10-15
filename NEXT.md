@@ -72,7 +72,7 @@ In this order; each step shippable on its own:
 5. Reveal at the lock: tap-to-flip cards, one per player.
 6. First login: photo (crop to circle), nickname, kit colour.
 7. iPhone "Add to Home Screen" 3-step guide on first visit in Safari.
-8. **Pick confirmation sheet (added 15 Oct, before the Round 1 lock):** spec `docs/UI-REDESIGN.md` §18. Tapping a team opens a
+8. ~~Pick confirmation sheet~~ **DONE 15 Oct (PR, `pick-confirm`); merged before the real-iPhone check: confirm the thud fires at the end of the hold (it runs from a 0.6 s timer, not the tap itself; if not, move it to release).** spec `docs/UI-REDESIGN.md` §18. Tapping a team opens a
    sheet; "Pick another" or hold-to-confirm "Hold to back Munster" (0.6 s). Takeover only after the confirm. Prototype:
    `docs/ui-prototype/PickConfirm.dc.html` (signed off). Do this before 1–7's polish if time is short: it changes how every
    pick is made on Friday.
