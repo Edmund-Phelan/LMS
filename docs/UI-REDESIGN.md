@@ -1,6 +1,6 @@
 # UI redesign: build spec (15 Oct 2026)
 
-Eddie signed this design off on 15 Oct. It replaces the "basic HTML" look with a dark pitch-green app shell, a bottom tab bar,
+Eddie signed this design off on 15 Oct. It replaces the "basic HTML" look with an Investec Champions Cup navy-and-gold app shell, a bottom tab bar,
 team takeovers with sound, a points table, a profile hub, a redesigned admin flow and a proper rules page.
 
 **Sources (read both before writing code):**
@@ -35,36 +35,46 @@ Suggested commit order (each one shippable): tokens + shell + tabs → Round scr
 
 ---
 
-## 1. Design tokens (`src/index.css`, Tailwind v4 `@theme`)
+## 1. Design tokens (`src/index.css`, Tailwind v4 `@theme`): Investec Champions Cup theme
+
+Eddie (15 Oct): the app takes the **Investec Champions Cup colours**: Investec navy as the ground, Investec blue as the
+secondary accent, Champions Cup star gold as the main accent. Colours only: **no Investec, EPCR or Champions Cup logos,
+wordmarks or zebra mascot** anywhere in the app (private app, and they're trademarks). The BBB tile stays our own mark.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `pitch-950` | `#050f0a` | behind the app (desktop margins) |
-| `pitch-900` | `#0a1f15` | app background, `theme-color` meta, manifest `background_color` |
-| `pitch-800` | `#11301f` | surfaces / cards |
-| `pitch-700` | `#173d28` | raised: step dots, inactive fills |
-| `pitch-600` | `#1c4630` | avatar fill (no photo) |
-| `stripe-a` / `stripe-b` | `#0f5132` / `#0c4529` | hero pitch stripes: `repeating-linear-gradient(90deg, a 0 12.5%, b 12.5% 25%)` + `radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,.18), transparent 60%)` on top |
+| `navy-950` | `#050a1f` | behind the app (desktop margins) |
+| `navy-900` | `#0b1742` | **Investec navy**: app background, `theme-color` meta, manifest `background_color`/`theme_color`, text on gold buttons |
+| `navy-800` | `#14224f` | surfaces / cards |
+| `navy-700` | `#1c2d63` | raised: step dots, inactive fills |
+| `navy-600` | `#233873` | avatar fill (no photo) |
+| `stripe-a` / `stripe-b` | `#13235a` / `#0f1d4c` | hero stripes: `repeating-linear-gradient(90deg, a 0 12.5%, b 12.5% 25%)` + `radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,.18), transparent 60%)` on top |
 | `chalk` | `#f4f1e8` | primary text |
-| `chalk-2` | `#dfe6e1` / `#cfd8d2` | body and secondary text |
-| `muted` | `#a9b8ae` | labels, captions |
-| `gold` | `#f2b226` (hover `#ffd166`) | the accent: current tab, picks, CTAs |
-| `in` / `in-text` | `#3ccf7a` / `#6fe3a1` | still in, picked, saved |
+| `chalk-2` | `#dde3f2` / `#cdd5ea` | body and secondary text |
+| `muted` | `#a8b3d1` | labels, captions |
+| `gold` | `#f2b226` (hover `#ffd166`) | **the accent**: current tab, your pick, CTAs, locked-in ring |
+| `blue` / `blue-text` | `#5e9ad3` / `#9cc3ec` | **Investec blue**: "Picked" chips, squad progress bar, admin has-picked badges, links/focus where gold would clash |
+| `in` / `in-text` | `#3ccf7a` / `#6fe3a1` | still in, saved, confirmed |
 | `out-text` | `#ff8a8a` | out, reject, sign out |
 | `warn` | `#ffb35c` | unpaid, OPEN rule |
 | hairline | `rgba(255,255,255,.06)` | card inset `box-shadow: inset 0 0 0 1px`, row dividers |
 | border | `rgba(255,255,255,.12–.16)` | outline buttons |
+| tab bar | `rgba(8,17,50,.92)` + `blur(16px)` | bottom bar |
+
+Wherever this spec or the prototypes say "pitch", read navy. The prototype files already use these values.
 
 - **Type:** display **Barlow Condensed** 600/700/800 (titles, numbers, team names); body **Barlow** 400–700. Add a Google
   Fonts `<link>` in `index.html` (or `@fontsource/barlow` + `@fontsource/barlow-condensed`). Numbers use `tabular-nums`.
 - **Radii:** big cards 20–24, fixture cards 18, buttons 12–16, chips 999.
-- Update `index.html` `theme-color` and the PWA manifest colours to `#0a1f15`.
+- Update `index.html` `theme-color`, the PWA manifest colours, the favicon/apple-touch-icon backgrounds and `og.png` to the
+  navy + gold scheme.
+- Team colours are untouched: fixture cards and takeovers keep each club's own colours on top of the navy.
 
 ## 2. App shell and navigation
 
 New `src/Shell.tsx` wraps every signed-in route except first-login profile setup.
 
-- **Top bar** (64 px + `env(safe-area-inset-top)`): a 36 px gold tile reading "BBB" (Barlow Condensed 800, pitch-900 text);
+- **Top bar** (64 px + `env(safe-area-inset-top)`): a 36 px gold tile reading "BBB" (Barlow Condensed 800, navy-900 text);
   eyebrow "LAST MAN STANDING" (12 px, letter-spacing .18em, muted); screen title (20 px/800); on the right a 44 px round
   **sound toggle** (speaker icon gold on a `rgba(242,178,38,.12)` fill when on; speaker-with-x in muted when off).
 - **Scroll area:** flex 1, `overflow-y: auto`, padding 8 16 24, scrollbar hidden. Scroll to the top on tab change.
@@ -75,7 +85,7 @@ New `src/Shell.tsx` wraps every signed-in route except first-login profile setup
 - **Pushed pages** (no tab bar, back chevron top-left, 44 px): `/me/edit` (the existing Profile form, restyled dark), `/rules`,
   `/admin/:n`. Back = `navigate(-1)`, falling back to `/me`. This fixes "Profile has no way back".
 - **Round switcher** (top of the Round tab, replaces the `← Round n →` links): a horizontal scroll row of pills, 58×52, radius
-  14: label (R1 R2 R3 R4 R16 QF SF Final, condensed 17/800) over the weekend date (10 px). Current: gold fill, pitch-900 text.
+  14: label (R1 R2 R3 R4 R16 QF SF Final, condensed 17/800) over the weekend date (10 px). Current: gold fill, navy-900 text.
   Others: `rgba(255,255,255,.04)` fill, 1 px border. Silent (no sound). A round that isn't open yet shows a dashed card: lock
   icon, round title and "Opens when Round N−1 is settled. Picks lock Fri DD Mon, 20:00." (knockouts: "Lock time set once
   kick-offs are announced").
@@ -119,7 +129,7 @@ New `src/Shell.tsx` wraps every signed-in route except first-login profile setup
   - `aria-label` "Pick Munster (home)" or "Your pick: Munster (home)"; `aria-pressed`.
 
 ### 3.4 Featured-match prediction (after the existing Raffle reveal)
-- Card (pitch-800, radius 24): title "Predict the featured match" + gold "EXACT = 5 PTS".
+- Card (navy-800, radius 24): title "Predict the featured match" + gold "EXACT = 5 PTS".
 - Two columns: crest in a 56 px white circle, team name, then **− [n] +** steppers: 36×44 buttons on a `rgba(255,255,255,.08)`
   fill, number condensed 40/800 tabular, clamp 0–99. This replaces the two text inputs.
 - Caption: "Right winner 1 · within 10 = 2 · within 5 = 3 · exact 5".
@@ -127,10 +137,10 @@ New `src/Shell.tsx` wraps every signed-in route except first-login profile setup
   after that returns it to the unsaved state. Saving plays a short whistle + small roar (§5). The steppers are silent.
 
 ### 3.5 The squad (bottom of the screen)
-- Title "The squad", right "X of Y picked"; a 6 px green progress bar (`width` transition .6 s).
+- Title "The squad", right "X of Y picked"; a 6 px Investec-blue progress bar (`width` transition .6 s).
 - One row per player in the round (11 in Round 1): Avatar (kit ring), name, a paid line ("Paid" muted, or "Entry not paid yet" in warn),
   and a chip on the right:
-  - before the lock: picked → green chip with a check, "Picked"; not picked → dashed outline "Thinking…".
+  - before the lock: picked → Investec-blue chip with a check, "Picked"; not picked → dashed outline "Thinking…".
   - after the lock: gold "Locked in" / dashed "No pick".
 - Footer: "Teams stay hidden until the lock, admins included. Then the cards flip."
 - **Never shows a team before the lock.** Data comes from `round_pick_status` (§8).
@@ -199,7 +209,7 @@ Auto-dismiss at 1.5 s; tap anywhere skips. With reduced motion: a still frame fo
 - **Your road:** one tile per round (R1–R4, then knockouts as they're added). Picked: tile in the team's card colours, crest in a
   white circle, short name. Not yet: dashed empty circle and "—". Your own current pick shows before the lock (only you see
   it). Header right: "X of 24 teams used" (+ "N burned" if any).
-- Settings list (pitch-800 card, rows 15 px padding, chevrons):
+- Settings list (navy-800 card, rows 15 px padding, chevrons):
   1. Edit photo, nickname and kit colour → `/me/edit`
   2. Crowd and whistle sounds: a 50×30 switch (green on, knob slides with a spring)
   3. Rules → `/rules`
@@ -227,7 +237,7 @@ A pushed page: back chevron, eyebrow "ADMIN" in gold, title "Round N", "Pot €X
   - *Payments:* "X of Y paid". Each claim is a gold-outlined row: avatar, "[name] says they've paid", "€10 entry · 2h ago · check
     Revolut", a 40 px ✕ reject button and a gold **Confirm** button. Confirm → whistle, then a green line "[name] confirmed. Paid
     mark is live for everyone."
-  - *Picks:* a wrapping grid of 11 avatars (6 per row, name under each), each with a green check badge if `has_pick` (from §8: no teams, admins included); "Teams are hidden
+  - *Picks:* a wrapping grid of 11 avatars (6 per row, name under each), each with a blue check badge if `has_pick` (from §8: no teams, admins included); "Teams are hidden
     from admins too until 20:00 Friday." Button **Copy WhatsApp nudge**: copies "LMS Round {n}: picks lock {Fri 8pm}. Still to
     pick: {names}." (Round 1 adds "No pick, no entry."), then shows green "Copied. Paste it in the group".
   - *Featured match:* drawn → both crests + "Drawn {time} · no re-draws". Not drawn → gold "Draw featured match" with

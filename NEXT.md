@@ -83,7 +83,7 @@ In this order; each step shippable on its own:
 
 ## After Round 1 (before the Round 2 lock, Fri 11 Dec 8pm)
 5b. **UI redesign: spec in `docs/UI-REDESIGN.md`** (signed off by Eddie 15 Oct; prototype screens in `docs/ui-prototype/`).
-   Dark pitch-green shell, bottom tabs (Round / Table / Me), round pills, takeover + synthesised whistle and crowd roar (no UI
+   Investec Champions Cup navy + gold theme (spec §1), bottom tabs (Round / Table / Me), round pills, takeover + synthesised whistle and crowd roar (no UI
    blips), "Your pick" only says "locked in" after the lock (gold ring), squad shows picked / not picked (new
    `round_pick_status` RPC, never a team), Table and Me screens (new `points_table` RPC), Rules page with points calculator,
    admin as Open → Locked → Results → Settle with hold-to-settle. Start after Round 1 settles. Update CLAUDE.md §7 sound line.
