@@ -268,3 +268,44 @@ describe('everything else', () => {
     ).rejects.toThrow(/row-level security/)
   })
 })
+
+describe('settle_round', () => {
+  const settle = (uid: string, results = everyone('through'), burns: unknown[] = []) =>
+    as(db, uid, 'select settle_round($1, $2, $3, $4)', [r2, [3, 1, 2], JSON.stringify(results), JSON.stringify(burns)])
+  const everyone = (outcome: string) =>
+    [EDDIE, BEN, OUTY].map((player_id) => ({
+      player_id,
+      outcome: player_id === OUTY ? 'already_out' : outcome,
+      prediction_points: 0,
+      exact_score: false,
+      jinx_points: 0,
+    }))
+
+  it('admins only, after the lock, once, in one go', async () => {
+    await expect(settle(EDDIE)).rejects.toThrow(/not locked yet/)
+    await lockNow(r2)
+    await expect(settle(BEN)).rejects.toThrow(/Only admins/)
+    await expect(settle(EDDIE, everyone('through').slice(1))).rejects.toThrow(/every player/)
+    await expect(
+      settle(EDDIE, everyone('through'), [{ player_id: OUTY, team_id: 999999, reason: 'buyback_penalty' }]),
+    ).rejects.toThrow()
+    expect((await db.query('select 1 from round_results where round_id = $1', [r2])).rows).toHaveLength(0)
+
+    const saracens = await team('saracens')
+    await settle(EDDIE, everyone('through'), [{ player_id: OUTY, team_id: saracens, reason: 'buyback_penalty' }])
+    expect((await db.query('select 1 from round_results where round_id = $1', [r2])).rows).toHaveLength(3)
+    expect((await db.query('select team_id from burned_teams where round_id = $1', [r2])).rows).toEqual([
+      { team_id: saracens },
+    ])
+    expect(
+      (await db.query('select tiebreak, settled_at is not null as settled from rounds where id = $1', [r2])).rows,
+    ).toEqual([{ tiebreak: [3, 1, 2], settled: true }])
+    await expect(settle(EDDIE)).rejects.toThrow(/already settled/)
+  })
+
+  it('settles rounds in order', async () => {
+    await db.query('update rounds set settled_at = null where id = $1', [r1])
+    await lockNow(r2)
+    await expect(settle(EDDIE)).rejects.toThrow(/earlier rounds/)
+  })
+})
