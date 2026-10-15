@@ -115,6 +115,7 @@ type Data = {
   outIn: number | null // round number I went out in, if I'm out now
   outRounds: Set<number> // round ids I went out in (§17: red road tile)
   boughtBack: boolean
+  notIn: boolean // §22
   table: Standing[]
   payments: PaymentRow[]
 }
@@ -144,6 +145,7 @@ async function load(me: string): Promise<Data> {
     boughtBack:
       mine?.alive === true &&
       (payments.data ?? []).some((p) => p.player_id === me && p.kind === 'buyback' && p.status === 'confirmed'),
+    notIn: (results.data ?? []).some((r) => r.round_id === rs[0]?.id && r.outcome === 'already_out'),
     table,
     payments: payments.data ?? [],
   }
@@ -190,7 +192,11 @@ export default function MePage({ me }: { me: Me }) {
               {me.is_admin && ' · Admin'}
             </p>
           </div>
-          {data.boughtBack ? (
+          {data.notIn ? (
+            <Pill colour="#a8b3d1" bg="rgba(255,255,255,.08)">
+              Not in this year
+            </Pill>
+          ) : data.boughtBack ? (
             <Pill colour="#f2b226" bg="rgba(242,178,38,.14)">
               Bought back
             </Pill>

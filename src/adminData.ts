@@ -212,3 +212,19 @@ export function runEngine(d: Data, draw: number[]) {
   return { ...s, winners: E.gameWinners(s.stillIn, round, table), draw }
 }
 export type Preview = ReturnType<typeof runEngine>
+
+/** §22: Round 1 players the preview leaves out, and why. `claim` = a picker's unconfirmed entry, confirmable here. */
+export function notCounted(d: Data, p: Preview) {
+  if (d.round.number !== 1) return []
+  return p.roundResults
+    .filter((r) => r.outcome === 'already_out')
+    .map((r) => {
+      const entry = d.paymentRows.find((x) => x.player_id === r.playerId && x.kind === 'entry')
+      const picked = d.roundPicks.some((x) => x.playerId === r.playerId)
+      return {
+        playerId: r.playerId,
+        reason: !picked ? 'no pick' : entry ? 'claim not confirmed' : 'not paid',
+        claim: picked && entry?.status === 'claimed' ? entry : undefined,
+      }
+    })
+}

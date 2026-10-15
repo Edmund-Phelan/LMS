@@ -5,17 +5,26 @@ import { loadTable, rankOf, type Standing } from './points'
 import { Avatar } from './Profile'
 import Shell, { Loading } from './Shell'
 
-type Data = { table: Standing[]; players: Map<string, Player>; pot: number; settled: boolean }
+type Data = { table: Standing[]; players: Map<string, Player>; pot: number; settled: boolean; notIn: Set<string> }
 
 async function load(): Promise<Data> {
-  const [table, players, payments, settled] = await Promise.all([
+  const [table, players, payments, settled, notIn] = await Promise.all([
     loadTable(),
     supabase.from('players').select('id, name, nickname, avatar_url, kit_colour').returns<Player[]>(),
     loadPayments(),
     supabase.from('rounds').select('id', { count: 'exact', head: true }).not('settled_at', 'is', null),
+    // §22: already_out in Round 1 = never got in
+    supabase
+      .from('round_results')
+      .select('player_id, rounds!inner(number)')
+      .eq('rounds.number', 1)
+      .eq('outcome', 'already_out'),
   ])
+  const out = new Set((notIn.data ?? []).map((r) => r.player_id as string))
   return {
-    table,
+    notIn: out,
+    // ponytail: stable sort keeps the points order within each group
+    table: [...table].sort((a, b) => Number(out.has(a.player_id)) - Number(out.has(b.player_id))),
     players: new Map((players.data ?? []).map((p) => [p.id, p])),
     pot: potEur(payments.data ?? []),
     settled: (settled.count ?? 0) > 0,
@@ -67,10 +76,11 @@ export default function TablePage({ me }: { me: string }) {
               const p = data.players.get(s.player_id)
               if (!p) return null
               const out = s.alive === false
+              const notIn = data.notIn.has(s.player_id)
               return (
                 <li
                   key={s.player_id}
-                  className={`${cols} items-center border-t border-white/6 px-3.5 py-3 ${s.player_id === me ? 'bg-gold/8' : ''}`}
+                  className={`${cols} items-center border-t border-white/6 px-3.5 py-3 ${s.player_id === me ? 'bg-gold/8' : ''} ${notIn ? 'opacity-50' : ''}`}
                 >
                   <span className={`disp text-xl font-extrabold ${rankOf(data.table, i) === 1 ? 'text-gold' : ''}`}>
                     {rankOf(data.table, i)}
@@ -82,8 +92,10 @@ export default function TablePage({ me }: { me: string }) {
                         {p.nickname || p.name}
                         {s.player_id === me && ' (you)'}
                       </span>
-                      <span className={`block text-[11px] font-bold ${out ? 'text-out-text' : 'text-in-text'}`}>
-                        {out ? 'OUT · IN THE STANDS' : 'STILL IN'}
+                      <span
+                        className={`block text-[11px] font-bold ${notIn ? 'text-muted' : out ? 'text-out-text' : 'text-in-text'}`}
+                      >
+                        {notIn ? 'NOT IN THIS YEAR' : out ? 'OUT · IN THE STANDS' : 'STILL IN'}
                       </span>
                     </span>
                   </span>

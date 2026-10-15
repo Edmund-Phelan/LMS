@@ -98,6 +98,8 @@ In this order; each step shippable on its own:
 - **Done means:** Round 1 settles; survivors, used teams and the stored tiebreak are right; Round 2 opens.
 
 ## 5g. Not in this year (by the Round 1 settle, Sun 18 Oct night)
+**Built 15 Oct** (admin `NotCounted` panel + `notCounted()` in `adminData.ts`; Round/Me/Table states). PGlite test in
+`admin-flow.test.ts`. Still to do: eyeball the admin panel at Sunday's preview.
 Spec `docs/UI-REDESIGN.md` §22, prototype `docs/ui-prototype/NotIn.dc.html`. The first non-entrants appear the moment Round 1
 settles, and today they get a normal countdown, a pay card, dead fixtures and a jinx picker (their Round 1 outcome is
 `already_out`, which the Round screen doesn't handle; `loadKnockout` only looks for `out`).

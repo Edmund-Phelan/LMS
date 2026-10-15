@@ -4,6 +4,7 @@ import * as E from './engine/engine'
 import {
   load,
   must,
+  notCounted,
   runEngine,
   settleArgs,
   shuffle,
@@ -116,7 +117,14 @@ export default function AdminPage() {
         )}
         {notice && <p className="pop rounded-[14px] bg-in/12 p-3 text-center font-bold text-in-text">{notice}</p>}
         {cur === 3 && (
-          <SettleStep key={round.settled_at ?? 'open'} {...names} number={number} reload={reload} notify={setNotice} />
+          <SettleStep
+            // A payment confirmed from the preview remounts it: a fresh preview and draw on the new data.
+            key={`${round.settled_at ?? 'open'}-${data.paymentRows.filter((p) => p.status === 'confirmed').length}`}
+            {...names}
+            number={number}
+            reload={reload}
+            notify={setNotice}
+          />
         )}
       </div>
       <nav className="mt-6 flex justify-between text-sm font-semibold text-muted">
@@ -1055,6 +1063,7 @@ function SettleStep({
             burns={preview.newBurnedTeams}
             burnOrder={preview.burnOrder}
           />
+          <NotCounted data={data} name={name} preview={preview} reload={reload} />
           <p className="text-xs text-muted">
             Featured match points are written at the same time. Settle checks every picked team’s match has a result.
           </p>
@@ -1066,5 +1075,50 @@ function SettleStep({
         </>
       )}
     </>
+  )
+}
+
+/** §22: before the Round 1 settle, who won't count and why, so nobody is dropped by accident. */
+function NotCounted({
+  data,
+  name,
+  preview,
+  reload,
+}: Pick<Names, 'data' | 'name'> & { preview: Preview; reload: () => Promise<void> }) {
+  const [error, setError] = useState<string | null>(null)
+  const rows = notCounted(data, preview)
+  if (!rows.length) return null
+  return (
+    <section className="flex flex-col gap-2.5 rounded-[18px] bg-warn/10 p-3.5 shadow-[inset_0_0_0_1px_rgba(255,179,92,.35)]">
+      <p className="font-bold text-warn">
+        Not counted: {rows.map((r) => `${name(r.playerId)} (${r.reason})`).join(', ')}
+      </p>
+      {rows
+        .filter((r) => r.claim)
+        .map((r) => (
+          <div key={r.playerId} className="flex items-center gap-2.5">
+            <span className="min-w-0 flex-1 text-sm text-chalk-2">
+              {name(r.playerId)} says they’ve paid · check Revolut
+            </span>
+            <button
+              type="button"
+              onClick={async () => {
+                setError(null)
+                sfx.confirmPayment()
+                const { error } = await supabase.rpc('confirm_payment', { p_id: r.claim!.id })
+                if (error) setError(error.message)
+                await reload()
+              }}
+              className="press h-10 shrink-0 rounded-xl bg-gold px-3.5 font-extrabold text-navy-900"
+            >
+              Confirm
+            </button>
+          </div>
+        ))}
+      {rows.some((r) => r.reason === 'not paid') && (
+        <p className="text-xs text-muted">Paid but never claimed? Mark them paid on the Open step.</p>
+      )}
+      {error && <p className="text-sm text-out-text">{error}</p>}
+    </section>
   )
 }

@@ -54,6 +54,7 @@ type Data = {
   payments: PaymentRow[]
   squad: { player_id: string; has_pick: boolean }[] // round_pick_status: never a team
   myOutcome: string | null // my round_results row for this round, once settled
+  notIn: boolean // §22: Round 1 settled and I was already_out in it (never got in)
   ko: Knockout | null // my latest elimination
 }
 
@@ -77,7 +78,7 @@ async function load(number: number, me: string): Promise<Data> {
       supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', rid),
       loadPayments(),
       supabase.rpc('round_pick_status', { r: rid }),
-      supabase.from('round_results').select('outcome').eq('round_id', rid).eq('player_id', me).maybeSingle(),
+      supabase.from('round_results').select('round_id, outcome').eq('player_id', me),
       loadKnockout(me),
     ])
   return {
@@ -98,7 +99,8 @@ async function load(number: number, me: string): Promise<Data> {
     jinxes: jinxes.data ?? [],
     payments: payments.data ?? [],
     squad: (squad.data ?? []) as Data['squad'],
-    myOutcome: result.data?.outcome ?? null,
+    myOutcome: result.data?.find((r) => r.round_id === rid)?.outcome ?? null,
+    notIn: result.data?.some((r) => r.round_id === rounds?.[0]?.id && r.outcome === 'already_out') ?? false,
     ko,
   }
 }
@@ -252,6 +254,45 @@ function Hero({
   )
 }
 
+/** "Fri 20:00" */
+const shortLock = (iso: string) => kickoffFmt.format(new Date(iso)).replace(',', '')
+
+/** §22: never got in (no confirmed entry and pick at the Round 1 lock). */
+function NotInHero({ pot, stillIn, lock }: { pot: number; stillIn: number; lock: string }) {
+  return (
+    <>
+      <section className="hairline flex flex-col items-center gap-2.5 rounded-3xl bg-[repeating-linear-gradient(90deg,#1a2140_0_12.5%,#161c38_12.5%_25%)] px-[18px] pt-6 pb-[18px] text-center">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#a8b3d1"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 0 0-4V5H3z" />
+          <path d="M4 4l16 16" />
+        </svg>
+        <p className="disp text-[38px] leading-[.95] font-extrabold uppercase">Not in this year</p>
+        <p className="max-w-[290px] text-sm text-chalk-2">
+          You didn’t have a confirmed €10 entry and a pick at the Round 1 lock. You can still follow every round.
+        </p>
+        <div className="mt-1 flex flex-wrap justify-center gap-2">
+          <Chip>
+            Pot <span className="shimmer font-extrabold">€{pot}</span>
+          </Chip>
+          <Chip>{stillIn} still in</Chip>
+          <Chip>{lock}</Chip>
+        </div>
+      </section>
+      <p className="-mt-2 text-center text-sm text-muted">Think that’s wrong? Message Eddie or Conn.</p>
+    </>
+  )
+}
+
 function Countdown({ ms }: { ms: number }) {
   const s = Math.max(0, Math.floor(ms / 1000))
   const parts = [
@@ -289,6 +330,7 @@ function MyPick({
   round1,
   chip,
   knockedOut,
+  notCounted,
   onReplay,
 }: {
   team?: Team
@@ -297,6 +339,7 @@ function MyPick({
   round1: boolean
   chip?: ReactNode
   knockedOut?: string // §17: "Munster 20–20 Racing 92 · a draw is a loss"
+  notCounted?: boolean // §22: Round 1 pick without a confirmed entry
   onReplay: () => void
 }) {
   if (!team)
@@ -335,11 +378,13 @@ function MyPick({
       style={{
         background: team.primary,
         color: team.text,
-        boxShadow: knockedOut
-          ? '0 0 0 3px #e5484d, 0 0 34px rgba(229,72,77,.4)'
-          : locked
-            ? '0 0 0 3px #f2b226, 0 0 34px rgba(242,178,38,.45)'
-            : 'none',
+        boxShadow: notCounted
+          ? '0 0 0 3px #6f7ba0'
+          : knockedOut
+            ? '0 0 0 3px #e5484d, 0 0 34px rgba(229,72,77,.4)'
+            : locked
+              ? '0 0 0 3px #f2b226, 0 0 34px rgba(242,178,38,.45)'
+              : 'none',
       }}
     >
       <span
@@ -352,15 +397,15 @@ function MyPick({
       </span>
       <span className="relative min-w-0 flex-1">
         <span className="flex items-center gap-[5px] text-[11px] font-bold tracking-[.16em] uppercase opacity-85">
-          {locked && !knockedOut && Icon.lock(12, 3)}
-          {knockedOut ? 'Knocked out' : locked ? 'Locked in' : 'Your pick'}
+          {locked && !knockedOut && !notCounted && Icon.lock(12, 3)}
+          {notCounted ? 'Not counted' : knockedOut ? 'Knocked out' : locked ? 'Locked in' : 'Your pick'}
         </span>
         <span className="disp block text-[26px] leading-[1.05] font-extrabold">{team.name}</span>
         <span className="block text-xs opacity-80">
-          {knockedOut ??
+          {(notCounted ? 'No confirmed entry' : knockedOut) ??
             (locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock · tap to remove')}
         </span>
-        {locked && chip && !knockedOut && <span className="mt-2 block">{chip}</span>}
+        {locked && chip && !knockedOut && !notCounted && <span className="mt-2 block">{chip}</span>}
       </span>
     </button>
   )
@@ -530,7 +575,13 @@ export default function RoundPage({ me }: { me: string }) {
       <div className="screen flex flex-col gap-[18px]">
         <RoundPills current={number} />
         <div className="stagger flex flex-col gap-[18px]">
-          {outView ? (
+          {data.notIn && round.number > 1 ? (
+            <NotInHero
+              pot={potEur(data.payments)}
+              stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+              lock={locked ? 'Locked' : `Locks ${shortLock(round.lock_at)}`}
+            />
+          ) : outView ? (
             <OutHero
               ko={data.ko!}
               stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
@@ -555,7 +606,18 @@ export default function RoundPage({ me }: { me: string }) {
               {error}
             </p>
           )}
-          <PayEntry me={me} payments={data.payments} run={run} />
+          {now < Date.parse(data.rounds[0].lock_at) ? (
+            <PayEntry me={me} payments={data.payments} run={run} />
+          ) : (
+            // §22: between the Round 1 lock and its settle; after the settle the pay card is gone for everyone.
+            !data.rounds[0].settled_at &&
+            myPick &&
+            entryOf(data.payments, me)?.status === 'claimed' && (
+              <p className="rounded-[20px] bg-navy-800 p-4 text-sm text-warn shadow-[inset_0_0_0_1px_rgba(255,179,92,.35)]">
+                Payment pending. Eddie or Conn must confirm it before Sunday’s settle, or your pick doesn’t count.
+              </p>
+            )
+          )}
           {outView && (
             <GetBackIn me={me} ko={data.ko!} round={round} teams={teams} payments={data.payments} now={now} run={run} />
           )}
@@ -568,6 +630,7 @@ export default function RoundPage({ me }: { me: string }) {
               round1={round.number === 1}
               chip={chipFor(myPick)}
               knockedOut={knockedOut}
+              notCounted={data.notIn && round.number === 1}
               onReplay={() => {
                 if (!myPick) return
                 // Before the lock, tapping your pick offers to remove it (Eddie, 15 Oct); after, it replays the takeover.
@@ -595,6 +658,11 @@ export default function RoundPage({ me }: { me: string }) {
               }}
             />
           )}
+          {data.notIn && round.number > 1 && (
+            <h2 className="disp text-[15px] font-bold tracking-[.14em] text-muted uppercase">
+              Round {round.number} fixtures · view only
+            </h2>
+          )}
           {myAlive !== true && (
             <FixtureList
               matches={matches}
@@ -606,7 +674,7 @@ export default function RoundPage({ me }: { me: string }) {
               now={now}
             />
           )}
-          {myAlive === false && !locked && (
+          {myAlive === false && !locked && !data.notIn && (
             <JinxPicker
               current={data.jinxes.find((j) => j.jinxer_id === me)?.target_id}
               survivors={players.filter((p) => data.alive.get(p.id) === true)}
@@ -624,10 +692,10 @@ export default function RoundPage({ me }: { me: string }) {
           )}
 
           {outView && !locked && <StillPlaying me={me} round={round} drawn={!!featured} />}
-          {!locked && !featured && !outView && (
+          {!locked && !featured && !outView && !data.notIn && (
             <p className="text-center text-sm text-muted">Featured match not drawn yet.</p>
           )}
-          {!locked && featured && (
+          {!locked && featured && !data.notIn && (
             <Raffle roundId={round.id} featured={featured} matches={matches} teams={teams}>
               <Prediction
                 key={JSON.stringify(data.prediction)}

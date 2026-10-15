@@ -151,6 +151,14 @@ it('Round 1: pay, pick, lock, results, settle, unsettle, correct, settle again; 
   await score('connacht', 17, 17) // Saracens draw: out (draw = loss)
   await score('munster-rugby', 10, 20) // Munster lose at home
 
+  // §22: the preview names who won't count, with Skint's claim confirmable from there.
+  const d1 = await load(1)
+  const nc = A.notCounted(d1, A.runEngine(d1, A.shuffle([...d1.teams.keys()])))
+  expect(nc.map(({ playerId, reason, claim }) => [playerId, reason, claim?.player_id])).toEqual([
+    [NOPICK, 'no pick', undefined],
+    [SKINT, 'claim not confirmed', SKINT],
+  ])
+
   await settle(1)
   expect(await outcomes(r1)).toEqual({
     [EDDIE]: 'through',
@@ -189,6 +197,17 @@ it('Round 1: pay, pick, lock, results, settle, unsettle, correct, settle again; 
   expect(await outcomes(r1)).toMatchObject({ [BEN]: 'through', [CONN]: 'out', [SKINT]: 'already_out' })
   expect((await db.query('select tiebreak from rounds where id = $1', [r1])).rows[0]).toEqual({ tiebreak: again.draw })
   expect(again.stillIn.sort()).toEqual([BEN, EDDIE, MOSSY].sort())
+
+  // §22: both see "Not in this year" in Round 2, keyed on their own Round 1 already_out, and they're not in the squad.
+  for (const uid of [SKINT, NOPICK]) {
+    expect(
+      await as(db, uid, 'select outcome from round_results where round_id = $1 and player_id = $2', [r1, uid]),
+    ).toEqual([{ outcome: 'already_out' }])
+    expect(await as(db, uid, 'select alive($1, $2) as a', [uid, r2])).toEqual([{ a: false }])
+  }
+  expect(
+    (await as<{ player_id: string }>(db, SKINT, 'select * from round_pick_status($1)', [r2])).map((r) => r.player_id),
+  ).not.toContain(SKINT)
 
   // Round 2: open panel runs on the settled history, and Ben is back in.
   const d2 = await load(2)
