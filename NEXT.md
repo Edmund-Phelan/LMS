@@ -12,10 +12,16 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
 ## Before Friday — Eddie (not Claude Code)
 - Login emails: done (Gmail SMTP, 8-digit code), 15 Oct.
 - Players (11, from Eddie 15 Oct): **Eddie** (admin, the owner), **Conn** (admin), Cboh, Kevin, Conor, Ed, Harvey, Rory, Eoin,
-  Mark, Michael. Eddie and Ed are two different people. Claude Code creates the auth users and player rows via the Supabase MCP;
-  **still needed from Eddie: each player's email** (nicknames are set by each player at first login, so use the name above as
-  `name` and leave `nickname` null). Any player row that already exists (e.g. Eddie's test row "ed") must be reconciled, not
-  duplicated: ask Eddie which email is whose before touching it.
+  Mark, Michael. Eddie and Ed are two different people. **Done 15 Oct:** all 11 auth users + player rows exist (Eddie's row kept
+  as is; the other 10 have `name` set, `nickname` null, Conn admin). The 10 have placeholder emails `<name>@pending.invalid` and
+  can't sign in until swapped. **Still needed from Eddie: each player's real email.** Swap one (via the Supabase MCP, never in a
+  committed file — the repo is public):
+  ```sql
+  update auth.users set email = 'real@x.com' where email = 'conn@pending.invalid';
+  update auth.identities set identity_data = identity_data || jsonb_build_object('email','real@x.com')
+   where provider = 'email' and identity_data->>'email' = 'conn@pending.invalid';
+  ```
+  Then test a code sign-in with that player.
 - **Decided 15 Oct: the side game starts in Round 1.** Every player predicts the score of the Round 1 featured match
   (Gloucester v Bordeaux-Bègles, already drawn) before the lock, and Round 1 settles prediction points like any other round.
   The engine already scores any round with a featured match; CLAUDE.md rule 13 and the rules doc are updated to say Round 1.
