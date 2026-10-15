@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BBB LMS · pick confirmation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050a1f}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif}
+.scroll{scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+button{font:inherit;color:inherit}
+.screen{animation:screenIn .34s cubic-bezier(.2,.8,.2,1) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.stagger>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.stagger>*:nth-child(1){animation-delay:.03s}.stagger>*:nth-child(2){animation-delay:.07s}.stagger>*:nth-child(3){animation-delay:.11s}.stagger>*:nth-child(4){animation-delay:.15s}.stagger>*:nth-child(5){animation-delay:.19s}.stagger>*:nth-child(6){animation-delay:.23s}.stagger>*:nth-child(7){animation-delay:.27s}.stagger>*:nth-child(8){animation-delay:.31s}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+.card{position:relative;transition:transform .22s cubic-bezier(.3,1.5,.5,1),opacity .3s,box-shadow .3s,filter .3s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card:hover{transform:translateY(-2px)}
+.card:active{transform:scale(.93)}
+.card.dim{opacity:.55;filter:saturate(.7)}
+.card.picked{box-shadow:0 0 0 3px #f2b226,0 12px 34px rgba(242,178,38,.38);transform:scale(1.03)}
+.pop{animation:pop .45s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.press{transition:transform .15s cubic-bezier(.3,1.5,.5,1),background .2s;cursor:pointer}
+.press:active{transform:scale(.94)}
+.tab{transition:color .2s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tab-ind{animation:grow .35s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,178,38,.45)}50%{box-shadow:0 0 0 8px rgba(242,178,38,0)}}
+.sec-a{animation:tickA .5s cubic-bezier(.2,.8,.2,1)}
+.sec-b{animation:tickB .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes tickA{from{transform:translateY(-40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes tickB{from{transform:translateY(-40%);opacity:0}to{transform:none;opacity:1}}
+.tk{animation:wipe .5s cubic-bezier(.7,0,.2,1) both}
+@keyframes wipe{from{clip-path:circle(0% at 50% 60%)}to{clip-path:circle(150% at 50% 60%)}}
+.tk-stripe{animation:sweep .9s cubic-bezier(.6,0,.2,1) both}
+@keyframes sweep{from{transform:translateX(-130%) rotate(-14deg)}to{transform:translateX(130%) rotate(-14deg)}}
+.tk-crest{animation:drop .75s cubic-bezier(.3,1.45,.5,1) .18s both}
+@keyframes drop{from{transform:translateY(-460px) scale(1.5) rotate(-18deg)}to{transform:none}}
+.tk-name{animation:slam .5s cubic-bezier(.2,1.5,.4,1) .5s both}
+@keyframes slam{from{opacity:0;transform:scale(2.4)}to{opacity:1;transform:none}}
+.tk-shake{animation:shake .32s ease-out .62s both}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
+.tk-sub{animation:fadeUp .4s ease-out .8s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:.85;transform:none}}
+.confetti{animation:burst 1s cubic-bezier(.1,.7,.3,1) .55s both}
+@keyframes burst{from{transform:translate(0,0) scale(.4);opacity:1}to{transform:var(--to) scale(1);opacity:0}}
+.shimmer{background:linear-gradient(100deg,#f2b226 30%,#fff2c4 50%,#f2b226 70%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 3.5s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-200% 0}}
+.switch{transition:background .25s}
+.knob{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.card.lost{opacity:.4;filter:grayscale(.7)}
+.live-dot{animation:liveDot 1.2s ease-in-out infinite}
+@keyframes liveDot{0%,100%{opacity:1}50%{opacity:.35}}
+.ko{animation:koIn .35s ease-out both}
+@keyframes koIn{from{opacity:0}to{opacity:1}}
+.ko-card{animation:koCard .6s cubic-bezier(.3,1.4,.5,1) .1s both}
+@keyframes koCard{from{transform:translateY(-520px) rotate(-38deg) scale(1.7)}to{transform:rotate(-8deg)}}
+.ko-title{animation:slam .5s cubic-bezier(.2,1.5,.4,1) .55s both}
+.ko-shake{animation:shake .35s ease-out .62s both}
+.ko-sub{animation:fadeUp .4s ease-out .9s both}
+.ko-sub2{animation:fadeUp .4s ease-out 1.1s both}
+.backdrop{animation:koIn .25s ease-out both}
+.sheet{animation:sheetUp .34s cubic-bezier(.3,1.25,.5,1) both}
+@keyframes sheetUp{from{transform:translateY(105%)}to{transform:none}}
+.sheet-crest{animation:pop .45s cubic-bezier(.3,1.7,.5,1) .12s both}
+.hold-fill{animation-name:holdFill;animation-timing-function:linear;animation-fill-mode:both}
+@keyframes holdFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hold-btn{transition:transform .15s cubic-bezier(.3,1.5,.5,1)}
+.hold-btn.holding{transform:scale(.97)}
+.nudge{animation:nudge .35s ease-out both}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}.hold-fill{animation-duration:var(--hold)!important}}
+</style>
+</helmet>
+
+<div class="app" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0b1742; color: #f4f1e8; display: flex; flex-direction: column; border-radius: 40px">
+
+  <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 14px 20px 0; box-sizing: border-box">
+    <div class="disp" style="width: 36px; height: 36px; border-radius: 10px; background: #f2b226; color: #0b1742; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px">BBB</div>
+    <div style="flex: 1; min-width: 0">
+      <p class="disp" style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a8b3d1">Last Man Standing</p>
+      <p class="disp" style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.05">Round 1</p>
+    </div>
+    <button type="button" class="press" onClick="{{toggleSound}}" aria-label="{{soundLabel}}" aria-pressed="{{sound}}" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,.12); background: transparent; display: flex; align-items: center; justify-content: center">
+      <sc-if value="{{sound}}" hint-placeholder-val="{{true}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></svg>
+      </sc-if>
+      <sc-if value="{{soundOff}}" hint-placeholder-val="{{false}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8b3d1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="m22 9-6 6"></path><path d="m16 9 6 6"></path></svg>
+      </sc-if>
+    </button>
+  </header>
+
+  <main class="scroll" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 16px 24px; box-sizing: border-box">
+    <div class="screen" style="display: flex; flex-direction: column; gap: 18px">
+
+      <!-- Your pick -->
+      <sc-if value="{{hasPick}}" hint-placeholder-val="{{false}}">
+        <section style="position: relative; overflow: hidden; border-radius: 24px; padding: 18px; background: {{mine.primary}}; color: {{mine.text}}; display: flex; align-items: center; gap: 14px">
+          <span aria-hidden="true" style="position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 70px; background: {{mine.secondary}}; opacity: .18"></span>
+          <span style="width: 52px; height: 52px; border-radius: 26px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative"><img src="{{mine.crest}}" alt="" style="width: 38px; height: 38px; object-fit: contain"></span>
+          <span style="position: relative; min-width: 0">
+            <span class="disp" style="display: block; font-size: 12px; font-weight: 700; letter-spacing: .2em; opacity: .85">YOUR PICK</span>
+            <span class="disp" style="display: block; font-size: 26px; font-weight: 800; line-height: 1">{{mine.name}}</span>
+            <span style="display: block; font-size: 13px; opacity: .85; margin-top: 2px">Change it any time before the lock</span>
+          </span>
+        </section>
+      </sc-if>
+      <sc-if value="{{noPick}}" hint-placeholder-val="{{true}}">
+        <section class="pulse" style="border-radius: 24px; padding: 18px; border: 2px dashed #f2b226; background: rgba(242,178,38,.07); display: flex; align-items: center; gap: 14px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          <span>
+            <span class="disp" style="display: block; font-size: 22px; font-weight: 800">No pick yet</span>
+            <span style="display: block; font-size: 13px; color: #a8b3d1">No pick in Round 1 means no entry. Tap a team below.</span>
+          </span>
+        </section>
+      </sc-if>
+
+      <h2 class="disp" style="margin: 4px 0 -6px; font-size: 15px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #a8b3d1">Saturday 17 Oct</h2>
+      <sc-for list="{{fixtures}}" as="f" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 12px; font-weight: 600; color: #a8b3d1">{{f.time}}</span>
+          <div style="display: grid; grid-template-columns: 1fr 22px 1fr; align-items: center">
+            <button type="button" class="{{f.home.cls}}" onClick="{{f.home.tap}}" aria-label="{{f.home.aria}}" aria-pressed="{{f.home.picked}}" style="height: 118px; border-radius: 18px; border: 0; background: {{f.home.bg}}; color: {{f.home.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 8px">
+              <img src="{{f.home.crest}}" alt="" style="width: 48px; height: 48px; object-fit: contain">
+              <span class="disp" style="font-size: 19px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.home.name}}</span>
+              <span style="font-size: 11px; opacity: .75">Home</span>
+              <sc-if value="{{f.home.picked}}" hint-placeholder-val="{{false}}">
+                <span class="pop" aria-hidden="true" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 12px; background: #f2b226; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b1742" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg></span>
+              </sc-if>
+            </button>
+            <span class="disp" style="text-align: center; color: #f2b226; font-weight: 800; font-size: 16px">v</span>
+            <button type="button" class="{{f.away.cls}}" onClick="{{f.away.tap}}" aria-label="{{f.away.aria}}" aria-pressed="{{f.away.picked}}" style="height: 118px; border-radius: 18px; border: 0; background: {{f.away.bg}}; color: {{f.away.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 8px">
+              <img src="{{f.away.crest}}" alt="" style="width: 48px; height: 48px; object-fit: contain">
+              <span class="disp" style="font-size: 19px; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.away.name}}</span>
+              <span style="font-size: 11px; opacity: .75">Away</span>
+              <sc-if value="{{f.away.picked}}" hint-placeholder-val="{{false}}">
+                <span class="pop" aria-hidden="true" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 12px; background: #f2b226; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b1742" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg></span>
+              </sc-if>
+            </button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </main>
+
+  <!-- Confirm sheet -->
+  <sc-if value="{{showSheet}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 15">
+      <button type="button" class="backdrop" onClick="{{cancel}}" aria-label="Pick another" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(3,7,24,.66); cursor: pointer"></button>
+      <section class="sheet" role="dialog" aria-modal="true" aria-label="{{c.dialogLabel}}" style="position: absolute; left: 0; right: 0; bottom: 0; background: #14224f; border-radius: 28px 28px 40px 40px; overflow: hidden; box-shadow: 0 -20px 60px rgba(0,0,0,.45)">
+        <div style="position: relative; height: 112px; background: {{c.primary}}; overflow: hidden">
+          <span aria-hidden="true" style="position: absolute; left: -20%; top: 30px; width: 140%; height: 40px; background: {{c.secondary}}; opacity: .35; transform: rotate(-8deg)"></span>
+          <span aria-hidden="true" style="position: absolute; top: 10px; left: 50%; margin-left: -20px; width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.5)"></span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 22px 26px; margin-top: -52px; position: relative; text-align: center">
+          <span class="sheet-crest" style="width: 96px; height: 96px; border-radius: 48px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 34px rgba(0,0,0,.35)"><img src="{{c.crest}}" alt="" style="width: 70px; height: 70px; object-fit: contain"></span>
+          <span class="disp" style="margin-top: 8px; font-size: 13px; font-weight: 700; letter-spacing: .2em; color: #f2b226">{{c.eyebrow}}</span>
+          <span class="disp" style="font-size: 34px; font-weight: 800; line-height: .95">{{c.title}}</span>
+          <span style="font-size: 14px; color: #a8b3d1">{{c.fixture}}</span>
+
+          <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin: 14px 0 6px; text-align: left">
+            <span style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: rgba(255,178,62,.1); color: #ffcf7a; font-size: 14px; font-weight: 600; line-height: 1.35">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+              {{c.warn}}
+            </span>
+            <sc-if value="{{c.isSwap}}" hint-placeholder-val="{{false}}">
+              <span style="display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.06); color: #d7dcec; font-size: 14px">
+                <span style="width: 26px; height: 26px; border-radius: 13px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><img src="{{c.oldCrest}}" alt="" style="width: 19px; height: 19px; object-fit: contain"></span>
+                {{c.swapLine}}
+              </span>
+            </sc-if>
+          </div>
+
+          <button type="button" class="{{holdCls}}" onPointerDown="{{holdStart}}" onPointerUp="{{holdEnd}}" onPointerLeave="{{holdEnd}}" onPointerCancel="{{holdEnd}}" onKeyDown="{{keyDown}}" onKeyUp="{{keyUp}}" onContextMenu="{{noMenu}}" aria-label="{{c.holdAria}}" style="position: relative; width: 100%; height: 56px; border-radius: 16px; border: 0; background: rgba(242,178,38,.22); color: #0b1742; overflow: hidden; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none">
+            <span aria-hidden="true" style="position: absolute; inset: 0; background: #f2b226; opacity: .55"></span>
+            <sc-if value="{{holding}}" hint-placeholder-val="{{false}}">
+              <span class="hold-fill" aria-hidden="true" style="position: absolute; inset: 0; background: #f2b226; transform-origin: left center; animation-duration: {{holdDur}}; --hold: {{holdDur}}"></span>
+            </sc-if>
+            <span class="disp" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 20px; font-weight: 800; letter-spacing: .02em">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V6a2 2 0 0 1 4 0v5"></path><path d="M13 10.5V9a2 2 0 0 1 4 0v4.5"></path><path d="M17 12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L4 16a2 2 0 0 1 3.2-2.4L9 15.5V11"></path></svg>
+              {{holdLabel}}
+            </span>
+          </button>
+          <sc-if value="{{showHint}}" hint-placeholder-val="{{false}}">
+            <span class="nudge" style="font-size: 13px; color: #ffcf7a; font-weight: 600">Keep holding to confirm</span>
+          </sc-if>
+          <button type="button" class="press" onClick="{{cancel}}" style="width: 100%; height: 50px; margin-top: 8px; border-radius: 16px; border: 1px solid rgba(255,255,255,.18); background: transparent; color: #f4f1e8; font-weight: 700; font-size: 16px">Pick another</button>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <!-- Team takeover -->
+  <sc-if value="{{showTk}}" hint-placeholder-val="{{false}}">
+    <button type="button" class="tk" onClick="{{endTk}}" aria-label="{{tk.aria}}" style="position: absolute; inset: 0; z-index: 20; border: 0; padding: 0; background: {{tk.primary}}; color: {{tk.text}}; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; cursor: pointer">
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 20%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45"></span>
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 44%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45; animation-delay: .08s"></span>
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 68%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45; animation-delay: .16s"></span>
+      <sc-for list="{{confetti}}" as="cf" hint-placeholder-count="16">
+        <span class="confetti" aria-hidden="true" style="position: absolute; top: 46%; left: 50%; width: 10px; height: 16px; border-radius: 2px; background: {{cf.colour}}; --to: {{cf.to}}"></span>
+      </sc-for>
+      <span class="tk-shake" style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px">
+        <span class="tk-crest" style="width: 168px; height: 168px; border-radius: 84px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 24px 60px rgba(0,0,0,.4)"><img src="{{tk.crest}}" alt="" style="width: 124px; height: 124px; object-fit: contain"></span>
+        <span class="tk-name disp" style="font-size: 52px; font-weight: 800; line-height: .95; text-transform: uppercase; text-align: center; padding: 0 20px">{{tk.name}}</span>
+      </span>
+      <span class="tk-sub" style="position: relative; font-size: 15px; font-weight: 600">Your pick. Change it any time before the lock.</span>
+    </button>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"soundOn":{"editor":"boolean","default":true},"startWithPick":{"editor":"boolean","default":false},"holdMs":{"editor":"range","min":300,"max":1500,"step":100,"unit":"ms","default":600},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pick: props.startWithPick ? 'leinster' : null, sheet: null, holding: false, hint: false, showTk: false, tkSlug: null, sound: null };
+  }
+
+  componentWillUnmount() { clearTimeout(this.holdTimer); clearTimeout(this.tkTimer); clearTimeout(this.hintTimer); }
+
+  soundOn() { return this.state.sound === null ? (this.props.soundOn ?? true) : this.state.sound; }
+  holdMs() { return this.props.holdMs ?? 600; }
+
+  // ---------- Sound: synthesised with Web Audio, no files ----------
+  ctx() {
+    if (!this.ac) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ac = new AC();
+    }
+    if (this.ac.state === 'suspended') this.ac.resume();
+    return this.ac;
+  }
+
+  noise(ac, secs) {
+    var len = Math.floor(ac.sampleRate * secs);
+    var buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (var ch = 0; ch < 2; ch++) {
+      var d = buf.getChannelData(ch);
+      var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (var i = 0; i < len; i++) {
+        var w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852;
+        b3 = 0.8665 * b3 + w * 0.3104856; b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
+        b6 = w * 0.115926;
+      }
+    }
+    return buf;
+  }
+
+  roar(intensity) {
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime, dur = 2.6;
+    if (!this.noiseBuf) this.noiseBuf = this.noise(ac, 3);
+    var src = ac.createBufferSource(); src.buffer = this.noiseBuf;
+    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 220;
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(1400, t); lp.frequency.linearRampToValueAtTime(3200, t + 0.35); lp.frequency.exponentialRampToValueAtTime(1600, t + dur);
+    var vowel = ac.createBiquadFilter(); vowel.type = 'peaking'; vowel.frequency.value = 850; vowel.Q.value = 1.4; vowel.gain.value = 9;
+    var vowel2 = ac.createBiquadFilter(); vowel2.type = 'peaking'; vowel2.frequency.value = 1350; vowel2.Q.value = 2; vowel2.gain.value = 5;
+    var flutter = ac.createGain();
+    for (var k = 0; k < dur * 22; k++) flutter.gain.setValueAtTime(0.72 + Math.random() * 0.28, t + k / 22);
+    var g = ac.createGain(); var peak = 0.55 * (intensity || 1);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.28);
+    g.gain.setValueAtTime(peak, t + 0.7);
+    g.gain.exponentialRampToValueAtTime(peak * 0.45, t + 1.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(hp); hp.connect(lp); lp.connect(vowel); vowel.connect(vowel2); vowel2.connect(flutter); flutter.connect(g); g.connect(ac.destination);
+    src.start(t, Math.random() * 0.3); src.stop(t + dur);
+  }
+
+  whistle(len) {
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime, d = len || 0.32;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+    g.gain.setValueAtTime(0.16, t + d - 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    var lfo = ac.createOscillator(); lfo.frequency.value = 38;
+    var lfoG = ac.createGain(); lfoG.gain.value = 90;
+    lfo.connect(lfoG);
+    [2850, 3020].forEach(function (f) {
+      var o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      lfoG.connect(o.frequency); o.connect(g); o.start(t); o.stop(t + d);
+    });
+    lfo.start(t); lfo.stop(t + d);
+    g.connect(ac.destination);
+  }
+
+  groan() {
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime + 0.5, dur = 2.4;
+    if (!this.noiseBuf) this.noiseBuf = this.noise(ac, 3);
+    var src = ac.createBufferSource(); src.buffer = this.noiseBuf;
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(2000, t); lp.frequency.exponentialRampToValueAtTime(380, t + dur);
+    var pk = ac.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.setValueAtTime(700, t); pk.frequency.exponentialRampToValueAtTime(320, t + dur); pk.Q.value = 1.6; pk.gain.value = 10;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.18); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(lp); lp.connect(pk); pk.connect(g); g.connect(ac.destination); src.start(t, Math.random() * 0.3); src.stop(t + dur);
+  }
+
+  tick() {
+    // Light tick at the start of the hold: a very short click (stands in for the haptic tick on iPhone).
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'square'; o.frequency.value = 180;
+    g.gain.setValueAtTime(0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.05);
+  }
+
+  open(slug, home) {
+    if (slug === this.state.pick) { this.confirmed(slug, true); return; }
+    this.setState({ sheet: { slug: slug, home: home }, holding: false, hint: false });
+  }
+
+  cancel() { clearTimeout(this.holdTimer); this.setState({ sheet: null, holding: false, hint: false }); }
+
+  startHold() {
+    if (this.state.holding || !this.state.sheet) return;
+    if (this.soundOn()) this.tick();
+    this.holdAt = Date.now();
+    var self = this, slug = this.state.sheet.slug;
+    clearTimeout(this.holdTimer);
+    this.holdTimer = setTimeout(function () { self.confirmed(slug, false); }, this.holdMs());
+    this.setState({ holding: true, hint: false });
+  }
+
+  endHold() {
+    if (!this.state.holding) return;
+    clearTimeout(this.holdTimer);
+    var early = Date.now() - this.holdAt < this.holdMs();
+    var self = this;
+    this.setState({ holding: false, hint: early });
+    clearTimeout(this.hintTimer);
+    if (early) this.hintTimer = setTimeout(function () { self.setState({ hint: false }); }, 1800);
+  }
+
+  confirmed(slug, replay) {
+    if (this.soundOn()) { this.whistle(0.22); var self = this; setTimeout(function () { self.roar(1); }, 140); }
+    clearTimeout(this.tkTimer);
+    this.setState({ pick: slug, sheet: null, holding: false, hint: false, showTk: true, tkSlug: slug });
+    this.tkTimer = setTimeout(() => this.setState({ showTk: false }), 1800);
+  }
+
+  renderVals() {
+    var self = this, st = this.state, B = '/_blob/';
+    var T = {
+      'clermont': { name: 'Clermont', bg: '#fdea00', fg: '#000000', p: '#fdea00', s: '#002f6c', t: '#000000', c: B + '806132b661e279872e120da988a46811' },
+      'leinster': { name: 'Leinster', bg: '#ffffff', fg: '#0053a1', p: '#0053a1', s: '#ffffff', t: '#ffffff', c: B + '32a5aab04a88a0042b0762e087b6ea34' },
+      'connacht': { name: 'Connacht', bg: '#ffffff', fg: '#00853f', p: '#00853f', s: '#ffffff', t: '#ffffff', c: B + '9c1bc75e0f6efe094124ef0862c75cfc' },
+      'saracens': { name: 'Saracens', bg: '#c8102e', fg: '#ffffff', p: '#120a09', s: '#c8102e', t: '#ffffff', c: B + '7b94a1f1cb90706527ffa898a968b8c8' },
+      'bath': { name: 'Bath', bg: '#0054a6', fg: '#ffffff', p: '#0054a6', s: '#000000', t: '#ffffff', c: B + '4dc656fd6e8766a2508097fcec586a27' },
+      'montpellier': { name: 'Montpellier', bg: '#002c5b', fg: '#ffffff', p: '#002c5b', s: '#0090d4', t: '#ffffff', c: B + 'd2c77d58140b93fe80fa41751afd7cad' },
+      'munster': { name: 'Munster', bg: '#c8102e', fg: '#ffffff', p: '#c8102e', s: '#122053', t: '#ffffff', c: B + '9fe9d447a39eb839f5b1bc6e5752a40b' },
+      'racing': { name: 'Racing 92', bg: '#c2e0f7', fg: '#000000', p: '#c2e0f7', s: '#ffffff', t: '#000000', c: B + '18c3005b2e2fc7c66515749030f621b3' }
+    };
+    var FX = [['15:15', 'clermont', 'leinster'], ['17:30', 'connacht', 'saracens'], ['20:00', 'bath', 'montpellier'], ['20:00', 'munster', 'racing']];
+    var fxBy = {};
+    FX.forEach(function (f) { fxBy[f[1]] = { f: f, home: true }; fxBy[f[2]] = { f: f, home: false }; });
+    var pick = st.pick;
+    var side = function (slug, home) {
+      var t = T[slug], picked = pick === slug;
+      return {
+        name: t.name, crest: t.c, bg: t.bg, fg: t.fg, picked: picked,
+        cls: 'card' + (picked ? ' picked' : (pick ? ' dim' : '')),
+        aria: (picked ? 'Your pick: ' : 'Pick ') + t.name + (home ? ' (home)' : ' (away)'),
+        tap: function () { self.open(slug, home); }
+      };
+    };
+    var fixtures = FX.map(function (f) { return { time: f[0], home: side(f[1], true), away: side(f[2], false) }; });
+
+    var c = { primary: '#000', secondary: '#000', crest: '', eyebrow: '', title: '', fixture: '', warn: '', isSwap: false, oldCrest: '', swapLine: '', holdAria: '', dialogLabel: '' };
+    var holdLabel = '';
+    if (st.sheet) {
+      var s = st.sheet.slug, t = T[s], fx = fxBy[s].f;
+      var isSwap = !!pick && pick !== s;
+      c = {
+        primary: t.p, secondary: t.s, crest: t.c,
+        eyebrow: isSwap ? 'CHANGE YOUR PICK?' : 'BACK THIS TEAM?',
+        title: isSwap ? 'Swap ' + T[pick].name + ' for ' + t.name + '?' : t.name,
+        fixture: T[fx[1]].name + ' v ' + T[fx[2]].name + ' · Sat ' + fx[0] + ' · ' + (fxBy[s].home ? 'Home' : 'Away'),
+        warn: 'You can only use ' + t.name + ' once all season.',
+        isSwap: isSwap, oldCrest: isSwap ? T[pick].c : '',
+        swapLine: isSwap ? T[pick].name + ' goes back in your pool.' : '',
+        holdAria: 'Hold to back ' + t.name,
+        dialogLabel: isSwap ? 'Swap your pick' : 'Back ' + t.name
+      };
+      holdLabel = st.holding ? 'Keep holding…' : 'Hold to back ' + t.name;
+    }
+
+    var mine = pick ? { name: T[pick].name, crest: T[pick].c, primary: T[pick].p, secondary: T[pick].s, text: T[pick].t } : { name: '', crest: '', primary: '#000', secondary: '#000', text: '#fff' };
+    var tk = st.tkSlug ? { name: T[st.tkSlug].name, crest: T[st.tkSlug].c, primary: T[st.tkSlug].p, secondary: T[st.tkSlug].s, text: T[st.tkSlug].t, aria: 'You picked ' + T[st.tkSlug].name + '. Tap to continue.' } : { name: '', crest: '', primary: '#000', secondary: '#000', text: '#fff', aria: '' };
+    var cols = tk.secondary === '#ffffff' ? ['#ffffff', '#f2b226'] : [tk.secondary, '#ffffff', '#f2b226'];
+    var confetti = [];
+    for (var i = 0; i < 16; i++) {
+      var a = (i / 16) * Math.PI * 2, r = 150 + (i % 3) * 40;
+      confetti.push({ colour: cols[i % cols.length], to: 'translate(' + Math.round(Math.cos(a) * r) + 'px,' + Math.round(Math.sin(a) * r) + 'px) rotate(' + (i * 47) + 'deg)' });
+    }
+    var sound = this.soundOn();
+    return {
+      sound: sound, soundOff: !sound, soundLabel: sound ? 'Sound on' : 'Sound off',
+      toggleSound: function () { self.setState({ sound: !sound }); },
+      hasPick: !!pick, noPick: !pick, mine: mine, fixtures: fixtures,
+      showSheet: !!st.sheet, c: c, holding: st.holding, showHint: st.hint,
+      holdCls: 'hold-btn' + (st.holding ? ' holding' : ''), holdLabel: holdLabel, holdDur: this.holdMs() + 'ms',
+      holdStart: function (e) { if (e && e.preventDefault) e.preventDefault(); self.startHold(); },
+      holdEnd: function () { self.endHold(); },
+      keyDown: function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) self.startHold(); } },
+      keyUp: function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); self.endHold(); } },
+      noMenu: function (e) { e.preventDefault(); },
+      cancel: function () { self.cancel(); },
+      showTk: st.showTk, tk: tk, confetti: confetti,
+      endTk: function () { clearTimeout(self.tkTimer); self.setState({ showTk: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

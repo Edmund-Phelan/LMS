@@ -383,3 +383,117 @@ Prototype board "Knocked out".
 - That player's Round 1 screen: the "Your pick" card becomes "KNOCKED OUT" with a red ring and the reason.
 - **Me:** status pill "Out · Round 1" (red); the Your road R1 tile turns red with "R1 · OUT". **Table:** unchanged (out
   players still score). **Squad:** their chip reads "Out".
+
+## 18. Pick confirmation (Eddie, 15 Oct: add friction before a pick)
+Prototype board "Pick confirmation" (`docs/ui-prototype/PickConfirm.dc.html`): the sheet, hold fill, early-release nudge
+("Keep holding to confirm") and the takeover after confirm. Its `holdMs` tweak is the hold length; 600 ms until Eddie says otherwise.
+Tapping a team card no longer picks straight away. It opens a confirm sheet; the pick (and the §4 takeover + sound) only
+happens on confirm. Each team can be used once all season, so the sheet makes that cost visible.
+- **Bottom sheet** (navy-800, radius 24 top corners, slides up .3 s spring, dimmed backdrop). Content:
+  - Crest in a 72 px white circle on a strip of the team's `primary`; team name condensed 30/800; the fixture line
+    "Munster v Racing 92 · Sat 20:00 · Home".
+  - Warning line (warn colour): "You can only use Munster once all season." In knockout rounds where the team is the last
+    unused one, add "It's your last unused team."
+  - **Changing an existing pick:** title "Swap Leinster for Munster?" and the line "Leinster goes back in your pool."
+  - Primary button (gold, 54 px): **hold to confirm**, 0.6 s fill sweep left → right, same component as the admin
+    hold-to-confirm; label "Hold to back Munster" (never "lock in": nothing is locked before the lock, §3.2). A light haptic
+    tick at the start of the hold, the takeover's thud on completion. Releasing early resets the fill.
+  - Secondary button (outline): "Pick another" → closes the sheet, nothing saved, no sound.
+  - Tap on the backdrop or swipe down = "Pick another".
+- Tapping your **current** pick does not open the sheet; it replays the takeover as now (§3.2).
+- After the lock the cards are disabled, so the sheet can't open. If the lock passes while the sheet is open, the confirm
+  button disables and reads "Picks are locked"; the server refuses the write anyway (RLS).
+- Reduced motion: no slide or sweep; the hold still takes 0.6 s (it's friction, not decoration).
+- **Done means:** on iPhone, tap a team → sheet; "Pick another" saves nothing (check `picks` row unchanged); hold → saved +
+  takeover; swap wording shows when a pick exists; a short tap on the hold button does nothing.
+
+## 19. Round recap on open (Eddie, 15 Oct: tell each player what happened as they open the app)
+Prototype board "Round recap on open" (`docs/ui-prototype/Recap.dc.html`) is the reference for every animation,
+timing and sound in this section: **match it**, don't reinterpret it. Six scenarios (the "Demo · next scenario" button
+cycles them): R1 survivor (through + exact), R1 out on a loss (out + points), R1 out on a draw (out + zero), R2 survivor
+jinxed (through + zero + jinx shaken off), R2 in the stands (points + jinx landed / jinx missed). Signed off by Eddie
+15 Oct. Port its keyframes (`rc-*`, `bigPop`, `stamp`, `crossIn`, gold rays, the clash set) and its sound functions.
+The first time a player opens the app after a round is settled, they get a short **recap sequence**: full-screen cards
+played like an Instagram story (Story controls below), "Skip" top-right. It plays once per player per round and replaces the standalone §17
+overlay (the red-card "YOU'RE OUT" moment becomes the recap's first card for players who went out).
+
+**Storage:** new column `players.seen_recap_round smallint` (own row only, same grants pattern as
+`seen_elimination_round`; migrate the existing value across and drop the old column, or keep the old one unused, your
+call, with a DB test either way). The recap shows when `latest settled round > seen_recap_round`. Write the new value
+when the sequence ends or is skipped. **Unsettle** of round N sets `seen_recap_round = N - 1` for anyone at N, so a corrected
+result gets its own recap. Data comes from the settled round only (results, `points_table()`, jinxes): never live/provisional.
+
+**Story controls (Eddie, 15 Oct): the recap behaves like an Instagram story.** Segmented progress bars at the top, one
+per card, the current one filling over the card's time (clash cards 4.3 s + 4.5 s, other cards 5.5 s), then it moves on by
+itself; the last card stops and waits. Tap the **left third** = previous card (on the first card: restart it); tap the
+**right two thirds** = next card (during the clash, the first tap skips the clash to the result card; on the last card it
+finishes). **Press and hold = pause**: every animation and the bar freeze (`animation-play-state: paused` on the subtree),
+the Web Audio context suspends so sounds freeze in place, the bars and buttons fade out; release resumes. Going to a card
+replays its entrance and its sounds from the start, and cuts the previous card's sounds (all sound runs through one
+gain bus that is faded and dropped on every navigation). Tap zones are real buttons ("Previous card" / "Next card").
+
+**The clash (Eddie, 15 Oct: ceramic, slower, heavier)** plays before the outcome card (through or out), 4.3 s; a right tap
+skips it. Both crests are **ceramic plates** (128 px: glazed off-white radial gradient, rim in the team `primary`
+between two cream rings, glossy highlight top-left, crest painted in the middle; your team also gets a gold glow).
+Background: the two teams' `primary` colours split diagonally under a dark vignette, "FULL TIME" eyebrow. Every beat has
+its own sound, scheduled on the Web Audio clock at the same times as the CSS:
+| Time | Picture | Sound |
+| --- | --- | --- |
+| 0–0.75 s | Plates fly in from opposite corners on a heavy ease-in, spinning and tumbling in 3D while the pair orbits the centre (−200° → 360° by 2.8 s) | Low whoosh rising |
+| 0.75 s | Hit 1: rims meet and **hold for 0.1 s** (hit-stop), flash, porcelain chips, small shake; then a slow recoil | **Punch** + a low knock (`chunk`, 240 Hz) |
+| 0.86–1.65 s | Drift apart, swing back in | Whoosh out, whoosh in |
+| 1.65 s | Hit 2, same, harder | Bigger punch + low knock |
+| 2.2–2.55 s | Wind-up: spin slows almost to a stop, they pull back further, the edges of the screen darken | Long rising whoosh |
+| 2.8 s | The smash: they charge in and **freeze for 0.15 s**; crack lines appear on the loser (the same edges the shards break along); big flash, big shake | **Ground thud** + punch |
+| 2.95 s | The loser **bursts** into 14 jagged shards that arc up, tumble in 3D and fall out of frame by 4.3 s; porcelain dust | Bass-heavy crunch (noise through a 700 → 220 Hz band-pass and hard drive) + low body + punch, then chunks: 9 low driven knocks (160–380 Hz) as pieces break off, 10 more (110–280 Hz) as they land 0.6–1.3 s later. **No glassy highs** (Eddie, 15 Oct: more bassy) |
+| 2.95–3.6 s | Winner recoils, then rises to the centre at 1.85× and hangs | Whoosh up |
+| 3.8 s | **Slam** down to 1.18×: gold flash, dust ring, gold sparks, biggest shake | Whoosh down, then the biggest **ground thud** |
+| 3.95 s | Score fades in. 4.3 s: the through/out card. | The card's own sounds (below) |
+- **Loss:** the same, with your plate the one that breaks and theirs slamming in. **Draw:** both plates crack and shatter
+  (two layered shatters), no winner; "DRAW" slams in at 3.8 s with the boom. Reduced motion: no clash, straight to the card.
+- **Hit sounds (Eddie, 15 Oct: punches and ground thuds, loud):** `punch()` = a driven sine dropping 230 → 46 Hz through
+  a soft-clip `WaveShaper` (k 10) + a 170 → 95 Hz triangle knock + a 1 kHz band-passed noise slap (75 ms) + a 2.6 kHz
+  noise snap (22 ms). `groundThud()` = a driven sine 120 → 34 Hz (k 14) + a 150 → 70 Hz triangle + low-passed noise body
+  (420 Hz, .35 s) + rumble tail (180 Hz, .9 s) + a punch on top. The soft-clip and the 100–200 Hz layers are what make
+  them audible on iPhone speakers, which barely play below ~150 Hz. Everything runs through one master
+  `DynamicsCompressor` (threshold −22 dB, ratio 10, attack 1 ms, release 160 ms) with 2.6× make-up gain. Every card
+  "thwack" below is a punch.
+- **Card sounds, paired with each card's entrance:** through = thwack on the title slam (.45 s) + whistle, roar from .6 s;
+  out = long whistle, thwack as the red card lands (.62 s), crowd groan; exact = thwack + ground thud and chime on the +5
+  (.6 s) + roar; points = thwack + chime; zero = soft thwack + a descending "womp"; jinx landed = pop as the avatar
+  appears, thwack as the red card stamps (.5 s), rising blip + small roar; jinx missed = pop, soft thwack, womp; jinxed you
+  = pop, rising blip + a small punch as the shield lands, small roar.
+- Port from the prototype: `clashData()` (shard + crack geometry), `fx()` (compressor), `curve()` (soft clip),
+  `bus()`/`cutSound()`, `noiseHit()`, `punch()`, `groundThud()`, `chunk()`, `shatter()`, `whoosh()`, `thwack()`,
+  `blip()`, `womp()`, `chime()`, `clashSound()`, `cardSound()`, plus `whistle()`/`roar()`/`groan()` with their new
+  `when` argument (scheduled on the audio clock, not `setTimeout`), the story clock
+  (`elapsed()`/`schedule()`/`pause()`/`resume()`) and the `orbit`/`spin3d`/`armLose`/`armWin`/`shard`/`sh-*` keyframes.
+
+**Cards, in this order** (each only if it applies; skip the sequence entirely if none apply):
+1. **Outcome** (everyone who had a pick in the round):
+   - *Through:* after the clash, green radial background, the team crest pops in (`pop`), "YOU'RE THROUGH" slams in
+     (condensed 68/800), score pill "Munster 27–13 Racing 92", then "N still in. Round N+1 picks lock {date, time}."
+     Sounds: see "Card sounds". In the final round the winner gets "LAST MAN STANDING" + gold confetti instead.
+   - *Out:* after the clash, the §17 red card moment (copy, groan, reasons: loss, draw, postponed-as-loss, etc.).
+   - *Back in via buy-back/resurrection* (packet 7): "YOU'RE BACK" in gold. Not needed for Round 1.
+2. **Featured-match prediction** (anyone who saved a prediction for a featured match that wasn't postponed):
+   - *Exact:* gold burst + "EXACT SCORE" (condensed 60/800) + "+5", your prediction vs the real score side by side, crests.
+   - *Points but not exact:* "+3 / +2 / +1" big with the band in words ("Within 5 points"), your prediction vs the result.
+   - *Zero:* muted, "No points this time", prediction vs result. Keep it light, not a fail screen.
+   - Footer on all three: "You're {nth} in the race for the 20% · {total} pts".
+   - No prediction saved: one muted line on the outcome card ("No prediction this round") instead of a card.
+3. **Jinx** (Round 2 on, since nobody is out before Round 1 settles):
+   - *Your jinx landed* (you're out, you jinxed someone who then went out): their avatar with a red-card stamp, "JINX
+     LANDED", "+1 point". *Missed:* "{name} survived your jinx", no points.
+   - *You were jinxed* (survivors): "{name} jinxed you." If you're through: "Jinx shaken off." If you went out, add the line
+     to the out card instead of a separate card. Several jinxers → list them.
+- Motion and sound: each card's own entrance is under 1.5 s (the clash is the one long moment, 4.3 s, skippable);
+  reduced motion = still frames and no clash. iOS only plays audio after a tap, so the first card's entrance is silent;
+  the speaker button top-left replays the current card (and its clash) with sound, and every tap after that has sound.
+- Progress bars at the top show the number of cards (Story controls). The last card's gold button reads "Into Round N+1"
+  (out players: "See ways back in") → Round screen.
+- **Done means:** on local Supabase, settle a test round with one survivor who predicted exactly, one out player whose
+  jinx landed, and one player with no prediction → each sees the right cards once, in order; reopening shows nothing;
+  unsettle → resettle shows the recap again; DB test: `seen_recap_round` own row only. On a real iPhone (sound on),
+  side by side with the prototype: the clash, shatter, slam and every sound land on the same beats; left tap goes back
+  and replays, right tap skips the clash then advances, hold pauses picture and sound; a draw breaks both plates.

@@ -1,4 +1,4 @@
-# NEXT.md — work packets (updated 15 Oct, late)
+# NEXT.md — work packets (updated 15 Oct, midday)
 
 Read CLAUDE.md first; it is the spec. **Change from the spec: Round 1 runs on the app, not the Google Form.**
 Round 1 picks lock **Fri 16 Oct 2026, 8pm Irish time** (first kick-off). That is the deadline for packets 1–4.
@@ -22,6 +22,9 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
    where provider = 'email' and identity_data->>'email' = 'conn@pending.invalid';
   ```
   Then test a code sign-in with that player.
+  **15 Oct: 8 of 10 emails in.** The swap SQL is in `player-emails.sql.local` at the repo root (gitignored, never commit it or
+  paste the emails into a tracked file). Run it with the Supabase MCP, then test one sign-in. Still missing: **Cboh, Eoin**.
+  All 8 are confirmed, Harvey's included.
 - **Decided 15 Oct: the side game starts in Round 1.** Every player predicts the score of the Round 1 featured match
   (Gloucester v Bordeaux-Bègles, already drawn) before the lock, and Round 1 settles prediction points like any other round.
   The engine already scores any round with a featured match; CLAUDE.md rule 13 and the rules doc are updated to say Round 1.
@@ -69,6 +72,10 @@ In this order; each step shippable on its own:
 5. Reveal at the lock: tap-to-flip cards, one per player.
 6. First login: photo (crop to circle), nickname, kit colour.
 7. iPhone "Add to Home Screen" 3-step guide on first visit in Safari.
+8. **Pick confirmation sheet (added 15 Oct, before the Round 1 lock):** spec `docs/UI-REDESIGN.md` §18. Tapping a team opens a
+   sheet; "Pick another" or hold-to-confirm "Hold to back Munster" (0.6 s). Takeover only after the confirm. Prototype:
+   `docs/ui-prototype/PickConfirm.dc.html` (signed off). Do this before 1–7's polish if time is short: it changes how every
+   pick is made on Friday.
 - **Done means:** on a real iPhone from the home-screen icon: log in, set up profile, pick (takeover + haptic), change pick,
   see the countdown and pot.
 
@@ -113,6 +120,16 @@ In this order; each step shippable on its own:
    uses the existing payments flow (kind `buyback`); the re-entry plumbing that lets a bought-back player pick is packet 7.
    **Done means:** settle a test round locally where a player loses → on their next open the overlay plays once, Replay
    plays it with sound, the out screen shows the right burn chips, and a jinx saves.
+
+5e. **Round recap on open (added 15 Oct). Needed by the Round 1 settle, Sun 18 Oct night.** Spec `docs/UI-REDESIGN.md` §19.
+   One-time sequence after each settle, played like an Instagram story (progress bars, left tap back, right tap next,
+   hold to pause): the **ceramic crest clash** (plates twirl, two punches, the loser cracks and shatters, the winner slams
+   in; a draw breaks both), then the outcome (through / out, the out card is the existing §17 overlay), the featured-match
+   prediction result (exact / points / zero), and the jinx result (from Round 2). Every beat has its paired sound (punches,
+   ground thuds, bass crunch, no glassy highs). Prototype `docs/ui-prototype/Recap.dc.html` is signed off: match it.
+   `players.seen_recap_round` replaces `seen_elimination_round`; unsettle resets it. Build order for Sunday: storage +
+   story shell + clash + outcome + prediction; the jinx cards can follow before Round 2 (no one is out until Round 1
+   settles). Its "Done means" is in §19.
 
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
