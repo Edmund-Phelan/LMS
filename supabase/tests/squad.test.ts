@@ -22,6 +22,7 @@ beforeEach(async () => {
   }
   r1 = (await db.query<{ id: number }>('select id from rounds where number = 1')).rows[0].id
   await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r1])
+  await db.query(`insert into payments (player_id, kind, amount_eur) select id, 'entry', 10 from players`) // pay before you pick
   const leinster = (await db.query<{ id: number }>(`select id from teams where slug = 'leinster'`)).rows[0].id
   await as(db, BEN, 'select make_pick($1, $2)', [r1, leinster])
 })

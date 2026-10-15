@@ -36,6 +36,8 @@ beforeEach(async () => {
      select $1, h.id, a.id, now(), 'completed' from teams h, teams a where h.slug = 'leinster' and a.slug = 'munster-rugby'`,
     [r1],
   )
+  // Round 1 picks need an entry claim (picks_need_entry); the payments tests start from none.
+  await db.query(`insert into payments (player_id, kind, amount_eur) select id, 'entry', 10 from players`)
   await db.query(`insert into picks (round_id, player_id, team_id) values ($1, $2, $4), ($1, $3, $5), ($1, $6, $5)`, [
     r1,
     EDDIE,
@@ -48,6 +50,7 @@ beforeEach(async () => {
     `insert into round_results (round_id, player_id, outcome) values ($1, $2, 'through'), ($1, $3, 'through'), ($1, $4, 'out')`,
     [r1, EDDIE, BEN, OUTY],
   )
+  await db.query('delete from payments')
   await db.query('update rounds set settled_at = now() where id = $1', [r1])
   // Round 2: Leinster v Toulouse, Munster v Saracens; lock in an hour.
   await db.query(
@@ -261,6 +264,7 @@ describe('auto-pick at the lock', () => {
     await db.query('delete from round_results where round_id = $1', [r1])
     await db.query('delete from picks where round_id = $1', [r1])
     await db.query(`update rounds set settled_at = null, lock_at = now() + interval '1 hour' where id = $1`, [r1])
+    await as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 10)`, [BEN])
     await pick(BEN, r1, await team('leinster'))
     await lockNow(r1)
     expect(await run()).toBe(0)
