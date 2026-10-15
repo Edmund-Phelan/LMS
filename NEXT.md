@@ -23,7 +23,7 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
   ```
   Then test a code sign-in with that player.
   **15 Oct: 8 of 10 emails in.** The swap SQL is in `player-emails.sql.local` at the repo root (gitignored, never commit it or
-  paste the emails into a tracked file). Run it with the Supabase MCP, then test one sign-in. Still missing: **Cboh, Eoin**.
+  paste the emails into a tracked file). **Done 15 Oct: all 10 swapped, Eoin and Cboh included; nobody is `@pending.invalid`.**
   All 8 are confirmed, Harvey's included.
 - **Decided 15 Oct: the side game starts in Round 1.** Every player predicts the score of the Round 1 featured match
   (Gloucester v Bordeaux-Bègles, already drawn) before the lock, and Round 1 settles prediction points like any other round.
