@@ -543,8 +543,8 @@
       "accent": null,
       "jazz": false
     },
-    "cardBg": "#00358e",
-    "cardText": "#ffffff"
+    "cardBg": "#ffffff",
+    "cardText": "#00358e"
   },
   {
     "slug": "stade-toulousain",
