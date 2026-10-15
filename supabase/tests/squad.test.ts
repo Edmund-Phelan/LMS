@@ -62,6 +62,8 @@ describe('round_pick_status', () => {
       [r1, BEN, CON, EDDIE],
     )
     await db.query('update rounds set settled_at = now() where id = $1', [r1])
-    expect(await as(db, CON, 'select * from round_pick_status($1)', [r2])).toEqual([{ player_id: BEN, has_pick: false }])
+    expect(await as(db, CON, 'select * from round_pick_status($1)', [r2])).toEqual([
+      { player_id: BEN, has_pick: false },
+    ])
   })
 })

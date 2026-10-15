@@ -21,13 +21,29 @@ function Row({ to, icon, children }: { to: string; icon: ReactNode; children: Re
   )
 }
 
-const small = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, 'aria-hidden': true } as const
+const small = {
+  width: 20,
+  height: 20,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  'aria-hidden': true,
+} as const
 
 function Settings({ me, round, claims }: { me: Me; round: number | null; claims: number }) {
   const sound = useSound()
   return (
     <ul className="hairline overflow-hidden rounded-[20px] bg-navy-800">
-      <Row to="/me/edit" icon={<svg {...small}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>}>
+      <Row
+        to="/me/edit"
+        icon={
+          <svg {...small}>
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21a8 8 0 0 1 16 0" />
+          </svg>
+        }
+      >
         Edit photo, nickname &amp; kit colour
       </Row>
       <li className="border-t border-white/6">
@@ -52,7 +68,14 @@ function Settings({ me, round, claims }: { me: Me; round: number | null; claims:
           </span>
         </button>
       </li>
-      <Row to="/rules" icon={<svg {...small}><path d="M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5zM8 7h8M8 11h6" /></svg>}>
+      <Row
+        to="/rules"
+        icon={
+          <svg {...small}>
+            <path d="M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5zM8 7h8M8 11h6" />
+          </svg>
+        }
+      >
         Rules
       </Row>
       {me.is_admin && round !== null && (
@@ -165,11 +188,17 @@ export default function MePage({ me }: { me: Me }) {
             </p>
           </div>
           {data.boughtBack ? (
-            <Pill colour="#f2b226" bg="rgba(242,178,38,.14)">Bought back</Pill>
+            <Pill colour="#f2b226" bg="rgba(242,178,38,.14)">
+              Bought back
+            </Pill>
           ) : data.outIn ? (
-            <Pill colour="#ff8a8a" bg="rgba(255,138,138,.14)">Out · Round {data.outIn}</Pill>
+            <Pill colour="#ff8a8a" bg="rgba(255,138,138,.14)">
+              Out · Round {data.outIn}
+            </Pill>
           ) : (
-            <Pill colour="#6fe3a1" dot="#3ccf7a" bg="rgba(60,207,122,.14)">Still standing</Pill>
+            <Pill colour="#6fe3a1" dot="#3ccf7a" bg="rgba(60,207,122,.14)">
+              Still standing
+            </Pill>
           )}
         </section>
 
@@ -204,7 +233,10 @@ export default function MePage({ me }: { me: Me }) {
                   <span className="max-w-full truncate text-[11px] font-semibold">{t.name}</span>
                 </div>
               ) : (
-                <div key={r.id} className="flex flex-col items-center gap-1.5 rounded-[14px] bg-white/3 px-1 py-2.5 text-muted">
+                <div
+                  key={r.id}
+                  className="flex flex-col items-center gap-1.5 rounded-[14px] bg-white/3 px-1 py-2.5 text-muted"
+                >
                   <span className="text-[11px] font-extrabold tracking-[.1em] opacity-80">{label}</span>
                   <span className="h-[34px] w-[34px] rounded-full border border-dashed border-white/25" />
                   <span className="text-[11px] font-semibold">—</span>
@@ -222,7 +254,10 @@ export default function MePage({ me }: { me: Me }) {
 
 function Pill({ children, colour, bg, dot }: { children: ReactNode; colour: string; bg: string; dot?: string }) {
   return (
-    <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold" style={{ background: bg, color: colour }}>
+    <span
+      className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold"
+      style={{ background: bg, color: colour }}
+    >
       <span className="h-2 w-2 rounded-full" style={{ background: dot ?? colour }} />
       {children}
     </span>

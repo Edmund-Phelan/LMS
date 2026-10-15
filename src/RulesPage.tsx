@@ -30,11 +30,21 @@ function Calculator() {
   const btn = 'press h-8 w-[26px] rounded-lg bg-white/8'
   const cell = (k: keyof typeof s, label: string) => (
     <span className="flex items-center justify-center gap-1">
-      <button type="button" className={btn} onClick={() => set({ ...s, [k]: Math.max(0, s[k] - 1) })} aria-label={`${label} down`}>
+      <button
+        type="button"
+        className={btn}
+        onClick={() => set({ ...s, [k]: Math.max(0, s[k] - 1) })}
+        aria-label={`${label} down`}
+      >
         −
       </button>
       <span className="disp w-[30px] text-center text-2xl font-extrabold tabular-nums">{s[k]}</span>
-      <button type="button" className={btn} onClick={() => set({ ...s, [k]: Math.min(99, s[k] + 1) })} aria-label={`${label} up`}>
+      <button
+        type="button"
+        className={btn}
+        onClick={() => set({ ...s, [k]: Math.min(99, s[k] + 1) })}
+        aria-label={`${label} up`}
+      >
         +
       </button>
     </span>
@@ -100,7 +110,9 @@ export default function RulesPage() {
           <p className="disp text-[32px] leading-[1.02] font-extrabold">
             Pick a winner. Every round. Lose or draw and you’re gone.
           </p>
-          <p className="mt-2.5 text-sm opacity-85">Last one standing takes 80% of the pot. Agreed by the group, Oct 2026.</p>
+          <p className="mt-2.5 text-sm opacity-85">
+            Last one standing takes 80% of the pot. Agreed by the group, Oct 2026.
+          </p>
         </section>
 
         <div className="grid grid-cols-2 gap-2.5">

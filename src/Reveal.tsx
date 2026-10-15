@@ -79,9 +79,7 @@ function FlipCard({
         animate={{ rotateY: open ? 180 : 0 }}
         transition={still ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 22 }}
       >
-        <div
-          className={`${face} stripes hairline text-chalk`}
-        >
+        <div className={`${face} stripes hairline text-chalk`}>
           <span className="disp text-4xl font-extrabold text-gold">?</span>
           <span className="disp w-full truncate text-lg font-extrabold">{player}</span>
           <span className="text-[10px] tracking-widest uppercase opacity-75">Tap to reveal</span>

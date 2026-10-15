@@ -91,7 +91,11 @@ export async function load(number: number): Promise<Data | null> {
   if (!round) return null
   const [teams, players, matches, picks, results, burns, predictions, jinxes, payments, user] = await Promise.all([
     supabase.from('teams').select('*').returns<Team[]>(),
-    supabase.from('players').select('id, name, nickname, is_admin').order('name').returns<Player[]>(),
+    supabase
+      .from('players')
+      .select('id, name, nickname, is_admin, avatar_url, kit_colour')
+      .order('name')
+      .returns<Player[]>(),
     supabase.from('matches').select('*').eq('round_id', round.id).order('kickoff_at').returns<Match[]>(),
     supabase.from('picks').select('round_id, player_id, team_id, is_auto, is_resurrection').returns<PickRow[]>(),
     supabase.from('round_results').select('*').returns<ResultRow[]>(),

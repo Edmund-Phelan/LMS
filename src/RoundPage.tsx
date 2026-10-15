@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
-import { crestUrl, lockLabel, supabase, type Match, type Pick, type Player, type Round, type Team } from './lib/supabase'
+import {
+  crestUrl,
+  lockLabel,
+  supabase,
+  type Match,
+  type Pick,
+  type Player,
+  type Round,
+  type Team,
+} from './lib/supabase'
 import { entryOf, loadPayments, PayEntry, potEur, type PaymentRow } from './Pay'
 import { FixtureList, Takeover, useThud } from './Pick'
 import { Avatar } from './Profile'
@@ -199,7 +208,11 @@ function Countdown({ ms }: { ms: number }) {
     [s % 60, 'sec'],
   ] as const
   return (
-    <div className="mt-3 flex gap-2" role="timer" aria-label={`${parts.map(([n, u]) => `${n} ${u}`).join(' ')} to the lock`}>
+    <div
+      className="mt-3 flex gap-2"
+      role="timer"
+      aria-label={`${parts.map(([n, u]) => `${n} ${u}`).join(' ')} to the lock`}
+    >
       {parts.map(([n, unit]) => (
         <div key={unit} className="w-[70px] overflow-hidden rounded-[14px] bg-black/32 pt-2.5 pb-2 text-center">
           <p
@@ -491,7 +504,9 @@ function JinxPicker({
               >
                 <Avatar p={p} size={48} />
               </span>
-              <span className={`w-full truncate text-center text-xs font-semibold ${on ? 'text-gold' : 'text-chalk-2'}`}>
+              <span
+                className={`w-full truncate text-center text-xs font-semibold ${on ? 'text-gold' : 'text-chalk-2'}`}
+              >
                 {p.nickname || p.name}
               </span>
             </button>
@@ -511,13 +526,23 @@ function Stepper({ team, value, set }: { team: Team; value: number; set: (n: num
       </span>
       <span className="max-w-full truncate text-[13px] font-semibold">{team.name}</span>
       <div className="flex items-center gap-1.5">
-        <button type="button" className={btn} onClick={() => set(Math.max(0, value - 1))} aria-label={`${team.name} score down`}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => set(Math.max(0, value - 1))}
+          aria-label={`${team.name} score down`}
+        >
           −
         </button>
         <span className="disp w-[46px] text-center text-[40px] font-extrabold tabular-nums" aria-live="polite">
           {value}
         </span>
-        <button type="button" className={btn} onClick={() => set(Math.min(99, value + 1))} aria-label={`${team.name} score up`}>
+        <button
+          type="button"
+          className={btn}
+          onClick={() => set(Math.min(99, value + 1))}
+          aria-label={`${team.name} score up`}
+        >
           +
         </button>
       </div>
@@ -611,7 +636,11 @@ function Squad({
                   {p.id === me && ' (you)'}
                 </span>
                 <span className={`block text-xs ${paid === 'confirmed' ? 'text-muted' : 'text-warn'}`}>
-                  {paid === 'confirmed' ? 'Paid' : paid === 'claimed' ? 'Payment waiting for a confirm' : 'Entry not paid yet'}
+                  {paid === 'confirmed'
+                    ? 'Paid'
+                    : paid === 'claimed'
+                      ? 'Payment waiting for a confirm'
+                      : 'Entry not paid yet'}
                 </span>
               </span>
               {has_pick ? (

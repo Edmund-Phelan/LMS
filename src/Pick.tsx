@@ -13,7 +13,12 @@ export function useThud() {
   }
 }
 
-const day = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', weekday: 'long', day: 'numeric', month: 'short' })
+const day = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'short',
+})
 const hhmm = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', hour: '2-digit', minute: '2-digit' })
 
 /** The round's fixtures grouped by day (§3.3). Badges sit inside each card so nothing overlaps the time row. */
@@ -112,7 +117,17 @@ function TeamCard({
     >
       {picked && (
         <span className="pop absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-navy-900 shadow-[0_2px_8px_rgba(0,0,0,.3)]">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
             <path d="M20 6 9 17l-5-5" />
           </svg>
         </span>
@@ -140,7 +155,8 @@ export function Takeover({ team, onDone }: { team: Team | null; onDone: () => vo
   }, [team, still, onDone])
   if (!team) return null
 
-  const colours = team.secondary.toLowerCase() === '#ffffff' ? ['#ffffff', '#f2b226'] : [team.secondary, '#ffffff', '#f2b226']
+  const colours =
+    team.secondary.toLowerCase() === '#ffffff' ? ['#ffffff', '#f2b226'] : [team.secondary, '#ffffff', '#f2b226']
   return (
     <button
       type="button"

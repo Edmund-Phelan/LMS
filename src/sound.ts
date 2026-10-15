@@ -37,7 +37,8 @@ let noiseBuf: AudioBuffer | null = null
 
 function ctx() {
   if (!ac) {
-    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+    const AC =
+      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
     if (!AC) return null
     ac = new AC()
   }
@@ -51,7 +52,13 @@ function noise(ac: AudioContext, secs: number) {
   const buf = ac.createBuffer(2, len, ac.sampleRate)
   for (let ch = 0; ch < 2; ch++) {
     const d = buf.getChannelData(ch)
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0
+    let b0 = 0,
+      b1 = 0,
+      b2 = 0,
+      b3 = 0,
+      b4 = 0,
+      b5 = 0,
+      b6 = 0
     for (let i = 0; i < len; i++) {
       const w = Math.random() * 2 - 1
       b0 = 0.99886 * b0 + w * 0.0555179

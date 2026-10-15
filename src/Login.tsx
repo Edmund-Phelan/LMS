@@ -38,7 +38,9 @@ export default function Login() {
       <h1 className="disp mb-4 text-4xl leading-none font-extrabold">Sign in</h1>
       {!sent ? (
         <>
-          <label htmlFor="email" className="text-sm font-semibold text-chalk-2">Email</label>
+          <label htmlFor="email" className="text-sm font-semibold text-chalk-2">
+            Email
+          </label>
           <input
             id="email"
             type="email"
@@ -48,13 +50,18 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value.trim())}
             className="rounded-[14px] border border-white/16 bg-navy-800 p-3 text-lg outline-none focus:border-gold"
           />
-          <button disabled={busy} className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50">
+          <button
+            disabled={busy}
+            className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50"
+          >
             Send me a code
           </button>
         </>
       ) : (
         <>
-          <label htmlFor="code" className="text-sm font-semibold text-chalk-2">8-digit code sent to {email}</label>
+          <label htmlFor="code" className="text-sm font-semibold text-chalk-2">
+            8-digit code sent to {email}
+          </label>
           <input
             id="code"
             inputMode="numeric"
@@ -66,7 +73,10 @@ export default function Login() {
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
             className="disp rounded-[14px] border border-white/16 bg-navy-800 p-3 text-center text-3xl font-extrabold tracking-widest outline-none focus:border-gold"
           />
-          <button disabled={busy} className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50">
+          <button
+            disabled={busy}
+            className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50"
+          >
             Sign in
           </button>
           <button

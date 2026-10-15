@@ -33,7 +33,11 @@ export function Avatar({
   p: { name: string; nickname: string | null; avatar_url?: string | null; kit_colour?: string | null }
   size?: number
 }) {
-  const ring = { boxShadow: `0 0 0 ${size >= 100 ? 5 : size >= 36 ? 3 : 2}px ${p.kit_colour ?? 'rgba(255,255,255,.25)'}`, width: size, height: size }
+  const ring = {
+    boxShadow: `0 0 0 ${size >= 100 ? 5 : size >= 36 ? 3 : 2}px ${p.kit_colour ?? 'rgba(255,255,255,.25)'}`,
+    width: size,
+    height: size,
+  }
   return p.avatar_url ? (
     <img src={p.avatar_url} alt="" className="shrink-0 rounded-full object-cover" style={ring} />
   ) : (
@@ -109,7 +113,9 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
       onSubmit={save}
       className={`mx-auto flex max-w-sm flex-col gap-4 font-sans text-chalk ${me.nickname ? 'screen py-2' : 'min-h-dvh bg-navy-900 p-6 pt-[calc(2rem+env(safe-area-inset-top))]'}`}
     >
-      <h1 className="disp text-[34px] leading-none font-extrabold">{me.nickname ? 'Your profile' : `Welcome, ${me.name}`}</h1>
+      <h1 className="disp text-[34px] leading-none font-extrabold">
+        {me.nickname ? 'Your profile' : `Welcome, ${me.name}`}
+      </h1>
 
       <div className="flex flex-col items-center gap-2">
         {img ? (
@@ -194,7 +200,10 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
           {error}
         </p>
       )}
-      <button disabled={busy || !nickname.trim()} className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50">
+      <button
+        disabled={busy || !nickname.trim()}
+        className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50"
+      >
         {busy ? 'Saving…' : 'Save'}
       </button>
     </form>

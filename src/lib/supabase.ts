@@ -63,7 +63,12 @@ const irish = new Intl.DateTimeFormat('en-IE', {
 })
 export const irishTime = (iso: string) => irish.format(new Date(iso))
 
-const lockDay = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', weekday: 'short', day: 'numeric', month: 'short' })
+const lockDay = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+})
 const lockTime = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', hour: '2-digit', minute: '2-digit' })
 /** "Fri 16 Oct · 20:00", Irish time. */
 export const lockLabel = (iso: string, sep = ' · ') =>

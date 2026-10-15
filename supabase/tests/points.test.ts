@@ -29,7 +29,9 @@ describe('points_table', () => {
   })
 
   it('sums prediction + jinx points, sorts by points then exact then name, and knows who is out', async () => {
-    const [r1, r2] = (await db.query<{ id: number }>('select id from rounds order by number limit 2')).rows.map((r) => r.id)
+    const [r1, r2] = (await db.query<{ id: number }>('select id from rounds order by number limit 2')).rows.map(
+      (r) => r.id,
+    )
     await db.query(
       `insert into round_results (round_id, player_id, outcome, prediction_points, exact_score, jinx_points) values
        ($1, $3, 'through', 5, true, 0), ($1, $4, 'out', 3, false, 0), ($1, $5, 'through', 1, false, 0),

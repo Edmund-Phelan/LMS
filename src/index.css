@@ -65,14 +65,30 @@ button {
 .stagger > * {
   animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.stagger > :nth-child(1) { animation-delay: 0.03s; }
-.stagger > :nth-child(2) { animation-delay: 0.07s; }
-.stagger > :nth-child(3) { animation-delay: 0.11s; }
-.stagger > :nth-child(4) { animation-delay: 0.15s; }
-.stagger > :nth-child(5) { animation-delay: 0.19s; }
-.stagger > :nth-child(6) { animation-delay: 0.23s; }
-.stagger > :nth-child(7) { animation-delay: 0.27s; }
-.stagger > :nth-child(n + 8) { animation-delay: 0.31s; }
+.stagger > :nth-child(1) {
+  animation-delay: 0.03s;
+}
+.stagger > :nth-child(2) {
+  animation-delay: 0.07s;
+}
+.stagger > :nth-child(3) {
+  animation-delay: 0.11s;
+}
+.stagger > :nth-child(4) {
+  animation-delay: 0.15s;
+}
+.stagger > :nth-child(5) {
+  animation-delay: 0.19s;
+}
+.stagger > :nth-child(6) {
+  animation-delay: 0.23s;
+}
+.stagger > :nth-child(7) {
+  animation-delay: 0.27s;
+}
+.stagger > :nth-child(n + 8) {
+  animation-delay: 0.31s;
+}
 @keyframes rise {
   from {
     opacity: 0;
@@ -87,11 +103,20 @@ button {
     box-shadow 0.3s,
     filter 0.3s;
 }
-.card:not(:disabled):hover { transform: translateY(-2px); }
-.card:not(:disabled):active { transform: scale(0.93); }
-.card.dim { opacity: 0.55; filter: saturate(0.7); }
+.card:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+.card:not(:disabled):active {
+  transform: scale(0.93);
+}
+.card.dim {
+  opacity: 0.55;
+  filter: saturate(0.7);
+}
 .card.picked {
-  box-shadow: 0 0 0 3px #f2b226, 0 12px 34px rgba(242, 178, 38, 0.38);
+  box-shadow:
+    0 0 0 3px #f2b226,
+    0 12px 34px rgba(242, 178, 38, 0.38);
   transform: scale(1.03);
 }
 .pop {
@@ -108,25 +133,48 @@ button {
     transform 0.15s cubic-bezier(0.3, 1.5, 0.5, 1),
     background 0.2s;
 }
-.press:not(:disabled):active { transform: scale(0.94); }
+.press:not(:disabled):active {
+  transform: scale(0.94);
+}
 .tab-ind {
   animation: grow 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
 }
 @keyframes grow {
-  from { transform: scaleX(0); }
+  from {
+    transform: scaleX(0);
+  }
 }
 .pulse {
   animation: pulse 1.8s ease-in-out infinite;
 }
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 178, 38, 0.45); }
-  50% { box-shadow: 0 0 0 8px rgba(242, 178, 38, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 178, 38, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(242, 178, 38, 0);
+  }
 }
 /* Two identical keyframes so the seconds digit re-animates every tick. */
-.sec-a { animation: tickA 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.sec-b { animation: tickB 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
-@keyframes tickA { from { transform: translateY(-40%); opacity: 0; } }
-@keyframes tickB { from { transform: translateY(-40%); opacity: 0; } }
+.sec-a {
+  animation: tickA 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sec-b {
+  animation: tickB 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes tickA {
+  from {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+}
+@keyframes tickB {
+  from {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+}
 .shimmer {
   background: linear-gradient(100deg, #f2b226 30%, #fff2c4 50%, #f2b226 70%);
   background-size: 300% 100%;
@@ -136,11 +184,19 @@ button {
   animation: shim 3.5s linear infinite;
 }
 @keyframes shim {
-  from { background-position: 100% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
-.knob { transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
-.open-in { animation: openIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.knob {
+  transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.open-in {
+  animation: openIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
 @keyframes openIn {
   from {
     opacity: 0;
@@ -149,52 +205,106 @@ button {
 }
 
 /* Team takeover (§4). */
-.tk { animation: wipe 0.5s cubic-bezier(0.7, 0, 0.2, 1) both; }
+.tk {
+  animation: wipe 0.5s cubic-bezier(0.7, 0, 0.2, 1) both;
+}
 @keyframes wipe {
-  from { clip-path: circle(0% at 50% 60%); }
-  to { clip-path: circle(150% at 50% 60%); }
+  from {
+    clip-path: circle(0% at 50% 60%);
+  }
+  to {
+    clip-path: circle(150% at 50% 60%);
+  }
 }
-.tk-stripe { animation: sweep 0.9s cubic-bezier(0.6, 0, 0.2, 1) both; }
+.tk-stripe {
+  animation: sweep 0.9s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
 @keyframes sweep {
-  from { transform: translateX(-130%) rotate(-14deg); }
-  to { transform: translateX(130%) rotate(-14deg); }
+  from {
+    transform: translateX(-130%) rotate(-14deg);
+  }
+  to {
+    transform: translateX(130%) rotate(-14deg);
+  }
 }
-.tk-crest { animation: drop 0.75s cubic-bezier(0.3, 1.45, 0.5, 1) 0.18s both; }
+.tk-crest {
+  animation: drop 0.75s cubic-bezier(0.3, 1.45, 0.5, 1) 0.18s both;
+}
 @keyframes drop {
-  from { transform: translateY(-460px) scale(1.5) rotate(-18deg); }
+  from {
+    transform: translateY(-460px) scale(1.5) rotate(-18deg);
+  }
 }
-.tk-name { animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) 0.5s both; }
+.tk-name {
+  animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) 0.5s both;
+}
 @keyframes slam {
   from {
     opacity: 0;
     transform: scale(2.4);
   }
 }
-.tk-shake { animation: shake 0.32s ease-out 0.62s both; }
+.tk-shake {
+  animation: shake 0.32s ease-out 0.62s both;
+}
 @keyframes shake {
-  20% { transform: translate(-6px, 3px); }
-  40% { transform: translate(5px, -3px); }
-  60% { transform: translate(-3px, 2px); }
-  80% { transform: translate(2px, -1px); }
+  20% {
+    transform: translate(-6px, 3px);
+  }
+  40% {
+    transform: translate(5px, -3px);
+  }
+  60% {
+    transform: translate(-3px, 2px);
+  }
+  80% {
+    transform: translate(2px, -1px);
+  }
 }
-.tk-sub { animation: fadeUp 0.4s ease-out 0.8s both; }
+.tk-sub {
+  animation: fadeUp 0.4s ease-out 0.8s both;
+}
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 0.85; }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 0.85;
+  }
 }
-.confetti { animation: burst 1s cubic-bezier(0.1, 0.7, 0.3, 1) 0.55s both; }
+.confetti {
+  animation: burst 1s cubic-bezier(0.1, 0.7, 0.3, 1) 0.55s both;
+}
 @keyframes burst {
-  from { transform: translate(0, 0) scale(0.4); opacity: 1; }
-  to { transform: var(--to) scale(1); opacity: 0; }
+  from {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: var(--to) scale(1);
+    opacity: 0;
+  }
 }
 /* Admin: settled card overshoot. */
-.boom { animation: boom 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+.boom {
+  animation: boom 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
 @keyframes boom {
-  from { transform: scale(0.6); opacity: 0; }
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
