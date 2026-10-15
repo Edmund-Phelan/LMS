@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import * as E from './engine/engine'
-import { load, must, runEngine, shuffle, toMatch, toResult, toRound, type Data, type Preview } from './adminData'
+import {
+  load,
+  must,
+  runEngine,
+  settleArgs,
+  shuffle,
+  toMatch,
+  toResult,
+  toRound,
+  type Data,
+  type Preview,
+} from './adminData'
 import { irishTime, supabase, type Match } from './lib/supabase'
 import { PaymentsAdmin } from './Pay'
 
@@ -317,20 +328,7 @@ function SettlePanel({ data, name, teamName, number, reload }: Names & { number:
       const fresh = await load(number)
       if (!fresh || JSON.stringify(runEngine(fresh, p.draw)) !== JSON.stringify(p))
         throw new Error('Something changed since the preview. Preview again.')
-      must(
-        await supabase.rpc('settle_round', {
-          p_round_id: data.round.id,
-          p_tiebreak: p.draw,
-          p_results: p.roundResults.map((r) => ({
-            player_id: r.playerId,
-            outcome: r.outcome,
-            prediction_points: r.predictionPoints,
-            exact_score: r.exactScore,
-            jinx_points: r.jinxPoints,
-          })),
-          p_burns: p.newBurnedTeams.map((b) => ({ player_id: b.playerId, team_id: b.teamId, reason: b.reason })),
-        }),
-      )
+      must(await supabase.rpc('settle_round', settleArgs(data.round.id, p)))
       reload()
     } catch (e) {
       setError((e as Error).message)

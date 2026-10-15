@@ -70,6 +70,21 @@ export const toResult = (r: ResultRow): E.RoundResult => ({
   jinxPoints: r.jinx_points,
 })
 
+/** Raw rows as the admin page fetches them (matches, predictions and jinxes for this round only). */
+export type Rows = {
+  rounds: Round[]
+  teams: Team[]
+  players: Player[]
+  matches: Match[]
+  picks: PickRow[]
+  results: ResultRow[]
+  burns: BurnRow[]
+  predictions: { player_id: string; home_score: number; away_score: number }[]
+  jinxes: { jinxer_id: string; target_id: string }[]
+  payments: PaymentRow[]
+  me: string | undefined
+}
+
 export async function load(number: number): Promise<Data | null> {
   const rounds = must(await supabase.from('rounds').select('*').order('number').returns<Round[]>())
   const round = rounds.find((r) => r.number === number)
@@ -86,43 +101,57 @@ export async function load(number: number): Promise<Data | null> {
     loadPayments(),
     supabase.auth.getUser(),
   ])
+  return build(number, {
+    rounds,
+    teams: must(teams),
+    players: must(players),
+    matches: must(matches),
+    picks: must(picks),
+    results: must(results),
+    burns: must(burns),
+    predictions: must(predictions),
+    jinxes: must(jinxes),
+    payments: must(payments),
+    me: user.data.user?.id,
+  })
+}
+
+/** Rows → the engine's view of round `number`. Pure, so the admin flow test runs the same mapping. */
+export function build(number: number, rows: Rows): Data | null {
+  const { rounds, picks, results, burns, payments } = rows
+  const round = rounds.find((r) => r.number === number)
+  if (!round) return null
   const numberOf = new Map(rounds.map((r) => [r.id, r.number]))
   const before = (roundId: number) => numberOf.get(roundId)! < number
-  const ps = must(players)
+  const ps = rows.players
   return {
     round,
     prev: rounds.findLast((r) => r.number < number),
-    teams: new Map(must(teams).map((t) => [t.id, t])),
+    teams: new Map(rows.teams.map((t) => [t.id, t])),
     players: ps,
-    me: ps.find((p) => p.id === user.data.user?.id),
-    matches: must(matches),
+    me: ps.find((p) => p.id === rows.me),
+    matches: rows.matches,
     history: {
       playerIds: ps.map((p) => p.id),
       rounds: rounds.filter((r) => r.number < number).map(toRound),
-      picks: must(picks)
-        .filter((p) => before(p.round_id))
-        .map(toPick),
-      roundResults: must(results)
-        .filter((r) => before(r.round_id))
-        .map(toResult),
-      burnedTeams: must(burns)
+      picks: picks.filter((p) => before(p.round_id)).map(toPick),
+      roundResults: results.filter((r) => before(r.round_id)).map(toResult),
+      burnedTeams: burns
         .filter((b) => before(b.round_id))
         .map((b) => ({ playerId: b.player_id, teamId: b.team_id, roundId: b.round_id, reason: b.reason })),
     },
-    roundPicks: must(picks)
-      .filter((p) => p.round_id === round.id)
-      .map(toPick),
-    roundResults: must(results).filter((r) => r.round_id === round.id),
-    roundBurns: must(burns).filter((b) => b.round_id === round.id),
-    predictions: must(predictions).map((p) => ({
+    roundPicks: picks.filter((p) => p.round_id === round.id).map(toPick),
+    roundResults: results.filter((r) => r.round_id === round.id),
+    roundBurns: burns.filter((b) => b.round_id === round.id),
+    predictions: rows.predictions.map((p) => ({
       roundId: round.id,
       playerId: p.player_id,
       homeScore: p.home_score,
       awayScore: p.away_score,
     })),
-    jinxes: must(jinxes).map((j) => ({ roundId: round.id, jinxerId: j.jinxer_id, targetId: j.target_id })),
-    paymentRows: must(payments),
-    payments: must(payments).map((p) => ({
+    jinxes: rows.jinxes.map((j) => ({ roundId: round.id, jinxerId: j.jinxer_id, targetId: j.target_id })),
+    paymentRows: payments,
+    payments: payments.map((p) => ({
       playerId: p.player_id,
       kind: p.kind,
       amountEur: Number(p.amount_eur),
@@ -131,6 +160,20 @@ export async function load(number: number): Promise<Data | null> {
     })),
   }
 }
+
+/** The settle_round() arguments for a confirmed preview. */
+export const settleArgs = (roundId: number, p: Preview) => ({
+  p_round_id: roundId,
+  p_tiebreak: p.draw,
+  p_results: p.roundResults.map((r) => ({
+    player_id: r.playerId,
+    outcome: r.outcome,
+    prediction_points: r.predictionPoints,
+    exact_score: r.exactScore,
+    jinx_points: r.jinxPoints,
+  })),
+  p_burns: p.newBurnedTeams.map((b) => ({ player_id: b.playerId, team_id: b.teamId, reason: b.reason })),
+})
 
 /** Fisher–Yates with crypto randomness: the Q4 tiebreak draw. */
 export function shuffle(ids: number[]) {
