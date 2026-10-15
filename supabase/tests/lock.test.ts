@@ -536,7 +536,11 @@ describe('settle_round', () => {
     expect((await db.query('select 1 from round_results where round_id = $1', [r1])).rows).toHaveLength(0)
 
     await settle1({ ...all, [BEN]: 'already_out' })
-    expect(await as(db, BEN, 'select * from round_status($1)', [r2])).toContainEqual({ player_id: BEN, alive: false })
+    expect(await as(db, BEN, 'select * from round_status($1)', [r2])).toContainEqual({
+      player_id: BEN,
+      alive: false,
+      bought_back: false,
+    })
     await expect(pick(BEN, r2, await team('saracens'))).rejects.toThrow(/not in this round/)
   })
 

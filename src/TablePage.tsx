@@ -1,21 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import { supabase, type Player } from './lib/supabase'
 import { loadPayments, potEur } from './Pay'
 import { loadTable, rankOf, type Standing } from './points'
 import { Avatar } from './Profile'
-import Shell, { Loading } from './Shell'
+import Shell, { Icon, Loading } from './Shell'
+import PlayerSheet from './PlayerSheet'
 
-type Data = { table: Standing[]; players: Map<string, Player>; pot: number; settled: boolean }
+type Data = { table: Standing[]; players: Map<string, Player>; pot: number; settled: boolean; notIn: Set<string> }
 
 async function load(): Promise<Data> {
-  const [table, players, payments, settled] = await Promise.all([
+  const [table, players, payments, settled, notIn] = await Promise.all([
     loadTable(),
-    supabase.from('players').select('id, name, nickname, avatar_url, kit_colour').returns<Player[]>(),
+    supabase.from('players').select('id, name, nickname, avatar_url, kit_colour, is_admin').returns<Player[]>(),
     loadPayments(),
     supabase.from('rounds').select('id', { count: 'exact', head: true }).not('settled_at', 'is', null),
+    // §22: already_out in Round 1 = never got in
+    supabase
+      .from('round_results')
+      .select('player_id, rounds!inner(number)')
+      .eq('rounds.number', 1)
+      .eq('outcome', 'already_out'),
   ])
+  const out = new Set((notIn.data ?? []).map((r) => r.player_id as string))
   return {
-    table,
+    notIn: out,
+    // ponytail: stable sort keeps the points order within each group
+    table: [...table].sort((a, b) => Number(out.has(a.player_id)) - Number(out.has(b.player_id))),
     players: new Map((players.data ?? []).map((p) => [p.id, p])),
     pot: potEur(payments.data ?? []),
     settled: (settled.count ?? 0) > 0,
@@ -31,6 +42,7 @@ const TILES = [
 
 export default function TablePage({ me }: { me: string }) {
   const [data, setData] = useState<Data>()
+  const [profile, setProfile] = useState<Player | null>(null) // §20 sheet
   useEffect(() => {
     load().then(setData)
   }, [])
@@ -40,9 +52,10 @@ export default function TablePage({ me }: { me: string }) {
         <Loading />
       </Shell>
     )
-  const cols = 'grid grid-cols-[28px_minmax(0,1fr)_52px_52px] gap-2'
+  const cols = 'grid grid-cols-[28px_minmax(0,1fr)_44px_52px_16px] gap-2'
   return (
     <Shell title="The table">
+      {profile && <PlayerSheet player={profile} onClose={() => setProfile(null)} />}
       <div className="screen stagger flex flex-col gap-4">
         <h1 className="disp text-[34px] font-extrabold">Points table</h1>
         <div className="grid grid-cols-2 gap-2.5">
@@ -62,16 +75,16 @@ export default function TablePage({ me }: { me: string }) {
               <span>PLAYER</span>
               <span className="text-right">EXACT</span>
               <span className="text-right">PTS</span>
+              <span />
             </li>
             {data.table.map((s, i) => {
               const p = data.players.get(s.player_id)
               if (!p) return null
               const out = s.alive === false
-              return (
-                <li
-                  key={s.player_id}
-                  className={`${cols} items-center border-t border-white/6 px-3.5 py-3 ${s.player_id === me ? 'bg-gold/8' : ''}`}
-                >
+              const notIn = data.notIn.has(s.player_id)
+              const row = `press ${cols} w-full items-center px-3.5 py-3 text-left ${s.player_id === me ? 'bg-gold/8' : ''} ${notIn ? 'opacity-50' : ''}`
+              const cells: ReactNode = (
+                <>
                   <span className={`disp text-xl font-extrabold ${rankOf(data.table, i) === 1 ? 'text-gold' : ''}`}>
                     {rankOf(data.table, i)}
                   </span>
@@ -82,8 +95,10 @@ export default function TablePage({ me }: { me: string }) {
                         {p.nickname || p.name}
                         {s.player_id === me && ' (you)'}
                       </span>
-                      <span className={`block text-[11px] font-bold ${out ? 'text-out-text' : 'text-in-text'}`}>
-                        {out ? 'OUT · IN THE STANDS' : 'STILL IN'}
+                      <span
+                        className={`block text-[11px] font-bold ${notIn ? 'text-muted' : out ? 'text-out-text' : 'text-in-text'}`}
+                      >
+                        {notIn ? 'NOT IN THIS YEAR' : out ? 'OUT · IN THE STANDS' : 'STILL IN'}
                       </span>
                     </span>
                   </span>
@@ -92,6 +107,21 @@ export default function TablePage({ me }: { me: string }) {
                     <span className="disp block text-[22px] leading-none font-extrabold tabular-nums">{s.points}</span>
                     {s.jinx > 0 && <span className="block text-[11px] text-muted">+{s.jinx} jinx</span>}
                   </span>
+                  <span className="text-[#6f7ba0]">{Icon.chevron}</span>
+                </>
+              )
+              // §20: every row opens that player's profile; your own goes to Me.
+              return (
+                <li key={s.player_id} className="border-t border-white/6">
+                  {s.player_id === me ? (
+                    <Link to="/me" className={row}>
+                      {cells}
+                    </Link>
+                  ) : (
+                    <button type="button" onClick={() => setProfile(p)} className={row}>
+                      {cells}
+                    </button>
+                  )}
                 </li>
               )
             })}

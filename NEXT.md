@@ -98,6 +98,8 @@ In this order; each step shippable on its own:
 - **Done means:** Round 1 settles; survivors, used teams and the stored tiebreak are right; Round 2 opens.
 
 ## 5g. Not in this year (by the Round 1 settle, Sun 18 Oct night)
+**Built 15 Oct** (admin `NotCounted` panel + `notCounted()` in `adminData.ts`; Round/Me/Table states). PGlite test in
+`admin-flow.test.ts`. Still to do: eyeball the admin panel at Sunday's preview.
 Spec `docs/UI-REDESIGN.md` §22, prototype `docs/ui-prototype/NotIn.dc.html`. The first non-entrants appear the moment Round 1
 settles, and today they get a normal countdown, a pay card, dead fixtures and a jinx picker (their Round 1 outcome is
 `already_out`, which the Round screen doesn't handle; `loadKnockout` only looks for `out`).
@@ -155,7 +157,8 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    story shell + clash + outcome + prediction; the jinx cards can follow before Round 2 (no one is out until Round 1
    settles). Its "Done means" is in §19.
 
-5f. **Player profiles (Eddie, 15 Oct).** Spec `docs/UI-REDESIGN.md` §20, prototypes `docs/ui-prototype/Profile.dc.html`
+5f. **Player profiles (Eddie, 15 Oct). Built 15 Oct** (`src/PlayerSheet.tsx`, pure road/predictions in
+   `src/profileData.ts` with the before-the-lock privacy test). Still to do: real-iPhone check of the slide, swipe and count-up. Spec `docs/UI-REDESIGN.md` §20, prototypes `docs/ui-prototype/Profile.dc.html`
    (interactive) and `ProfileOut.dc.html`. Tap any Squad or Table row → a bottom sheet slides up: nickname + real name,
    still in / out / bought back, paid, points, rank, exact scores, their road (locked rounds only) and their prediction
    record. Squad rows also show the real name under a nickname. Read-only, no migration, no RLS change: safe to ship before
@@ -165,7 +168,10 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
 
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
-7. **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
+7. **Built 15 Oct except the resurrection RPC** (migration `20261015170000_buyback_reentry.sql`, NOT yet applied to the
+   live project; test in `admin-flow.test.ts`). Burns are computed in SQL (`reentry_burns`, mirrors the engine; the test
+   checks they agree) and still written by the settle. Resurrection RPC for Round 4: still to do before 15 Jan.
+   **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
    prototype `docs/ui-prototype/BoughtBack.dc.html`. **Today a confirmed buy-back breaks the round:** `alive()` stays false
    until the settle, so `make_pick` refuses them ("You are not in this round"), the lock job doesn't auto-pick them, they're
    not in `round_pick_status`, the jinx picker still shows, and the settle then throws ("has no pick but has teams left", or

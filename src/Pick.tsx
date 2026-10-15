@@ -28,6 +28,7 @@ export function FixtureList({
   matches,
   teams,
   used,
+  burned,
   picked,
   featuredId,
   locked,
@@ -38,6 +39,7 @@ export function FixtureList({
   matches: Match[]
   teams: Map<number, Team>
   used: Map<number, number>
+  burned?: Set<number> // §23: pending buy-back burns
   picked?: number
   featuredId: number | null
   locked: boolean
@@ -107,6 +109,7 @@ export function FixtureList({
                         team={teams.get(tid)!}
                         home={i === 0}
                         usedIn={used.get(tid)}
+                        burned={burned?.has(tid)}
                         picked={picked === tid}
                         dim={picked !== undefined && picked !== tid}
                         lost={final && !won(m, tid, knockout) && (knockout || m.home_score !== m.away_score)}
@@ -129,6 +132,7 @@ function TeamCard({
   team: t,
   home,
   usedIn,
+  burned,
   picked,
   dim,
   lost,
@@ -138,6 +142,7 @@ function TeamCard({
   team: Team
   home: boolean
   usedIn?: number
+  burned?: boolean
   picked: boolean
   dim: boolean
   lost: boolean
@@ -145,14 +150,15 @@ function TeamCard({
   onPick: () => void
 }) {
   const side = home ? 'home' : 'away'
+  const gone = usedIn !== undefined || burned
   return (
     <button
       type="button"
-      disabled={disabled || usedIn !== undefined}
+      disabled={disabled || gone}
       onClick={onPick}
       aria-pressed={picked}
-      aria-label={`${picked ? 'Your pick' : 'Pick'}: ${t.name} (${side})${usedIn !== undefined ? `, used in round ${usedIn}` : ''}`}
-      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : lost ? 'lost' : dim ? 'dim' : ''} ${usedIn !== undefined ? 'opacity-30 grayscale' : ''}`}
+      aria-label={`${picked ? 'Your pick' : 'Pick'}: ${t.name} (${side})${burned ? ', burned' : usedIn !== undefined ? `, used in round ${usedIn}` : ''}`}
+      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : lost ? 'lost' : dim ? 'dim' : ''} ${gone ? 'opacity-30 grayscale' : ''}`}
       style={{ background: t.card_bg, color: t.card_text }}
     >
       {picked && (
@@ -173,10 +179,14 @@ function TeamCard({
         </span>
       )}
       <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
-      <span className="disp max-w-full truncate text-[19px] leading-[1.05] font-extrabold">{t.name}</span>
+      <span
+        className={`disp max-w-full truncate text-[19px] leading-[1.05] font-extrabold ${burned ? 'line-through' : ''}`}
+      >
+        {t.name}
+      </span>
       <span className="text-[11px] font-semibold opacity-75">
         {home ? 'Home' : 'Away'}
-        {usedIn !== undefined && ` · used R${usedIn}`}
+        {burned ? ' · burned' : usedIn !== undefined && ` · used R${usedIn}`}
       </span>
     </button>
   )

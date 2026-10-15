@@ -151,6 +151,14 @@ it('Round 1: pay, pick, lock, results, settle, unsettle, correct, settle again; 
   await score('connacht', 17, 17) // Saracens draw: out (draw = loss)
   await score('munster-rugby', 10, 20) // Munster lose at home
 
+  // §22: the preview names who won't count, with Skint's claim confirmable from there.
+  const d1 = await load(1)
+  const nc = A.notCounted(d1, A.runEngine(d1, A.shuffle([...d1.teams.keys()])))
+  expect(nc.map(({ playerId, reason, claim }) => [playerId, reason, claim?.player_id])).toEqual([
+    [NOPICK, 'no pick', undefined],
+    [SKINT, 'claim not confirmed', SKINT],
+  ])
+
   await settle(1)
   expect(await outcomes(r1)).toEqual({
     [EDDIE]: 'through',
@@ -189,6 +197,17 @@ it('Round 1: pay, pick, lock, results, settle, unsettle, correct, settle again; 
   expect(await outcomes(r1)).toMatchObject({ [BEN]: 'through', [CONN]: 'out', [SKINT]: 'already_out' })
   expect((await db.query('select tiebreak from rounds where id = $1', [r1])).rows[0]).toEqual({ tiebreak: again.draw })
   expect(again.stillIn.sort()).toEqual([BEN, EDDIE, MOSSY].sort())
+
+  // §22: both see "Not in this year" in Round 2, keyed on their own Round 1 already_out, and they're not in the squad.
+  for (const uid of [SKINT, NOPICK]) {
+    expect(
+      await as(db, uid, 'select outcome from round_results where round_id = $1 and player_id = $2', [r1, uid]),
+    ).toEqual([{ outcome: 'already_out' }])
+    expect(await as(db, uid, 'select alive($1, $2) as a', [uid, r2])).toEqual([{ a: false }])
+  }
+  expect(
+    (await as<{ player_id: string }>(db, SKINT, 'select * from round_pick_status($1)', [r2])).map((r) => r.player_id),
+  ).not.toContain(SKINT)
 
   // Round 2: open panel runs on the settled history, and Ben is back in.
   const d2 = await load(2)
@@ -367,4 +386,74 @@ it('round recap: survivor with an exact score, out player whose jinx landed, no 
   expect((await db.query('select seen_recap_round s from players where id = $1', [EDDIE])).rows[0]).toEqual({ s: 1 })
   await settle(2)
   expect(await shape(EDDIE)).toEqual(['through', 'pred:exact:+5'])
+})
+
+// Packet 7: a confirmed buy-back puts Conn back in for Round 2 before the settle, with the engine's burns enforced.
+it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is auto-picked, can’t jinx, settles', async () => {
+  for (const p of [EDDIE, CONN, BEN, MOSSY]) await as(db, CONN, `select mark_paid($1)`, [p])
+  await pick(EDDIE, r1, await team('leinster'))
+  await pick(CONN, r1, await team('munster-rugby')) // loses: out
+  await pick(BEN, r1, await team('saracens'))
+  await pick(MOSSY, r1, await team('leinster')) // Leinster most-picked in Round 1
+  await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r1])
+  await db.query(`update matches set status = 'completed', home_score = 20, away_score = 10 where round_id = $1`, [r1])
+  await score('asm-clermont-auvergne', 10, 24) // Leinster win away
+  await score('munster-rugby', 10, 20) // Munster lose at home
+  await settle(1)
+  expect((await outcomes(r1))[CONN]).toBe('out')
+  await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
+
+  // Claimed only: still out.
+  const [{ id }] = await as<{ id: number }>(
+    db,
+    CONN,
+    `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10) returning id`,
+    [CONN],
+  )
+  await db.query(`update payments set claimed_at = now() - interval '1 hour' where id = $1`, [id]) // well before the lock
+  await expect(pick(CONN, r2, await team('sale-sharks'))).rejects.toThrow(/not in this round/)
+
+  // Confirmed: back in, and the database agrees with the engine on the burns.
+  await as(db, EDDIE, 'select confirm_payment($1)', [id])
+  expect(await as(db, CONN, 'select * from round_status($1) where player_id = $2', [r2, CONN])).toEqual([
+    { player_id: CONN, alive: true, bought_back: true },
+  ])
+  expect(
+    (await as<{ player_id: string }>(db, BEN, 'select * from round_pick_status($1)', [r2])).map((r) => r.player_id),
+  ).toContain(CONN)
+  const d2 = await load(2)
+  const engine = E.reentryBurns(d2.history, CONN, A.toRound(d2.round), 'buyback_penalty').map((b) => b.teamId)
+  expect(engine).toEqual([await team('leinster')])
+  expect(
+    (await as<{ team_id: number }>(db, CONN, 'select * from my_pending_burns($1)', [r2])).map((r) => r.team_id),
+  ).toEqual(engine)
+  expect(await as(db, EDDIE, 'select * from my_pending_burns($1)', [r2])).toEqual([]) // alive: none
+
+  await expect(pick(CONN, r2, await team('leinster'))).rejects.toThrow(/burned/)
+  await expect(pick(CONN, r2, await team('munster-rugby'))).rejects.toThrow(/already used/)
+  await expect(
+    as(db, CONN, 'insert into jinxes (round_id, jinxer_id, target_id) values ($1, $2, $3)', [r2, CONN, EDDIE]),
+  ).rejects.toThrow(/row-level security/)
+
+  // Lock: Conn didn't pick, so the lock job picks for them, never a burned or used team.
+  await pick(EDDIE, r2, await team('sale-sharks'))
+  await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r2])
+  await db.query('select auto_pick_locked_rounds()')
+  const auto = (
+    await db.query<{ team_id: number; is_auto: boolean }>(
+      'select team_id, is_auto from picks where round_id = $1 and player_id = $2',
+      [r2, CONN],
+    )
+  ).rows[0]
+  expect(auto.is_auto).toBe(true)
+  expect([await team('leinster'), await team('munster-rugby')]).not.toContain(auto.team_id)
+
+  // Round 2 settles with Conn through or out, and the burn written.
+  await db.query(`update matches set status = 'completed', home_score = 20, away_score = 10 where round_id = $1`, [r2])
+  await settle(2)
+  expect(['through', 'out']).toContain((await outcomes(r2))[CONN])
+  expect(
+    (await db.query('select team_id, reason from burned_teams where player_id = $1 and round_id = $2', [CONN, r2]))
+      .rows,
+  ).toEqual([{ team_id: engine[0], reason: 'buyback_penalty' }])
 })
