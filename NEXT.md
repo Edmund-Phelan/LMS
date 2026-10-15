@@ -88,15 +88,24 @@ In this order; each step shippable on its own:
 ---
 
 ## After Round 1 (before the Round 2 lock, Fri 11 Dec 8pm)
-5b. **UI redesign: spec in `docs/UI-REDESIGN.md`** (signed off by Eddie 15 Oct; prototype screens in `docs/ui-prototype/`).
-   Investec Champions Cup navy + gold theme (spec §1), bottom tabs (Round / Table / Me), round pills, takeover + synthesised whistle and crowd roar (no UI
-   blips), "Your pick" only says "locked in" after the lock (gold ring), squad shows picked / not picked (new
-   `round_pick_status` RPC, never a team), Table and Me screens (new `points_table` RPC), Rules page with points calculator,
-   admin as Open → Locked → Results → Settle with hold-to-settle. Start after Round 1 settles. Update CLAUDE.md §7 sound line.
-   **Done means:** §12 of the spec.
+5b. ~~UI redesign~~ **DONE 15 Oct** (merged as PR #1, `ui-redesign`). Spec §1–12 of `docs/UI-REDESIGN.md` is built.
+   Spec §15–17 were added after the merge and are packets 5c (Pools + live states) and 5d (knocked-out experience).
 5c. **Live results + standings feed (API-Sports Rugby), before the Round 2 lock** (Eddie, 15 Oct). Scores update in the
    app while games are on, the Pools tab shows the real Champions Cup standings, admins still settle by hand. UI: spec
-   `docs/UI-REDESIGN.md` §15 (Pools), §16 (live states). Plan:
+   `docs/UI-REDESIGN.md` §15 (Pools), §16 (live states); prototype boards `docs/ui-prototype/Live.dc.html` and
+   `Pools.dc.html`. Plan:
+   - **Eddie provides (before Claude Code starts):** a free API-Sports account and its key. The key goes in two places,
+     never in git or chat: `APISPORTS_KEY=…` in `.env.local` (gitignored; for the local check script), and the Supabase
+     Edge Function secret `APISPORTS_KEY` (Dashboard → Edge Functions → Secrets). If the key isn't in `.env.local`, stop and
+     ask for it.
+   - **Build order (one shippable commit each, stop at any failed check):** 1) `scripts/apisports-check.ts`: league id,
+     confirm season 2026 is reachable on the plan, print the 24 teams with ids, write the mapping migration
+     (`teams.api_team_id`, `teams.pool`) and check it against spec §15's pools → 2) schema: live columns,
+     `result_source`, `pool_standings`, `api_calls` + DB tests → 3) Edge Function `sync-games` + the polling decision
+     (unit-tested) + `pg_cron`/`pg_net` schedule → 4) Edge Function `sync-standings` + schedule → 5) UI §16 live states →
+     6) UI §15 Pools tab (4th tab, between Round and Table) → 7) admin "auto/manual" + "Results in: X/12".
+     Deploy the functions only after Eddie OKs; while Round 1 runs, nothing may write to `matches`. Test against recorded
+     JSON fixtures in `supabase/functions/_fixtures/`, not the live API.
    - **API facts (from the docs, 15 Oct):** base `https://v1.rugby.api-sports.io`, header `x-apisports-key`.
      `GET /games` (needs one of `id`, `date`, `league`, `season`, `team`; add `timezone=Europe/Dublin`), **updated every
      15 s**. Statuses: NS not started · 1H/2H/HT/ET/BT/PT in play · INTR interrupted · FT finished · AET after extra time
@@ -135,6 +144,15 @@ In this order; each step shippable on its own:
      time, standings refresh within 2 h of a day's last match, the day's call count stays under 95, an admin-entered score is
      never overwritten, postponed/abandoned/awarded are handled as above, and settle still needs a human. Unit tests for
      the polling decision (live / not live / budget), the status mapping, and the API → match/standings mapping.
+
+5d. **Knocked-out experience: spec `docs/UI-REDESIGN.md` §17**, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
+   Round 1 settle (Sun 18 Oct night), since that's when the first players go out. The one-time red-card overlay
+   (`players.seen_elimination_round`) + whistle and crowd `groan()`; the out player's Round screen (red hero + Replay,
+   "Get back in" with buy-back cost chips from `reentryBurns()` and the Round 4 resurrection info, jinx avatar grid,
+   "Still playing for the 20%"); "KNOCKED OUT" pick card; Me status "Out · Round N" and red road tile. The buy-back button
+   uses the existing payments flow (kind `buyback`); the re-entry plumbing that lets a bought-back player pick is packet 7.
+   **Done means:** settle a test round locally where a player loses → on their next open the overlay plays once, Replay
+   plays it with sound, the out screen shows the right burn chips, and a jinx saves.
 
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
