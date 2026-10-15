@@ -6,6 +6,7 @@ import Login from './Login'
 import AdminPage from './AdminPage'
 import RoundPage, { CurrentRound } from './RoundPage'
 import Profile, { type Me } from './Profile'
+import InstallGuide from './InstallGuide'
 
 export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -29,7 +30,13 @@ export default function App() {
   }, [])
 
   if (session === undefined) return null
-  if (!session) return <Login />
+  if (!session)
+    return (
+      <>
+        <InstallGuide />
+        <Login />
+      </>
+    )
   if (me === undefined) return null
   if (!me) return <p className="p-6">You’re signed in but not on the player list. Ask Eddie.</p>
   if (!me.nickname) return <Profile me={me} onSaved={loadMe} /> // first login
