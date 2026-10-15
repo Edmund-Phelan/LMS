@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, type CSSProperties } from 'react'
+import { useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
 import { crestUrl, type Match, type Team } from './lib/supabase'
 
@@ -128,62 +128,62 @@ function TeamCard({
 }
 
 /**
- * Team takeover (CLAUDE.md §7): the team's colours flood the screen, kit stripes wipe across, crest drops in.
- * Under 1.5 s, tap to skip; reduced motion → a still frame.
+ * Team takeover (docs/UI-REDESIGN.md §4): colours wipe in, kit stripes sweep, confetti bursts, crest drops, name
+ * slams. CSS keyframes in index.css. Auto-dismiss at 1.5 s, tap to skip; reduced motion → a still frame for .8 s.
  */
 export function Takeover({ team, onDone }: { team: Team | null; onDone: () => void }) {
   const still = useReducedMotion()
   useEffect(() => {
     if (!team) return
-    const id = setTimeout(onDone, still ? 800 : 1400)
+    const id = setTimeout(onDone, still ? 800 : 1500)
     return () => clearTimeout(id)
   }, [team, still, onDone])
+  if (!team) return null
 
-  const stripe = team?.secondary
+  const colours = team.secondary.toLowerCase() === '#ffffff' ? ['#ffffff', '#f2b226'] : [team.secondary, '#ffffff', '#f2b226']
   return (
-    <AnimatePresence>
-      {team && (
-        <motion.button
-          key={team.id}
-          aria-label={`You picked ${team.name}. Tap to continue.`}
-          onClick={onDone}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 overflow-hidden"
-          style={{ background: team.primary, color: team.text }}
-          initial={still ? false : { clipPath: 'circle(0% at 50% 50%)' }}
-          animate={{ clipPath: 'circle(150% at 50% 50%)' }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-        >
-          {!still &&
-            [0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                className="absolute h-16 w-[200%] -rotate-12"
-                style={{ background: stripe, top: `${25 + i * 22}%`, opacity: 0.5 }}
-                initial={{ x: '-100%' }}
-                animate={{ x: '100%' }}
-                transition={{ duration: 0.7, delay: 0.15 + i * 0.08, ease: 'easeInOut' }}
-              />
-            ))}
-          <motion.div
-            className="relative rounded-full bg-white p-4 shadow-2xl"
-            initial={still ? false : { y: -400, scale: 1.4 }}
-            animate={{ y: 0, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 18, delay: 0.25 }}
-          >
-            <img src={crestUrl(team)} alt="" className="h-32 w-32 object-contain" />
-          </motion.div>
-          <motion.div
-            className="relative flex flex-col items-center"
-            initial={still ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <p className="mt-2 text-3xl font-black tracking-tight uppercase">{team.name}</p>
-            <p className="text-sm opacity-80">Your pick. Change it any time before the lock.</p>
-          </motion.div>
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      type="button"
+      key={team.id}
+      onClick={onDone}
+      aria-label={`You picked ${team.name}. Tap to continue.`}
+      className="tk fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 overflow-hidden"
+      style={{ background: team.primary, color: team.text }}
+    >
+      {[20, 44, 68].map((top, i) => (
+        <span
+          key={top}
+          aria-hidden
+          className="tk-stripe absolute -left-1/2 h-[70px] w-[200%] opacity-45"
+          style={{ top: `${top}%`, background: team.secondary, animationDelay: `${i * 0.08}s` }}
+        />
+      ))}
+      {Array.from({ length: 16 }, (_, i) => {
+        const a = (i / 16) * Math.PI * 2
+        const r = 150 + (i % 3) * 40
+        return (
+          <span
+            key={i}
+            aria-hidden
+            className="confetti absolute top-[46%] left-1/2 h-4 w-2.5 rounded-[2px]"
+            style={
+              {
+                background: colours[i % colours.length],
+                '--to': `translate(${Math.round(Math.cos(a) * r)}px,${Math.round(Math.sin(a) * r)}px) rotate(${i * 47}deg)`,
+              } as CSSProperties
+            }
+          />
+        )
+      })}
+      <span className="tk-shake relative flex flex-col items-center gap-[18px]">
+        <span className="tk-crest flex h-[168px] w-[168px] items-center justify-center rounded-full bg-white shadow-[0_24px_60px_rgba(0,0,0,.4)]">
+          <img src={crestUrl(team)} alt="" className="h-[124px] w-[124px] object-contain" />
+        </span>
+        <span className="tk-name disp px-5 text-center text-[52px] leading-[.95] font-extrabold tracking-[-.01em] uppercase">
+          {team.name}
+        </span>
+      </span>
+      <span className="tk-sub relative text-[15px] font-semibold">Your pick. Change it any time before the lock.</span>
+    </button>
   )
 }

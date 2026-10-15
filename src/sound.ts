@@ -139,6 +139,10 @@ const later = (ms: number, f: () => void) => setTimeout(f, ms)
 
 /** The events in §5's table. Each is a no-op with sound off. */
 export const sfx = {
+  /** Create/resume the AudioContext inside the tap, for a sound that plays after an await. */
+  unlock() {
+    if (on) ctx()
+  },
   pick() {
     if (!on) return
     whistle(0.22)

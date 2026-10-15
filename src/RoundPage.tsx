@@ -375,7 +375,11 @@ export default function RoundPage({ me }: { me: string }) {
               team={myPick && teams.get(myPick.team_id)}
               locked={locked}
               round1={round.number === 1}
-              onReplay={() => myPick && setTakeover(teams.get(myPick.team_id)!)}
+              onReplay={() => {
+                if (!myPick) return
+                sfx.pick()
+                setTakeover(teams.get(myPick.team_id)!)
+              }}
             />
           )}
           {myAlive === true && (
@@ -387,11 +391,15 @@ export default function RoundPage({ me }: { me: string }) {
               featuredId={round.featured_match_id}
               locked={locked}
               onPick={async (tid) => {
-                thud() // from the tap itself: iOS only allows haptics inside a user gesture
+                thud() // from the tap itself: iOS only allows haptics and audio inside a user gesture
+                sfx.unlock()
                 setError(null)
                 const { error } = await supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: tid })
                 if (error) setError(error.message)
-                else setTakeover(teams.get(tid)!)
+                else {
+                  setTakeover(teams.get(tid)!)
+                  sfx.pick()
+                }
                 await reload()
               }}
             />

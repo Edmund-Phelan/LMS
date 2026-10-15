@@ -179,7 +179,7 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 - **Haptics:** iPhones ignore `navigator.vibrate`. Use the hidden-switch trick (`<input type="checkbox" switch>`, Safari 17.4+)
   via `react-haptic`. Only fire from a user tap (pick, card flip). It's a tick, not a buzz — 2–3 quick ticks for a thud.
   It's a bonus layer: everything must work with haptics off.
-- Sound (whistle, crowd) muted by default.
+- Sound on by default, with a mute toggle in the header and on the Me screen; respects the iPhone silent switch. Whistle + crowd roar synthesised with Web Audio (`src/sound.ts`) on picks, saves and settles only; no UI blips on tabs, pills or steppers.
 - Link-preview image (Open Graph) so the URL looks good in WhatsApp.
 - PWA manifest + icons; a 3-step "Add to Home Screen" guide for iPhone on first visit in Safari.
 
