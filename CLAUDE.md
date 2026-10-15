@@ -1,4 +1,4 @@
-# Champions Cup LMS — project brief for Claude Code
+# BBB Last Man Standing (Champions Cup LMS) — project brief for Claude Code
 
 Read this whole file before writing code. It is the spec. When it and your instincts disagree, it wins;
 when it is silent, ask Eddie. The human-readable rules live in the Claude Doc
@@ -7,12 +7,14 @@ section 5 below is the same rules, written for the engine.
 
 ## 1. What this is
 
+App name: **BBB Last Man Standing** (use it in the title, PWA manifest and link preview).
+
 A private web app for a Last Man Standing comp on the 2026/27 Investec Champions Cup, played by
 ~11 mates who share a WhatsApp group. Run by Eddie (owner) and Conn (second admin).
 
 - Every round, each player picks one team to win. Win → through. Loss or draw → out. Last one standing takes the pot.
-- Round 1 (16–18 Oct) runs on a Google Form. **The app takes over from Round 2, whose picks lock Fri 11 Dec 2026, 8pm Irish time.**
-  The app must be live, tested and trusted before then. Target ship: Fri 4 Dec.
+- **Round 1 (16–18 Oct) runs on the app.** Picks lock Fri 16 Oct 2026, 8pm Irish time. The Google Form is only a fallback
+  (see NEXT.md). Round 1 rules: no pick = no entry (no auto-pick), no confirmed payment = not in the comp.
 - Everyone is on iPhone. Mobile-first, installed to the home screen as a PWA. Desktop is an afterthought.
 - Personal and private: no licensing constraints on assets, no scale concerns. Real money is involved (€10 entries),
   so correctness of the lock, the privacy of picks and the rules engine matters more than anything else.
@@ -58,8 +60,8 @@ R2–R4 locks are in winter time (UTC+0). Never compute locks from the phone clo
 
 ```
 players        id (= auth.users.id), name, nickname, avatar_url, kit_colour, is_admin bool, created_at
-teams          id, slug, name, primary, secondary, text, crest, pattern (hoops|stripes|halves|plain — TODO)
-rounds         id, number, stage (pool|r16|qf|sf|final), name, lock_at, featured_match_id, settled_at
+teams          id, slug, name, primary, secondary, text, crest, kit jsonb (see §8: pattern, colours, accent …)
+rounds         id, number, stage (pool|r16|qf|sf|final), name, lock_at, featured_match_id, featured_drawn_at, settled_at
 matches        id, round_id, home_team_id, away_team_id, kickoff_at, home_score, away_score,
                winner_team_id (knockouts: team that goes through), status (scheduled|completed|postponed|abandoned)
 picks          id, round_id, player_id, team_id, is_auto bool, is_resurrection bool, updated_at   unique(round_id, player_id)
@@ -155,10 +157,11 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 - **Home ("the field"):** a pitch with every player's avatar. Survivors on the pitch; knocked-out players in the stands.
   Countdown to the next lock. Pot total. Wall of the fallen (each out player + the team that knocked them out).
 - **Pick:** the round's fixtures as cards. Used/burned teams greyed out, labelled with the round used. Tap = team takeover
-  (7). Featured-match score prediction on the same screen. Jinx picker if you're out. Change freely until the lock.
+  (7). Featured-match score prediction on the same screen. The featured match is a random server-side draw by an admin when
+  the round opens (`draw_featured_match`, one-shot, no re-draws), revealed to each player with a tap-to-open raffle animation. Jinx picker if you're out. Change freely until the lock.
 - **Reveal (after lock):** tap-to-flip cards, one per player, like a team-sheet announcement. Lists jinxes.
 - **Results:** who's through, who's out, points table.
-- **Pay:** "Pay €10" opens Eddie's revolut.me link (TODO: username); "I've paid" creates a claimed payment. Paid badge once confirmed.
+- **Pay:** "Pay €10" opens Eddie's revolut.me link (`https://revolut.me/eddie1apt`); "I've paid" creates a claimed payment. Paid badge once confirmed.
   Buy-back request flows the same way and shows pending until confirmed.
 - **Rules:** in-app rules page, linking to the rules doc, including the note that the owner can see the raw database.
 - **Admin (Eddie, Conn):** enter final scores (+ knockout winner, postponed flag), Settle (engine preview → confirm),
@@ -182,8 +185,14 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 
 ## 8. Data you have
 
-- `teams.json` — all 24 clubs: slug, short name, primary, secondary, text colour, crest path. **Draft:** Munster, Leicester,
-  Saracens, Stade Français and Bath have colours taken from the kit, not the crest; Eddie checks them by eye. `pattern` is TODO.
+- `teams.json` — all 24 clubs: slug, short name, primary, secondary, text colour (UI theming), crest path, and a `kit` object
+  for the jersey graphic, researched from the 2026/27 kit launches (2025/26 or traditional where 26/27 wasn't findable):
+  - `pattern`: plain | hoops | stripes | halves | quarters; `width`: broad | thin (hoops/stripes); `edge`: thin line colour
+    between hoops (Northampton's gold)
+  - `colours`: base colours in order; `trim`: collar and cuffs
+  - `accent`: null | fade | tartan | side-panels | shoulders | band | chevrons, with `accentColours`
+  - `jazz: true` = the accent was invented to liven up a plain shirt; `season` and `note` say where it came from
+  - Reference renderer and preview: `scripts/kit-preview.py` → `docs/kit-check.html`. Port it to an SVG React component.
 - `crests/` — 24 × 192px PNG crests from the official EPCR clubs page.
 - Fixtures: Eddie has `champions-cup-26-27-fixtures.ics` (48 pool kick-offs, Irish time) from an earlier session; otherwise
   https://www.epcrugby.com/champions-cup/matches. Seed rounds 2–4 from it. Knockout fixtures get added when announced.
@@ -192,8 +201,8 @@ Season:
 
 | Round | Weekend | Lock (Irish time) |
 | --- | --- | --- |
-| 1 | 16–18 Oct 2026 | Fri 16 Oct 8pm (Google Form — import results) |
-| 2 | 11–13 Dec | Fri 11 Dec 8pm — first round on the app |
+| 1 | 16–18 Oct 2026 | Fri 16 Oct 8pm — first round on the app |
+| 2 | 11–13 Dec | Fri 11 Dec 8pm |
 | 3 | 8–10 Jan 2027 | Fri 8 Jan 8pm |
 | 4 | 15–17 Jan | Fri 15 Jan 8pm (last buy-back; resurrection round) |
 | R16 | 2–4 Apr | first kick-off, TBC |
@@ -216,11 +225,7 @@ Correctness before polish: no animation work until the lock, privacy and engine 
 ## 10. Open — ask Eddie
 
 - Players' names and emails (Conn is the second admin).
-- Revolut.me username for the Pay button.
-- App name (and whether to use a custom domain).
-- Who names each round's featured match, and when.
 - The forfeit itself (outfit vs the dog cage) — display only.
-- Each club's kit pattern for the jersey graphic.
 
 ## 11. Working rules
 
