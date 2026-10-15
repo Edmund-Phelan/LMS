@@ -1,4 +1,5 @@
 import { supabase, type Player } from './lib/supabase'
+import { Avatar } from './Profile'
 
 // Payments (CLAUDE.md §6 Pay): pay Eddie on Revolut, tap "I've paid", an admin confirms.
 export const REVOLUT_URL = 'https://revolut.me/eddie1apt'
@@ -88,6 +89,7 @@ export function PlayerList({
       <ul className="flex flex-col divide-y divide-gray-200 rounded-xl border border-gray-200">
         {players.map((p) => (
           <li key={p.id} className="flex items-center gap-2 px-3 py-2">
+            <Avatar p={p} size={32} />
             <span className="flex-1">{name(p.id)}</span>
             {alive.get(p.id) === false && <span className="text-sm font-bold text-red-600">OUT</span>}
             <PaidBadge payments={payments} playerId={p.id} />

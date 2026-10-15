@@ -43,7 +43,11 @@ async function load(number: number): Promise<Data | null> {
   const [teams, matches, players, picks, used, status, predictions, jinxes, payments] = await Promise.all([
     supabase.from('teams').select('*').returns<Team[]>(),
     supabase.from('matches').select('*').eq('round_id', round.id).order('kickoff_at').returns<Match[]>(),
-    supabase.from('players').select('id, name, nickname, is_admin').order('name').returns<Player[]>(),
+    supabase
+      .from('players')
+      .select('id, name, nickname, is_admin, avatar_url, kit_colour')
+      .order('name')
+      .returns<Player[]>(),
     supabase.from('picks').select('round_id, player_id, team_id, is_auto').eq('round_id', round.id).returns<Pick[]>(),
     supabase.rpc('my_used_teams', { r: round.id }),
     supabase.rpc('round_status', { r: round.id }),
@@ -195,6 +199,9 @@ export default function RoundPage({ me }: { me: string }) {
               Admin
             </Link>
           )}
+          <Link to="/profile" className="underline">
+            Profile
+          </Link>
           <button onClick={() => supabase.auth.signOut()} className="underline">
             Sign out
           </button>

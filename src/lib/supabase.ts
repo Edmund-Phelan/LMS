@@ -39,7 +39,14 @@ export type Match = {
   winner_team_id: number | null
   status: EngineMatch['status']
 }
-export type Player = { id: string; name: string; nickname: string | null; is_admin?: boolean }
+export type Player = {
+  id: string
+  name: string
+  nickname: string | null
+  is_admin?: boolean
+  avatar_url?: string | null
+  kit_colour?: string | null
+}
 export type Pick = { round_id: number; player_id: string; team_id: number; is_auto: boolean; is_resurrection?: boolean }
 
 /** A team card's colours. White cards get a thin grey border so they don't vanish on the white page. */
