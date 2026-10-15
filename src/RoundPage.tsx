@@ -550,9 +550,15 @@ function Stepper({ team, value, set }: { team: Team; value: number; set: (n: num
         >
           −
         </button>
-        <span className="disp w-[46px] text-center text-[40px] font-extrabold tabular-nums" aria-live="polite">
-          {value}
-        </span>
+        <input
+          inputMode="numeric"
+          pattern="[0-9]*"
+          aria-label={`${team.name} score`}
+          value={value}
+          onFocus={(e) => e.target.select()} // typing replaces the number
+          onChange={(e) => set(Math.min(99, Number(e.target.value.replace(/\D/g, '').slice(0, 2)) || 0))}
+          className="disp h-14 w-[58px] rounded-xl border border-white/14 bg-navy-900 text-center text-[40px] font-extrabold tabular-nums outline-none focus:border-gold focus:shadow-[0_0_0_3px_rgba(242,178,38,.25)]"
+        />
         <button
           type="button"
           className={btn}
