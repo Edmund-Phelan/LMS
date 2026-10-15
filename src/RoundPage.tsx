@@ -5,6 +5,7 @@ import { loadPayments, PayEntry, PlayerList, potEur, type PaymentRow } from './P
 import { FixtureList, Takeover, useThud } from './Pick'
 import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
+import Shell from './Shell'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -184,33 +185,8 @@ export default function RoundPage({ me }: { me: string }) {
   }
 
   return (
-    <main className="mx-auto max-w-lg p-4 pb-16">
+    <Shell title={round.name}>
       <Takeover team={takeover} onDone={endTakeover} />
-      <nav className="mb-4 flex justify-between text-sm">
-        {number > 1 ? (
-          <Link to={`/round/${number - 1}`} className="underline">
-            ← Round {number - 1}
-          </Link>
-        ) : (
-          <span />
-        )}
-        <span className="flex gap-4">
-          {players.find((p) => p.id === me)?.is_admin && (
-            <Link to={`/admin/${number}`} className="underline">
-              Admin
-            </Link>
-          )}
-          <Link to="/profile" className="underline">
-            Profile
-          </Link>
-          <button onClick={() => supabase.auth.signOut()} className="underline">
-            Sign out
-          </button>
-        </span>
-        <Link to={`/round/${number + 1}`} className="underline">
-          Round {number + 1} →
-        </Link>
-      </nav>
 
       <Hero
         round={round}
@@ -292,7 +268,7 @@ export default function RoundPage({ me }: { me: string }) {
         </>
       )}
       <PlayerList players={players} payments={data.payments} alive={data.alive} name={name} />
-    </main>
+    </Shell>
   )
 }
 

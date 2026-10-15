@@ -1,7 +1,203 @@
 @import 'tailwindcss';
 
-/* Home-screen app draws under the status bar (black-translucent); keep content clear of it. */
+/* Investec Champions Cup colours (docs/UI-REDESIGN.md §1). Colours only: no logos or wordmarks. */
+@theme {
+  --font-sans: 'Barlow', system-ui, sans-serif;
+  --font-disp: 'Barlow Condensed', 'Barlow', sans-serif;
+  --color-navy-950: #050a1f;
+  --color-navy-900: #0b1742;
+  --color-navy-800: #14224f;
+  --color-navy-700: #1c2d63;
+  --color-navy-600: #233873;
+  --color-stripe-a: #13235a;
+  --color-stripe-b: #0f1d4c;
+  --color-chalk: #f4f1e8;
+  --color-chalk-2: #cdd5ea;
+  --color-muted: #a8b3d1;
+  --color-gold: #f2b226;
+  --color-gold-hi: #ffd166;
+  --color-blue: #5e9ad3;
+  --color-blue-text: #9cc3ec;
+  --color-in: #3ccf7a;
+  --color-in-text: #6fe3a1;
+  --color-out-text: #ff8a8a;
+  --color-warn: #ffb35c;
+}
+
+html,
 body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--color-navy-950);
+  color: var(--color-chalk);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+.disp {
+  font-family: var(--font-disp);
+}
+.scroll {
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+.hairline {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.stripes {
+  background:
+    radial-gradient(120% 80% at 50% -20%, rgba(255, 255, 255, 0.18), transparent 60%),
+    repeating-linear-gradient(90deg, var(--color-stripe-a) 0 12.5%, var(--color-stripe-b) 12.5% 25%);
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Motion catalogue (§11), ported from docs/ui-prototype/*.dc.html. */
+.screen {
+  animation: screenIn 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+.stagger > * {
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.stagger > :nth-child(1) { animation-delay: 0.03s; }
+.stagger > :nth-child(2) { animation-delay: 0.07s; }
+.stagger > :nth-child(3) { animation-delay: 0.11s; }
+.stagger > :nth-child(4) { animation-delay: 0.15s; }
+.stagger > :nth-child(5) { animation-delay: 0.19s; }
+.stagger > :nth-child(6) { animation-delay: 0.23s; }
+.stagger > :nth-child(7) { animation-delay: 0.27s; }
+.stagger > :nth-child(n + 8) { animation-delay: 0.31s; }
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+}
+.card {
+  position: relative;
+  transition:
+    transform 0.22s cubic-bezier(0.3, 1.5, 0.5, 1),
+    opacity 0.3s,
+    box-shadow 0.3s,
+    filter 0.3s;
+}
+.card:not(:disabled):hover { transform: translateY(-2px); }
+.card:not(:disabled):active { transform: scale(0.93); }
+.card.dim { opacity: 0.55; filter: saturate(0.7); }
+.card.picked {
+  box-shadow: 0 0 0 3px #f2b226, 0 12px 34px rgba(242, 178, 38, 0.38);
+  transform: scale(1.03);
+}
+.pop {
+  animation: pop 0.45s cubic-bezier(0.3, 1.7, 0.5, 1) both;
+}
+@keyframes pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+.press {
+  transition:
+    transform 0.15s cubic-bezier(0.3, 1.5, 0.5, 1),
+    background 0.2s;
+}
+.press:not(:disabled):active { transform: scale(0.94); }
+.tab-ind {
+  animation: grow 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes grow {
+  from { transform: scaleX(0); }
+}
+.pulse {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 178, 38, 0.45); }
+  50% { box-shadow: 0 0 0 8px rgba(242, 178, 38, 0); }
+}
+/* Two identical keyframes so the seconds digit re-animates every tick. */
+.sec-a { animation: tickA 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.sec-b { animation: tickB 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes tickA { from { transform: translateY(-40%); opacity: 0; } }
+@keyframes tickB { from { transform: translateY(-40%); opacity: 0; } }
+.shimmer {
+  background: linear-gradient(100deg, #f2b226 30%, #fff2c4 50%, #f2b226 70%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shim 3.5s linear infinite;
+}
+@keyframes shim {
+  from { background-position: 100% 0; }
+  to { background-position: -200% 0; }
+}
+.knob { transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.open-in { animation: openIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes openIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Team takeover (§4). */
+.tk { animation: wipe 0.5s cubic-bezier(0.7, 0, 0.2, 1) both; }
+@keyframes wipe {
+  from { clip-path: circle(0% at 50% 60%); }
+  to { clip-path: circle(150% at 50% 60%); }
+}
+.tk-stripe { animation: sweep 0.9s cubic-bezier(0.6, 0, 0.2, 1) both; }
+@keyframes sweep {
+  from { transform: translateX(-130%) rotate(-14deg); }
+  to { transform: translateX(130%) rotate(-14deg); }
+}
+.tk-crest { animation: drop 0.75s cubic-bezier(0.3, 1.45, 0.5, 1) 0.18s both; }
+@keyframes drop {
+  from { transform: translateY(-460px) scale(1.5) rotate(-18deg); }
+}
+.tk-name { animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) 0.5s both; }
+@keyframes slam {
+  from {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+.tk-shake { animation: shake 0.32s ease-out 0.62s both; }
+@keyframes shake {
+  20% { transform: translate(-6px, 3px); }
+  40% { transform: translate(5px, -3px); }
+  60% { transform: translate(-3px, 2px); }
+  80% { transform: translate(2px, -1px); }
+}
+.tk-sub { animation: fadeUp 0.4s ease-out 0.8s both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 0.85; }
+}
+.confetti { animation: burst 1s cubic-bezier(0.1, 0.7, 0.3, 1) 0.55s both; }
+@keyframes burst {
+  from { transform: translate(0, 0) scale(0.4); opacity: 1; }
+  to { transform: var(--to) scale(1); opacity: 0; }
+}
+/* Admin: settled card overshoot. */
+.boom { animation: boom 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+@keyframes boom {
+  from { transform: scale(0.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
 }

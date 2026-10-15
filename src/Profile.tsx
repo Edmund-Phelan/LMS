@@ -23,6 +23,7 @@ export type Me = {
   nickname: string | null
   avatar_url: string | null
   kit_colour: string | null
+  is_admin: boolean
 }
 
 export function Avatar({
