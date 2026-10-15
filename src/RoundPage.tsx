@@ -20,6 +20,7 @@ import { sfx } from './sound'
 import { koReason, matchState, pickState, type PickState } from './live'
 import { KnockedOut, loadKnockout, type Knockout } from './Elimination'
 import { GetBackIn, OutHero, StillPlaying } from './Out'
+import PlayerSheet from './PlayerSheet'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -423,6 +424,7 @@ export default function RoundPage({ me }: { me: string }) {
   const endConfirm = useCallback(() => setConfirming(null), [])
   const [payFirst, setPayFirst] = useState<number | null>(null) // Round 1: tapped a team before paying
   const [replay, setReplay] = useState(false)
+  const [profile, setProfile] = useState<Player | null>(null) // §20 sheet
   const endReplay = useCallback(() => setReplay(false), [])
   const reload = useCallback(() => load(number, me).then((d) => setData({ ...d, number })), [number, me])
   useEffect(() => {
@@ -572,6 +574,7 @@ export default function RoundPage({ me }: { me: string }) {
         />
       )}
       <KnockedOut ko={replay ? data.ko : null} onDone={endReplay} />
+      {profile && <PlayerSheet player={profile} onClose={() => setProfile(null)} />}
       <div className="screen flex flex-col gap-[18px]">
         <RoundPills current={number} />
         <div className="stagger flex flex-col gap-[18px]">
@@ -727,6 +730,7 @@ export default function RoundPage({ me }: { me: string }) {
             teams={teams}
             chipFor={chipFor}
             settled={!!round.settled_at}
+            onOpen={setProfile}
           />
         </div>
       </div>
@@ -881,6 +885,7 @@ function Squad({
   teams,
   chipFor,
   settled,
+  onOpen,
 }: {
   squad: Data['squad']
   players: Player[]
@@ -891,6 +896,7 @@ function Squad({
   teams: Map<number, Team>
   chipFor: (p?: Pick) => ReactNode
   settled: boolean
+  onOpen: (p: Player) => void
 }) {
   const n = squad.filter((s) => s.has_pick).length
   const word = locked ? 'locked in' : 'picked'
@@ -916,8 +922,11 @@ function Squad({
           // After the lock RLS returns everyone's picks (§16): show the team and how it's going.
           const pick = locked ? picks.find((x) => x.player_id === p.id) : undefined
           const team = pick && teams.get(pick.team_id)
-          return (
-            <li key={p.id} className="flex items-center gap-3 border-t border-white/6 px-3.5 py-3 first:border-0">
+          // §20: the real name in front of the paid line when the nickname differs.
+          const real = p.nickname && p.nickname !== p.name ? `${p.name} · ` : ''
+          const row = 'press flex w-full items-center gap-3 px-3.5 py-3 text-left'
+          const inner = (
+            <>
               <Avatar p={p} size={38} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-semibold">
@@ -933,6 +942,7 @@ function Squad({
                   </span>
                 ) : (
                   <span className={`block text-xs ${paid === 'confirmed' ? 'text-muted' : 'text-warn'}`}>
+                    {real}
                     {paid === 'confirmed'
                       ? 'Paid'
                       : paid === 'claimed'
@@ -954,6 +964,20 @@ function Squad({
                 <span className="rounded-full border border-dashed border-white/25 px-2.5 py-[5px] text-xs font-semibold text-muted">
                   {locked ? 'No pick' : 'Thinking…'}
                 </span>
+              )}
+              <span className="-mr-1 text-[#6f7ba0]">{Icon.chevron}</span>
+            </>
+          )
+          return (
+            <li key={p.id} className="border-t border-white/6 first:border-0">
+              {p.id === me ? (
+                <Link to="/me" className={row}>
+                  {inner}
+                </Link>
+              ) : (
+                <button type="button" onClick={() => onOpen(p)} className={row}>
+                  {inner}
+                </button>
               )}
             </li>
           )

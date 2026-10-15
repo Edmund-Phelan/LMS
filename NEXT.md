@@ -157,7 +157,8 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    story shell + clash + outcome + prediction; the jinx cards can follow before Round 2 (no one is out until Round 1
    settles). Its "Done means" is in §19.
 
-5f. **Player profiles (Eddie, 15 Oct).** Spec `docs/UI-REDESIGN.md` §20, prototypes `docs/ui-prototype/Profile.dc.html`
+5f. **Player profiles (Eddie, 15 Oct). Built 15 Oct** (`src/PlayerSheet.tsx`, pure road/predictions in
+   `src/profileData.ts` with the before-the-lock privacy test). Still to do: real-iPhone check of the slide, swipe and count-up. Spec `docs/UI-REDESIGN.md` §20, prototypes `docs/ui-prototype/Profile.dc.html`
    (interactive) and `ProfileOut.dc.html`. Tap any Squad or Table row → a bottom sheet slides up: nickname + real name,
    still in / out / bought back, paid, points, rank, exact scores, their road (locked rounds only) and their prediction
    record. Squad rows also show the real name under a nickname. Read-only, no migration, no RLS change: safe to ship before
