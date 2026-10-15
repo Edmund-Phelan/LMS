@@ -31,7 +31,8 @@ team takeovers with sound, a points table, a profile hub, a redesigned admin flo
 - Accessibility: real `<button>`/`<a>`, `aria-label` on icon-only buttons, 44 px touch targets, text contrast 4.5:1.
 
 Suggested commit order (each one shippable): tokens + shell + tabs → Round screen → takeover + sound → squad RPC → Me → Table
-(points RPC) → Rules → Admin.
+(points RPC) → Rules → Admin. The knocked-out screens (§17) belong to this packet too; the Pools tab and live states
+(§15–16) arrive with packet 5c.
 
 ---
 
@@ -79,7 +80,8 @@ New `src/Shell.tsx` wraps every signed-in route except first-login profile setup
   **sound toggle** (speaker icon gold on a `rgba(242,178,38,.12)` fill when on; speaker-with-x in muted when off).
 - **Scroll area:** flex 1, `overflow-y: auto`, padding 8 16 24, scrollbar hidden. Scroll to the top on tab change.
 - **Bottom tab bar** (84 px including `env(safe-area-inset-bottom)`, `rgba(7,23,15,.92)` + `backdrop-filter: blur(16px)`, top
-  hairline): three tabs: **Round** (rugby ball icon) `/round/:n`, **Table** (trophy) `/table`, **Me** (person) `/me`. Active:
+  hairline): four tabs: **Round** (rugby ball icon) `/round/:n`, **Pools** (grid) `/pools` (§15), **Table** (trophy)
+  `/table`, **Me** (person) `/me`. Active:
   gold icon and label, plus a 34×3 gold indicator at the top edge that grows in (`scaleX 0→1`, .35 s spring). Inactive: muted.
   Use `NavLink`; keep `HashRouter`.
 - **Pushed pages** (no tab bar, back chevron top-left, 44 px): `/me/edit` (the existing Profile form, restyled dark), `/rules`,
@@ -305,7 +307,8 @@ On a real iPhone, from the home-screen icon:
 - Reduced motion: nothing moves, everything still works.
 
 ## 13. Not in this packet
-Team-specific sounds (§14), special symbols on plain cards (e.g. Munster), the field (avatars on a pitch), elimination red card,
+Team-specific sounds (§14). §15–17 need packet 5c's data (live scores, standings); build their UI with packet 5c, not in
+this packet. Also not here: special symbols on plain cards (e.g. Munster), the field (avatars on a pitch), elimination red card,
 share cards.
 
 ## 14. Team sounds: research notes (decision pending)
@@ -314,3 +317,65 @@ share cards.
   files; (b) a CC BY 4.0 crowd-cheering library (Gregor Quendel, itch.io: 11 tracks incl. rhythmic chanting) as a richer roar
   base, credited on the rules page; (c) public-domain traditional tunes (e.g. "Molly Malone" for Leinster) played as a short
   synth phrase.
+
+## 15. Pools screen (`/pools`): Champions Cup standings (data from packet 5c)
+Prototype board "Pools / standings" (`docs/ui-prototype/Pools.dc.html`; the same tab exists on every board).
+- **Real 2026/27 pools** ([Planet Rugby](https://www.planetrugby.com/news/investec-champions-cup-and-epcr-challenge-cup-pools-confirmed-ahead-of-2026-27-season)):
+  1 Leinster, Glasgow, Pau, Sale, Leicester, Clermont · 2 Toulouse, Lions, Saracens, La Rochelle, Exeter, Connacht ·
+  3 Bordeaux-Bègles, Stormers, Racing 92, Munster, Bristol, Gloucester · 4 Northampton, Bath, Cardiff, Montpellier, Stade
+  Français, Bulls. Store `teams.pool`. The data comes from the API; the pools are a check that the team mapping is right.
+- **Format** (same source): top 3 of each pool go to the last 16, plus the 4 best of the rest across all pools by match
+  points; level on points → more wins goes higher (not points difference). Try bonus only when a team scores 3+ tries more
+  than the opposition. Show the API's ranking as it comes; the app never recalculates standings itself.
+- Header: "Pools" + freshness ("Updates daily, live on match days" / "Updated 07:00 today" / red pulsing dot "Live · updated
+  1 min ago" while a match is on). Before Round 1: a blue note "Season starts Fri 16 Oct. Tables fill in as results land."
+- Segmented control Pool 1–4 (gold when selected).
+- Table card: `# · TEAM · P · W · L · PD · PTS` (grid `26px 1fr 24px 24px 24px 36px 34px`). Left 3 px bar: green = top 3,
+  Investec blue = currently in the best-4-of-the-rest. Crest in a 26 px white circle. Your current pick's row gets a gold 9%
+  fill and a "YOUR PICK" tag (red "KNOCKED YOU OUT" if it did). Tap a row → it expands to Drawn / For / Against / Try BP /
+  Losing BP tiles.
+- Legend row, then **"Race for the last four places"**: every non-top-3 team ranked across pools (top 6 shown), with a
+  dashed cut line after 4th.
+
+## 16. Live match states (fed by packet 5c)
+Prototype board "Matchday live".
+- Fixture time row: red pill with a pulsing dot, "LIVE 58'", while on; grey "FULL TIME" after.
+- The middle column between the two cards widens from 22 px to 46 px and shows the score stacked (home / – / away):
+  red while live, chalk at full time. After full time the losing card fades (`.card.lost`: opacity .4, grayscale .7); a
+  draw dims neither.
+- "Your pick" card after the lock gets a status pill under the sub: amber "LIVE 58' · Level 13–13", green "Winning",
+  red "Losing", each with a pulsing dot.
+- **After the lock the squad shows everyone's team** (picks are public then): crest + team name under each name, and a
+  chip: "Locked in" (gold, not started), "Sun 15:15" (later this weekend), "Winning 61'" / "Level 58'" / "Losing"
+  (live, pulsing dot), "Through" (green), "Out" (red). Through/Out are provisional until settle: footnote "Official once
+  the round is settled".
+- The Pools table refreshes on the standings schedule (packet 5c).
+
+## 17. Knocked out (the out player's experience)
+Prototype board "Knocked out".
+- **The moment:** the first time a player opens the app after the settle that knocked them out (store
+  `seen_elimination_round` per player so it plays once), a full-screen overlay: dark-red radial background; a red card
+  (128×178, red gradient, white inner edge) flies in from the top, rotating to −8°, and slams (.6 s spring); "YOU'RE OUT"
+  slams in (condensed 68/800, .5 s at .55 s); the group shakes at .62 s; then a pill with the greyscale team crest and the
+  score ("Munster 20–20 Racing 92"); then "A draw is a loss. You're in the stands, but there are still ways back in. Tap to
+  see them." Tap anywhere dismisses; under 1.5 s; reduced motion → still frame. Sound plays from a tap only, so the
+  auto-play is silent and the hero's "Replay" button plays it: a long whistle (.9 s) + a **crowd groan** (the roar noise
+  through a lowpass sliding 2000 → 380 Hz and a peaking filter sliding 700 → 320 Hz over 2.4 s, gain .5, starting at
+  +.5 s). Port `groan()` from the prototype.
+- **Round screen for an out player** (the next round). There are no fixtures to pick. In order:
+  1. Red-tinted hero (stripes `#3a1020`/`#2e0c19`): a small red card, "YOU'RE OUT", "Round N · {score line} · {reason}",
+     chips: "N still in", the pot, and a **Replay** button.
+  2. **Get back in** card (gold edge), with "X DAYS LEFT" to the buy-back deadline:
+     - *Buy back · €10* (pool stage only, one per person): "Pay before the Round N+1 lock … you also lose …", then the
+       cost as chips: the burned team(s) from `reentryBurns()` (red, struck through, "burned") and already-used teams
+       (grey). Gold "Buy back for €10" → the existing payment flow (kind `buyback`) → blue "Claim sent. Back in once Eddie or
+       Conn confirms." Hidden after the Round 4 lock, or once used.
+     - *Resurrection · Round 4* (blue info card): "Free. One away team you haven't used…". In Round 4 it becomes the
+       actual away-team picker (packet 7).
+  3. **Jinx a survivor**: a 4-column grid of survivor avatars (48 px). Tapping one gives it a gold ring and scale 1.1, with
+     the line "Jinxing Conn. Locked in at the lock; everyone sees it at the reveal." This replaces the `<select>` (§3.6).
+  4. **Still playing for the 20%** card: their points and table position + "Everyone predicts, in or out", then the
+     normal prediction card once the featured match is drawn.
+- That player's Round 1 screen: the "Your pick" card becomes "KNOCKED OUT" with a red ring and the reason.
+- **Me:** status pill "Out · Round 1" (red); the Your road R1 tile turns red with "R1 · OUT". **Table:** unchanged (out
+  players still score). **Squad:** their chip reads "Out".
