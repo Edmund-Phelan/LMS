@@ -5,7 +5,21 @@
     "primary": "#713042",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/union-bordeaux-begles.png"
+    "crest": "crests/union-bordeaux-begles.png",
+    "kit": {
+      "pattern": "quarters",
+      "colours": [
+        "#6b1e35",
+        "#14213d"
+      ],
+      "trim": "#ffffff",
+      "season": "2025/26",
+      "note": "Claret with dark blue quarters.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#713042",
+    "cardText": "#ffffff"
   },
   {
     "slug": "bath-rugby",
@@ -13,7 +27,23 @@
     "primary": "#0054a6",
     "secondary": "#000000",
     "text": "#ffffff",
-    "crest": "crests/bath-rugby.png"
+    "crest": "crests/bath-rugby.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#0054a6",
+        "#000000",
+        "#ffffff"
+      ],
+      "trim": "#000000",
+      "season": "2025/26",
+      "note": "Blue, black and white hoops.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#0054a6",
+    "cardText": "#ffffff"
   },
   {
     "slug": "bristol-bears",
@@ -21,7 +51,23 @@
     "primary": "#212e83",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/bristol-bears.png"
+    "crest": "crests/bristol-bears.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#1d2b6f"
+      ],
+      "accent": "fade",
+      "accentColours": [
+        "#3a6fd8"
+      ],
+      "trim": "#ffffff",
+      "season": "2025/26",
+      "note": "Two-tone blue.",
+      "jazz": false
+    },
+    "cardBg": "#ffffff",
+    "cardText": "#212e83"
   },
   {
     "slug": "vodacom-bulls",
@@ -29,7 +75,23 @@
     "primary": "#2581c4",
     "secondary": "#e30714",
     "text": "#ffffff",
-    "crest": "crests/vodacom-bulls.png"
+    "crest": "crests/vodacom-bulls.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#0b1f4b"
+      ],
+      "accent": "fade",
+      "accentColours": [
+        "#2581c4"
+      ],
+      "trim": "#e30714",
+      "season": "2026/27",
+      "note": "Navy shoulders fading to Loftus blue; real shirt also has a street-map graphic.",
+      "jazz": false
+    },
+    "cardBg": "#2581c4",
+    "cardText": "#ffffff"
   },
   {
     "slug": "cardiff-rugby",
@@ -37,7 +99,21 @@
     "primary": "#89bde3",
     "secondary": "#1b1310",
     "text": "#000000",
-    "crest": "crests/cardiff-rugby.png"
+    "crest": "crests/cardiff-rugby.png",
+    "kit": {
+      "pattern": "quarters",
+      "colours": [
+        "#000000",
+        "#89bde3"
+      ],
+      "trim": "#c9a227",
+      "season": "2026/27",
+      "note": "Black and sky blue quarters, thin gold stripe on the cuffs (150th anniversary).",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#89bde3",
+    "cardText": "#000000"
   },
   {
     "slug": "asm-clermont-auvergne",
@@ -45,7 +121,23 @@
     "primary": "#fdea00",
     "secondary": "#002f6c",
     "text": "#000000",
-    "crest": "crests/asm-clermont-auvergne.png"
+    "crest": "crests/asm-clermont-auvergne.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#fdea00"
+      ],
+      "accent": "shoulders",
+      "accentColours": [
+        "#002f6c"
+      ],
+      "jazz": true,
+      "trim": "#002f6c",
+      "season": "2025/26",
+      "note": "Yellow and blue. Real shirt is plain yellow with a subtle motif; navy yoke added."
+    },
+    "cardBg": "#fdea00",
+    "cardText": "#000000"
   },
   {
     "slug": "connacht",
@@ -53,7 +145,23 @@
     "primary": "#00853f",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/connacht.png"
+    "crest": "crests/connacht.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#0b3d2a"
+      ],
+      "accent": "side-panels",
+      "accentColours": [
+        "#2fbf5f"
+      ],
+      "trim": "#2fbf5f",
+      "season": "2026/27",
+      "note": "Very dark green, bright green geometric graphic down the sides.",
+      "jazz": false
+    },
+    "cardBg": "#ffffff",
+    "cardText": "#00853f"
   },
   {
     "slug": "exeter-chiefs",
@@ -61,7 +169,23 @@
     "primary": "#000000",
     "secondary": "#fecc00",
     "text": "#ffffff",
-    "crest": "crests/exeter-chiefs.png"
+    "crest": "crests/exeter-chiefs.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#000000"
+      ],
+      "accent": "side-panels",
+      "accentColours": [
+        "#8fc3e8"
+      ],
+      "trim": "#fecc00",
+      "season": "2026/27",
+      "note": "Retro 2006 Sandy Park shirt with light blue panelling. Base colour not confirmed: check.",
+      "jazz": false
+    },
+    "cardBg": "#000000",
+    "cardText": "#ffffff"
   },
   {
     "slug": "glasgow-warriors",
@@ -69,7 +193,25 @@
     "primary": "#000000",
     "secondary": "#84aed1",
     "text": "#ffffff",
-    "crest": "crests/glasgow-warriors.png"
+    "crest": "crests/glasgow-warriors.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#0b0b0f"
+      ],
+      "accent": "tartan",
+      "accentColours": [
+        "#84aed1",
+        "#3d6a99",
+        "#8d939b"
+      ],
+      "trim": "#84aed1",
+      "season": "2026/27",
+      "note": "Black with blue detailing and the club's Laoch tartan.",
+      "jazz": false
+    },
+    "cardBg": "#000000",
+    "cardText": "#ffffff"
   },
   {
     "slug": "gloucester-rugby",
@@ -77,7 +219,22 @@
     "primary": "#dd1a32",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/gloucester-rugby.png"
+    "crest": "crests/gloucester-rugby.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#c8102e",
+        "#ffffff"
+      ],
+      "trim": "#8a8d8f",
+      "season": "2026/27",
+      "note": "Cherry and white hoops, grey collar.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#dd1a32",
+    "cardText": "#ffffff"
   },
   {
     "slug": "leicester-tigers",
@@ -85,7 +242,24 @@
     "primary": "#094438",
     "secondary": "#c8102e",
     "text": "#ffffff",
-    "crest": "crests/leicester-tigers.png"
+    "crest": "crests/leicester-tigers.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#094438"
+      ],
+      "accent": "side-panels",
+      "accentColours": [
+        "#c8102e",
+        "#ffffff"
+      ],
+      "trim": "#ffffff",
+      "season": "2025/26",
+      "note": "Green block chest with red and white side panels.",
+      "jazz": false
+    },
+    "cardBg": "#c8102e",
+    "cardText": "#ffffff"
   },
   {
     "slug": "leinster",
@@ -93,7 +267,22 @@
     "primary": "#0053a1",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/leinster.png"
+    "crest": "crests/leinster.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#0053a1",
+        "#ffffff"
+      ],
+      "trim": "#0a2d5c",
+      "season": "2026/27",
+      "note": "Blue and white hoops, a 2001 throwback.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#ffffff",
+    "cardText": "#0053a1"
   },
   {
     "slug": "emirates-lions",
@@ -101,7 +290,23 @@
     "primary": "#dc2129",
     "secondary": "#140404",
     "text": "#ffffff",
-    "crest": "crests/emirates-lions.png"
+    "crest": "crests/emirates-lions.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#dc2129"
+      ],
+      "accent": "chevrons",
+      "accentColours": [
+        "#ffffff"
+      ],
+      "jazz": true,
+      "trim": "#ffffff",
+      "season": "traditional",
+      "note": "Red and white. No 26/27 kit info found; white chevrons added."
+    },
+    "cardBg": "#dc2129",
+    "cardText": "#ffffff"
   },
   {
     "slug": "montpellier-herault-rugby",
@@ -109,7 +314,22 @@
     "primary": "#002c5b",
     "secondary": "#0090d4",
     "text": "#ffffff",
-    "crest": "crests/montpellier-herault-rugby.png"
+    "crest": "crests/montpellier-herault-rugby.png",
+    "kit": {
+      "pattern": "stripes",
+      "width": "broad",
+      "colours": [
+        "#002c5b",
+        "#0090d4"
+      ],
+      "trim": "#ffffff",
+      "season": "2025/26",
+      "note": "Vertical stripes; Hummel chevrons on the sleeves.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#002c5b",
+    "cardText": "#ffffff"
   },
   {
     "slug": "munster-rugby",
@@ -117,7 +337,23 @@
     "primary": "#c8102e",
     "secondary": "#122053",
     "text": "#ffffff",
-    "crest": "crests/munster-rugby.png"
+    "crest": "crests/munster-rugby.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#c8102e"
+      ],
+      "accent": "shoulders",
+      "accentColours": [
+        "#122053"
+      ],
+      "trim": "#122053",
+      "season": "2026/27",
+      "note": "Red with navy shoulders and arms (adidas 2025-27 home). European shirt: red with a Thomond Park graphic, burgundy shorts.",
+      "jazz": false
+    },
+    "cardBg": "#c8102e",
+    "cardText": "#ffffff"
   },
   {
     "slug": "northampton-saints",
@@ -125,7 +361,23 @@
     "primary": "#0e6240",
     "secondary": "#f2b226",
     "text": "#ffffff",
-    "crest": "crests/northampton-saints.png"
+    "crest": "crests/northampton-saints.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#0e6240",
+        "#000000"
+      ],
+      "edge": "#f2b226",
+      "trim": "#000000",
+      "season": "2026/27",
+      "note": "Broad green and black hoops, thin gold line under each black hoop.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#0e6240",
+    "cardText": "#ffffff"
   },
   {
     "slug": "section-paloise",
@@ -133,7 +385,23 @@
     "primary": "#004231",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/section-paloise.png"
+    "crest": "crests/section-paloise.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#004231"
+      ],
+      "accent": "band",
+      "accentColours": [
+        "#ffffff"
+      ],
+      "trim": "#ffffff",
+      "season": "2025/26",
+      "note": "Green with a white block across the front.",
+      "jazz": false
+    },
+    "cardBg": "#004231",
+    "cardText": "#ffffff"
   },
   {
     "slug": "racing-92",
@@ -141,7 +409,22 @@
     "primary": "#c2e0f7",
     "secondary": "#ffffff",
     "text": "#000000",
-    "crest": "crests/racing-92.png"
+    "crest": "crests/racing-92.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#7fc4ef",
+        "#ffffff"
+      ],
+      "trim": "#0b1f4b",
+      "season": "traditional",
+      "note": "Sky blue and white hoops (classic look; 25/26 shirt was plainer).",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#c2e0f7",
+    "cardText": "#000000"
   },
   {
     "slug": "stade-rochelais",
@@ -149,7 +432,23 @@
     "primary": "#171412",
     "secondary": "#fed100",
     "text": "#ffffff",
-    "crest": "crests/stade-rochelais.png"
+    "crest": "crests/stade-rochelais.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#171412"
+      ],
+      "accent": "band",
+      "accentColours": [
+        "#fed100"
+      ],
+      "jazz": true,
+      "trim": "#fed100",
+      "season": "2025/26",
+      "note": "Black with a yellow collar. Yellow chest band added."
+    },
+    "cardBg": "#171412",
+    "cardText": "#ffffff"
   },
   {
     "slug": "sale-sharks",
@@ -157,7 +456,24 @@
     "primary": "#000050",
     "secondary": "#ffffff",
     "text": "#ffffff",
-    "crest": "crests/sale-sharks.png"
+    "crest": "crests/sale-sharks.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#0a1f6b"
+      ],
+      "accent": "side-panels",
+      "accentColours": [
+        "#f2b226",
+        "#b5412a"
+      ],
+      "trim": "#ffffff",
+      "season": "2026/27",
+      "note": "Deep blue; Lowry-inspired yellow and burnt red side panels and cuffs.",
+      "jazz": false
+    },
+    "cardBg": "#ffffff",
+    "cardText": "#000050"
   },
   {
     "slug": "saracens",
@@ -165,7 +481,23 @@
     "primary": "#120a09",
     "secondary": "#c8102e",
     "text": "#ffffff",
-    "crest": "crests/saracens.png"
+    "crest": "crests/saracens.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#120a09"
+      ],
+      "accent": "fade",
+      "accentColours": [
+        "#c8102e"
+      ],
+      "trim": "#c8102e",
+      "season": "2025/26",
+      "note": "Black fading to red.",
+      "jazz": false
+    },
+    "cardBg": "#c8102e",
+    "cardText": "#ffffff"
   },
   {
     "slug": "stade-francais-paris",
@@ -173,7 +505,23 @@
     "primary": "#ea5097",
     "secondary": "#002c5b",
     "text": "#ffffff",
-    "crest": "crests/stade-francais-paris.png"
+    "crest": "crests/stade-francais-paris.png",
+    "kit": {
+      "pattern": "plain",
+      "colours": [
+        "#ea5097"
+      ],
+      "accent": "chevrons",
+      "accentColours": [
+        "#002c5b"
+      ],
+      "jazz": true,
+      "trim": "#002c5b",
+      "season": "2025/26",
+      "note": "Pink and navy. Real shirt has Eiffel Tower and lightning graphics; navy chevrons added."
+    },
+    "cardBg": "#ea5097",
+    "cardText": "#ffffff"
   },
   {
     "slug": "dhl-stormers",
@@ -181,7 +529,22 @@
     "primary": "#00358e",
     "secondary": "#fec20c",
     "text": "#ffffff",
-    "crest": "crests/dhl-stormers.png"
+    "crest": "crests/dhl-stormers.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "broad",
+      "colours": [
+        "#00358e",
+        "#ffffff"
+      ],
+      "trim": "#ffffff",
+      "season": "2026/27",
+      "note": "Blue and white hoops, white collar, black shorts.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#00358e",
+    "cardText": "#ffffff"
   },
   {
     "slug": "stade-toulousain",
@@ -189,6 +552,21 @@
     "primary": "#d30c14",
     "secondary": "#040000",
     "text": "#ffffff",
-    "crest": "crests/stade-toulousain.png"
+    "crest": "crests/stade-toulousain.png",
+    "kit": {
+      "pattern": "hoops",
+      "width": "thin",
+      "colours": [
+        "#0a0a0a",
+        "#d30c14"
+      ],
+      "trim": "#d30c14",
+      "season": "2025/26",
+      "note": "Black with thin red hoops.",
+      "accent": null,
+      "jazz": false
+    },
+    "cardBg": "#d30c14",
+    "cardText": "#ffffff"
   }
 ]

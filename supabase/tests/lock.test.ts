@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { as, freshDb, type Db } from './db'
+import teams from '../../src/data/teams.json'
 
 const EDDIE = '00000000-0000-0000-0000-00000000000e' // admin, plays too
 const BEN = '00000000-0000-0000-0000-00000000000b'
@@ -56,6 +57,15 @@ beforeEach(async () => {
     [r2],
   )
   await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
+})
+
+describe('team kits', () => {
+  it('match src/data/teams.json for every club', async () => {
+    const rows = (await (await freshDb()).query<{ slug: string; kit: unknown }>('select slug, kit from teams')).rows
+    expect(Object.fromEntries(rows.map((r) => [r.slug, r.kit]))).toEqual(
+      Object.fromEntries(teams.map((t) => [t.slug, t.kit])),
+    )
+  })
 })
 
 describe('Round 1 fixtures', () => {

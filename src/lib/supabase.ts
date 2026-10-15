@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Match as EngineMatch, Stage } from '../engine/engine'
+import type { Kit } from '../Jersey'
 
 // Anon key only. Security comes from RLS, not from hiding this key.
 export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
@@ -12,6 +13,7 @@ export type Team = {
   secondary: string
   text: string
   crest: string
+  kit: Kit
 }
 export type Round = {
   id: number
