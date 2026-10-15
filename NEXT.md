@@ -104,8 +104,8 @@ In this order; each step shippable on its own:
      YYYYMMDD`) had the full 2026/27 fixtures with team ids (15 Oct), or a paid API-Sports plan. The old plan is in git
      history (commit 2f63ba3).
 
-5d. **Built 15 Oct on `results-feed`; before merging, apply migration `20261015040000_seen_elimination.sql` (the app
-   selects the new column) and eyeball the overlay + out screen on a real settle.** Knocked-out experience: spec `docs/UI-REDESIGN.md` §17, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
+5d. **Built 15 Oct on `results-feed`; migration `20261015034119_seen_elimination.sql` applied 15 Oct. Eyeball the overlay
+   + out screen on a real settle.** Knocked-out experience: spec `docs/UI-REDESIGN.md` §17, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
    Round 1 settle (Sun 18 Oct night), since that's when the first players go out. The one-time red-card overlay
    (`players.seen_elimination_round`) + whistle and crowd `groan()`; the out player's Round screen (red hero + Replay,
    "Get back in" with buy-back cost chips from `reentryBurns()` and the Round 4 resurrection info, jinx avatar grid,
