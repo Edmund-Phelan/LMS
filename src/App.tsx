@@ -9,6 +9,7 @@ import Profile, { type Me } from './Profile'
 import InstallGuide from './InstallGuide'
 import MePage from './MePage'
 import TablePage from './TablePage'
+import RulesPage from './RulesPage'
 import { Pushed } from './Shell'
 
 export default function App() {
@@ -57,6 +58,7 @@ export default function App() {
           </Pushed>
         }
       />
+      <Route path="/rules" element={<RulesPage />} />
       <Route path="/admin/:number?" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/round" replace />} />
     </Routes>
