@@ -10,6 +10,7 @@ import {
   type Round,
   type Team,
 } from './lib/supabase'
+import { loadPayments, PayEntry, PlayerList, type PaymentRow } from './Pay'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -40,12 +41,13 @@ type Data = {
   prediction: { home_score: number; away_score: number } | null
   predictions: { player_id: string; home_score: number; away_score: number }[]
   jinxes: { jinxer_id: string; target_id: string }[]
+  payments: PaymentRow[]
 }
 
 async function load(number: number): Promise<Data | null> {
   const { data: round } = await supabase.from('rounds').select('*').eq('number', number).maybeSingle<Round>()
   if (!round) return null
-  const [teams, matches, players, picks, used, status, predictions, jinxes] = await Promise.all([
+  const [teams, matches, players, picks, used, status, predictions, jinxes, payments] = await Promise.all([
     supabase.from('teams').select('*').returns<Team[]>(),
     supabase.from('matches').select('*').eq('round_id', round.id).order('kickoff_at').returns<Match[]>(),
     supabase.from('players').select('id, name, nickname, is_admin').order('name').returns<Player[]>(),
@@ -54,6 +56,7 @@ async function load(number: number): Promise<Data | null> {
     supabase.rpc('round_status', { r: round.id }),
     supabase.from('predictions').select('player_id, home_score, away_score').eq('round_id', round.id),
     supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', round.id),
+    loadPayments(),
   ])
   const me = (await supabase.auth.getUser()).data.user?.id
   return {
@@ -71,6 +74,7 @@ async function load(number: number): Promise<Data | null> {
     prediction: predictions.data?.find((p) => p.player_id === me) ?? null,
     predictions: predictions.data ?? [],
     jinxes: jinxes.data ?? [],
+    payments: payments.data ?? [],
   }
 }
 
@@ -174,6 +178,7 @@ export default function RoundPage({ me }: { me: string }) {
           {error}
         </p>
       )}
+      <PayEntry me={me} payments={data.payments} run={run} />
 
       {locked ? (
         <Reveal data={data} name={name} />
@@ -251,6 +256,7 @@ export default function RoundPage({ me }: { me: string }) {
           )}
         </>
       )}
+      <PlayerList players={players} payments={data.payments} name={name} />
     </main>
   )
 }

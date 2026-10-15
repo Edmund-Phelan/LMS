@@ -1,6 +1,7 @@
 // Admin data: load rows from Supabase and map them to the engine's types, run the engine for a preview.
 import * as E from './engine/engine'
 import { supabase, type Match, type Pick as PickRow, type Player, type Round, type Team } from './lib/supabase'
+import { loadPayments, type PaymentRow } from './Pay'
 
 export type ResultRow = {
   round_id: number
@@ -26,6 +27,7 @@ export type Data = {
   predictions: E.Prediction[]
   jinxes: E.Jinx[]
   payments: E.Payment[]
+  paymentRows: PaymentRow[]
 }
 
 export function must<T>({ data, error }: { data: T | null; error: { message: string } | null }): T {
@@ -81,7 +83,7 @@ export async function load(number: number): Promise<Data | null> {
     supabase.from('burned_teams').select('player_id, team_id, round_id, reason').returns<BurnRow[]>(),
     supabase.from('predictions').select('player_id, home_score, away_score').eq('round_id', round.id),
     supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', round.id),
-    supabase.from('payments').select('player_id, kind, amount_eur, status, claimed_at'),
+    loadPayments(),
     supabase.auth.getUser(),
   ])
   const numberOf = new Map(rounds.map((r) => [r.id, r.number]))
@@ -119,6 +121,7 @@ export async function load(number: number): Promise<Data | null> {
       awayScore: p.away_score,
     })),
     jinxes: must(jinxes).map((j) => ({ roundId: round.id, jinxerId: j.jinxer_id, targetId: j.target_id })),
+    paymentRows: must(payments),
     payments: must(payments).map((p) => ({
       playerId: p.player_id,
       kind: p.kind,

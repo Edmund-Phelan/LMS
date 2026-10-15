@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router'
 import * as E from './engine/engine'
 import { load, must, runEngine, shuffle, toMatch, toResult, toRound, type Data, type Preview } from './adminData'
 import { irishTime, supabase, type Match } from './lib/supabase'
+import { PaymentsAdmin } from './Pay'
 
 // Admin: open a round (clean slate / no teams left), enter results, settle (engine preview → confirm).
 // The engine runs here in the browser; settle_round() writes its output in one transaction.
@@ -73,6 +74,8 @@ export default function AdminPage() {
           {error}
         </p>
       )}
+
+      <PaymentsAdmin payments={data.paymentRows} name={name} run={run} />
 
       {!round.settled_at && <OpenPanel data={data} name={name} run={run} />}
 

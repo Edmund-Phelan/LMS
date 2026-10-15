@@ -252,6 +252,63 @@ describe('auto-pick at the lock', () => {
   })
 })
 
+describe('payments', () => {
+  const claim = (uid: string, kind = 'entry') =>
+    as<{ id: number }>(db, uid, `insert into payments (player_id, kind, amount_eur) values ($1, $2, 10) returning id`, [
+      uid,
+      kind,
+    ])
+  const confirm = (uid: string, id: number) => as(db, uid, 'select * from confirm_payment($1)', [id])
+  const pot = async (uid: string) =>
+    (
+      await as<{ pot: string }>(
+        db,
+        uid,
+        `select coalesce(sum(amount_eur), 0) as pot from payments where status = 'confirmed'`,
+      )
+    )[0].pot
+
+  it('claim → admin confirms → everyone sees it paid and in the pot', async () => {
+    const [{ id }] = await claim(BEN)
+    expect(Number(await pot(OUTY))).toBe(0)
+    await confirm(EDDIE, id)
+    expect(await as(db, OUTY, 'select player_id, status, confirmed_by from payments')).toEqual([
+      { player_id: BEN, status: 'confirmed', confirmed_by: EDDIE },
+    ])
+    expect(Number(await pot(OUTY))).toBe(10)
+    await expect(confirm(EDDIE, id)).rejects.toThrow(/already confirmed/)
+  })
+
+  it("a non-admin can't confirm, even their own claim", async () => {
+    const [{ id }] = await claim(BEN)
+    await expect(confirm(BEN, id)).rejects.toThrow(/Only admins/)
+    await expect(as(db, null, 'select * from confirm_payment($1)', [id])).rejects.toThrow(/permission denied/)
+    expect((await db.query('select status from payments')).rows).toEqual([{ status: 'claimed' }])
+  })
+
+  it('one entry and one buy-back per player; claims only for yourself, €10, unconfirmed', async () => {
+    await claim(BEN)
+    await expect(claim(BEN)).rejects.toThrow(/duplicate key/)
+    await claim(BEN, 'buyback')
+    await expect(
+      as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 10)`, [OUTY]),
+    ).rejects.toThrow(/row-level security/)
+    await expect(
+      as(db, OUTY, `insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 1)`, [OUTY]),
+    ).rejects.toThrow(/row-level security/)
+  })
+
+  it('admins can reject an unconfirmed claim, never a confirmed one; players can delete nothing', async () => {
+    const [{ id }] = await claim(BEN)
+    const del = (uid: string) => as(db, uid, 'delete from payments where id = $1 returning id', [id])
+    expect(await del(BEN)).toHaveLength(0)
+    await confirm(EDDIE, id)
+    expect(await del(EDDIE)).toHaveLength(0)
+    const [{ id: other }] = await claim(OUTY)
+    expect(await as(db, EDDIE, 'delete from payments where id = $1 returning id', [other])).toHaveLength(1)
+  })
+})
+
 describe('everything else', () => {
   it("players can't make themselves admin or confirm payments", async () => {
     await expect(as(db, BEN, 'update players set is_admin = true where id = $1', [BEN])).rejects.toThrow(
@@ -269,9 +326,7 @@ describe('everything else', () => {
     ).rejects.toThrow(/row-level security/)
     await as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 10)`, [BEN])
     expect(await as(db, BEN, `update payments set status = 'confirmed' returning id`)).toHaveLength(0)
-    expect(
-      await as(db, EDDIE, `update payments set status = 'confirmed', confirmed_by = $1 returning id`, [EDDIE]),
-    ).toHaveLength(1)
+    expect(await as(db, EDDIE, `update payments set status = 'confirmed' returning id`)).toHaveLength(0) // RPC only
   })
 
   it('anon sees nothing; helpers that read across rounds are not callable', async () => {
