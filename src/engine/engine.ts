@@ -1,6 +1,6 @@
-// Rules engine (CLAUDE.md §5). Pure: no I/O, no clock, no randomness.
+// Rules engine (CLAUDE.md §5, including Eddie's rulings). Pure: no I/O, no clock, no randomness.
 // Types mirror the tables in §4 in camelCase, so the admin Settle page maps rows straight in and out.
-// Anything the spec doesn't settle throws NeedsRuling (see QUESTIONS.md); bad input data throws Error.
+// Bad input data throws an Error, which the Settle preview shows.
 
 export type Stage = 'pool' | 'r16' | 'qf' | 'sf' | 'final'
 export type Outcome = 'through' | 'out' | 'survived_postponed' | 'clean_slate' | 'reinstated' | 'already_out'
@@ -11,6 +11,10 @@ export interface Round {
   stage: Stage
   lockAt: string
   featuredMatchId: number | null
+  /** Set when the round opens, from openRound(). */
+  cleanSlate: boolean
+  /** Random shuffle of every team id, drawn at settle (outside the engine); breaks burn-order ties. */
+  tiebreak: number[] | null
 }
 export interface Match {
   id: number
@@ -73,72 +77,108 @@ export interface Settlement {
   roundResults: RoundResult[]
   newBurnedTeams: BurnedTeam[]
   stillIn: string[]
+  /** This round's burn order (most-picked first, ties by the draw), to show with the results. */
+  burnOrder: number[]
 }
 
-export class NeedsRuling extends Error {}
-function ruling(q: string, msg: string): never {
-  throw new NeedsRuling(`${q}: ${msg} (see src/engine/QUESTIONS.md)`)
-}
 function bad(msg: string): never {
   throw new Error(msg)
 }
 
 const STAYS_IN: Outcome[] = ['through', 'survived_postponed', 'clean_slate', 'reinstated']
 const byNumber = (a: Round, b: Round) => a.number - b.number
+const teamsIn = (ms: Match[]) => new Set(ms.flatMap((m) => [m.homeTeamId, m.awayTeamId]))
 
 export interface PlayerState {
   alive: boolean
-  /** Teams the player can't pick: used (rule 3, minus postponed, since the last clean slate) plus burned. */
+  /** Teams the player can't pick: used (rule 3, minus postponed) plus burned, since their last clean slate. */
   used: Set<number>
   outRounds: number[]
   buybackUsed: boolean
 }
 
-/** A player's position going into round number `n`. Mirrors alive() and used_teams() in SQL. */
-export function playerState(h: History, playerId: string, n: number): PlayerState {
-  const rounds = h.rounds.filter((r) => r.number < n).sort(byNumber)
+/** A player's position going into `round`. Mirrors alive() and used_teams() in SQL. */
+export function playerState(h: History, playerId: string, round: Round): PlayerState {
+  const rounds = h.rounds.filter((r) => r.number < round.number).sort(byNumber)
   const numberOf = new Map(rounds.map((r) => [r.id, r.number]))
   const outcome = new Map(h.roundResults.filter((r) => r.playerId === playerId).map((r) => [r.roundId, r.outcome]))
-  const slate = Math.max(0, ...rounds.filter((r) => outcome.get(r.id) === 'clean_slate').map((r) => r.number))
+  // In at the start of rounds[i] (i = rounds.length is `round` itself).
+  const inAt = (i: number) =>
+    i === 0 ? h.playerIds.includes(playerId) : STAYS_IN.includes(outcome.get(rounds[i - 1].id) ?? 'already_out')
+  // Q1: a clean slate clears used and burned teams for everyone in at the start of that round, from then on.
+  const slate = Math.max(0, ...[...rounds, round].filter((r, i) => r.cleanSlate && inAt(i)).map((r) => r.number))
   const used = new Set<number>()
   for (const p of h.picks) {
     const num = numberOf.get(p.roundId)
-    if (p.playerId === playerId && num !== undefined && num >= slate && outcome.get(p.roundId) !== 'survived_postponed')
-      used.add(p.teamId)
+    if (p.playerId !== playerId || num === undefined || num < slate) continue
+    // ponytail: a postponed resurrection pick still counts here; harmless, there's no way back after Round 4.
+    if (outcome.get(p.roundId) !== 'survived_postponed') used.add(p.teamId)
   }
-  const burned = h.burnedTeams.filter((b) => b.playerId === playerId && numberOf.has(b.roundId))
-  for (const b of burned) used.add(b.teamId)
-  const last = rounds.at(-1)
+  for (const b of h.burnedTeams)
+    if (b.playerId === playerId && (numberOf.get(b.roundId) ?? -1) >= slate) used.add(b.teamId)
   return {
-    alive: last ? STAYS_IN.includes(outcome.get(last.id) ?? 'already_out') : h.playerIds.includes(playerId),
+    alive: inAt(rounds.length),
     used,
     outRounds: rounds.filter((r) => outcome.get(r.id) === 'out').map((r) => r.number),
-    buybackUsed: burned.some((b) => b.reason === 'buyback_penalty'),
+    // Played a round they started out of, other than by resurrection (which gives reinstated/already_out).
+    buybackUsed: rounds.some(
+      (r, i) => !inAt(i) && ['through', 'out', 'survived_postponed'].includes(outcome.get(r.id) ?? 'already_out'),
+    ),
   }
 }
 
 /**
- * Rules 11/12: teams burned when a player comes back in `round`: the most-picked team of the round they
- * went out in, plus each sat-out round's most-picked, skipping teams they've used or already burned.
- * Exported so the pick screen can grey them out before the lock.
+ * Q1/Q2: run when a round's fixtures are loaded. If every player still in has no team left, it's a clean
+ * slate (store it on the round); otherwise the stuck players are out from now (shown straight away).
+ */
+export function openRound(h: History, round: Round, matches: Match[]) {
+  const playing = teamsIn(matches.filter((m) => m.roundId === round.id))
+  if (!playing.size) bad(`round ${round.number} has no fixtures`)
+  const alive: string[] = []
+  const stuck: string[] = []
+  for (const id of h.playerIds) {
+    const st = playerState(h, id, { ...round, cleanSlate: false })
+    if (!st.alive) continue
+    alive.push(id)
+    if ([...playing].every((t) => st.used.has(t))) stuck.push(id)
+  }
+  const cleanSlate = alive.length > 0 && stuck.length === alive.length
+  return { cleanSlate, noTeamsLeft: cleanSlate ? [] : stuck }
+}
+
+/** Q4: a round's picked teams, most-picked first, ties broken by the stored random draw. */
+export function burnOrder(picks: Pick[], tiebreak: number[]): number[] {
+  const counts = new Map<number, number>()
+  for (const p of picks) counts.set(p.teamId, (counts.get(p.teamId) ?? 0) + 1)
+  const rank = (t: number) => {
+    const i = tiebreak.indexOf(t)
+    return i < 0 ? bad(`team ${t} is missing from the tiebreak draw`) : i
+  }
+  return [...counts]
+    .map(([team, n]) => ({ team, n, r: rank(team) }))
+    .sort((a, b) => b.n - a.n || a.r - b.r)
+    .map((x) => x.team)
+}
+
+/**
+ * Rules 11/12: teams burned when a player comes back in `round`: one for the round they went out in and one
+ * per round sat out, each walking that round's burn order past teams they've used or burned (Q5: then the
+ * season-wide burn order; nothing left, no burn). Exported so pick screens can show them before the lock (Q8).
  */
 export function reentryBurns(h: History, playerId: string, round: Round, reason: BurnedTeam['reason']): BurnedTeam[] {
-  const st = playerState(h, playerId, round.number)
+  const st = playerState(h, playerId, round)
   const outIn = st.outRounds.at(-1) ?? bad(`${playerId} has never gone out`)
+  const before = h.rounds.filter((r) => r.number < round.number)
+  const picksIn = (rs: Round[]) => h.picks.filter((p) => rs.some((r) => r.id === p.roundId))
   const taken = new Set(st.used)
   const burns: BurnedTeam[] = []
-  for (const r of h.rounds.filter((r) => r.number >= outIn && r.number < round.number).sort(byNumber)) {
-    const counts = new Map<number, number>()
-    for (const p of h.picks) if (p.roundId === r.id) counts.set(p.teamId, (counts.get(p.teamId) ?? 0) + 1)
-    const ranked = [...counts].filter(([t]) => !taken.has(t)).sort((a, b) => b[1] - a[1])
-    if (!ranked.length) ruling('Q5', `no team picked in round ${r.number} is left to burn for ${playerId}`)
-    if (ranked[1]?.[1] === ranked[0][1])
-      ruling(
-        'Q4',
-        `tie for most-picked in round ${r.number} (${ranked.filter((x) => x[1] === ranked[0][1]).map((x) => x[0])})`,
-      )
-    taken.add(ranked[0][0])
-    burns.push({ playerId, teamId: ranked[0][0], roundId: round.id, reason })
+  for (const r of before.filter((r) => r.number >= outIn).sort(byNumber)) {
+    const draw = r.tiebreak ?? bad(`round ${r.number} has no tiebreak draw`)
+    const free = (order: number[]) => order.find((t) => !taken.has(t))
+    const team = free(burnOrder(picksIn([r]), draw)) ?? free(burnOrder(picksIn(before), draw))
+    if (team === undefined) continue
+    taken.add(team)
+    burns.push({ playerId, teamId: team, roundId: round.id, reason })
   }
   return burns
 }
@@ -165,15 +205,16 @@ export function predictionPoints(pred: Score, actual: Score): number {
   return off === 0 ? 5 : off <= 5 ? 3 : off <= 10 ? 2 : 1
 }
 
-/** The featured match's score, or null when it scores nobody this round (none named, or not completed). */
+/**
+ * The featured match's score, or null when it scores nobody (none named, or not completed).
+ * Q12: knockouts use the final score incl. extra time; level (kicking competition) is a draw here.
+ */
 function featuredScore(round: Round, ms: Match[]): Score | null {
   if (round.featuredMatchId == null) return null
   const m =
     ms.find((m) => m.id === round.featuredMatchId) ?? bad(`featured match ${round.featuredMatchId} isn't in this round`)
   if (m.status === 'postponed' || m.status === 'abandoned') return null
   if (m.status !== 'completed' || m.homeScore == null || m.awayScore == null) bad(`featured match ${m.id} has no score`)
-  if (round.stage !== 'pool' && m.homeScore === m.awayScore)
-    ruling('Q12', `featured knockout match ${m.id} ended level`)
   return { homeScore: m.homeScore, awayScore: m.awayScore }
 }
 
@@ -196,15 +237,22 @@ export function settleRound(
     ...js.flatMap((j) => [j.jinxerId, j.targetId]),
   ])
     if (!h.playerIds.includes(id)) bad(`unknown player ${id}`)
+  if (openRound(h, round, ms).cleanSlate !== round.cleanSlate)
+    bad(`round ${round.number}'s clean slate flag doesn't match openRound()`)
+  // The draw must cover every team a later burn could walk: this round's fixtures and every pick so far.
+  const draw = round.tiebreak ?? bad(`round ${round.number} needs its tiebreak draw before settling`)
+  const earlier = new Set(h.rounds.filter((r) => r.number < round.number).map((r) => r.id))
+  for (const t of [...teamsIn(ms), ...h.picks.filter((p) => earlier.has(p.roundId)).map((p) => p.teamId)])
+    if (!draw.includes(t)) bad(`team ${t} is missing from round ${round.number}'s tiebreak draw`)
 
-  const playing = new Set(ms.flatMap((m) => [m.homeTeamId, m.awayTeamId]))
+  const playing = teamsIn(ms)
   const matchOf = (team: number) => ms.find((m) => m.homeTeamId === team || m.awayTeamId === team)
-  const state = new Map(h.playerIds.map((id) => [id, playerState(h, id, round.number)]))
+  const state = new Map(h.playerIds.map((id) => [id, playerState(h, id, round)]))
   const pickOf = new Map(ps.map((p) => [p.playerId, p]))
   const burns: BurnedTeam[] = []
 
-  // Who plays this round, and what they can't pick. Rule 11: a confirmed buy-back claimed before this
-  // lock puts an out player back in, with burns.
+  // Who's in at the start of the round, and what they can't pick. Rule 11: a confirmed buy-back claimed
+  // before this lock puts an out player back in, with burns.
   const contenders = new Map<string, Set<number>>()
   for (const id of h.playerIds) {
     const st = state.get(id)!
@@ -223,13 +271,14 @@ export function settleRound(
 
   const outcome = new Map<string, Outcome>()
   const lost: string[] = []
-  const stuck: string[] = []
+  const stuck: string[] = [] // rule 4 (1b): no team left, so out when the round opened
   for (const [id, used] of contenders) {
     const pick = pickOf.get(id)
     if (!pick) {
       // Rule 5's random pick is made by the lock cron; a missing pick here means it didn't run.
       if ([...playing].some((t) => !used.has(t))) bad(`${id} has no pick but has teams left`)
       stuck.push(id)
+      outcome.set(id, 'out')
       continue
     }
     if (pick.isResurrection) bad(`${id} is still in; resurrection picks are for players who are out`)
@@ -240,12 +289,7 @@ export function settleRound(
     if (r === 'lose') lost.push(id)
   }
 
-  // Rule 4 (1b): no team left → out, unless every player still in is stuck.
-  if (stuck.length && stuck.length === contenders.size) ruling('Q1', `everyone still in (${stuck}) has no team left`)
-  for (const id of stuck) outcome.set(id, 'out')
-
-  // Rule 12: resurrection, Round 4 only, an away team, back in on a win.
-  const reinstated: string[] = []
+  // Rule 12: resurrection, Round 4 only, an away team, back in only on a win (Q6: postponed stays out).
   for (const id of h.playerIds) {
     const pick = pickOf.get(id)
     if (!pick || contenders.has(id)) continue
@@ -254,32 +298,24 @@ export function settleRound(
     const m = matchOf(pick.teamId) ?? bad(`${id} picked team ${pick.teamId}, which doesn't play this round`)
     if (m.awayTeamId !== pick.teamId) bad(`${id}: a resurrection pick must be an away team`)
     if (state.get(id)!.used.has(pick.teamId)) bad(`${id} picked team ${pick.teamId}, which they've used or had burned`)
-    const r = result(round.stage, m, pick.teamId)
-    if (r === 'postponed') ruling('Q6', `${id}'s resurrection match was not completed`)
-    if (r === 'lose') continue
     const b = reentryBurns(h, id, round, 'resurrection_penalty')
-    if (b.some((x) => x.teamId === pick.teamId))
-      ruling('Q8', `${id}'s resurrection team ${pick.teamId} is also due to be burned`)
+    if (b.some((x) => x.teamId === pick.teamId)) bad(`${id} picked team ${pick.teamId}, burned if they come back`)
+    if (result(round.stage, m, pick.teamId) !== 'win') continue
     burns.push(...b)
     outcome.set(id, 'reinstated')
-    reinstated.push(id)
   }
 
-  // Rule 8: everyone still in goes out → they all stay in.
-  if (contenders.size && [...contenders.keys()].every((id) => outcome.get(id) === 'out')) {
-    if (stuck.length) ruling('Q2', `everyone went out, ${stuck} because they had no team left`)
-    if (reinstated.length) ruling('Q9', `everyone still in went out while ${reinstated} came back by resurrection`)
-    if (js.some((j) => lost.includes(j.targetId)))
-      ruling('Q3', 'everyone went out and stays in; do jinxes on them land?')
-    for (const id of contenders.keys()) outcome.set(id, 'through')
-  }
+  // Rule 8: everyone in at the start who had a pick goes out → they all stay in (Q2, Q9).
+  const played = [...contenders.keys()].filter((id) => !stuck.includes(id))
+  if (played.length && played.every((id) => outcome.get(id) === 'out'))
+    for (const id of played) outcome.set(id, 'through')
 
-  // Rule 14: a jinx lands when its target goes out.
+  // Rule 14 / Q3: a jinx lands when the target's pick loses or draws, whatever happens after.
   const jinxPoints = new Map<string, number>()
   for (const j of js) {
-    if (contenders.has(j.jinxerId)) bad(`${j.jinxerId} is still in and can't jinx`)
-    if (!contenders.has(j.targetId)) bad(`${j.jinxerId} jinxed ${j.targetId}, who isn't still in`)
-    if (outcome.get(j.targetId) === 'out') jinxPoints.set(j.jinxerId, 1)
+    if (contenders.has(j.jinxerId) && !stuck.includes(j.jinxerId)) bad(`${j.jinxerId} is still in and can't jinx`)
+    if (!played.includes(j.targetId)) bad(`${j.jinxerId} jinxed ${j.targetId}, who isn't still in`)
+    if (lost.includes(j.targetId)) jinxPoints.set(j.jinxerId, 1)
   }
 
   const score = featuredScore(round, ms)
@@ -299,6 +335,7 @@ export function settleRound(
     roundResults,
     newBurnedTeams: burns,
     stillIn: roundResults.filter((r) => STAYS_IN.includes(r.outcome)).map((r) => r.playerId),
+    burnOrder: burnOrder(ps, draw),
   }
 }
 
@@ -340,32 +377,32 @@ export function topOfTable(table: Standing[], among?: string[]): string[] {
     : []
 }
 
-/** Rule 9: who wins the main game after settling `round`, or null if it carries on. Several = split. */
+/**
+ * Rule 9: who wins the main game after settling `round`, or null if it carries on. Several = split.
+ * Q10: no winner while a way back exists (buy-backs and resurrection, up to Round 4's settle).
+ */
 export function gameWinners(stillIn: string[], round: Round, table: Standing[]): string[] | null {
   if (round.stage === 'final') return topOfTable(table, stillIn)
-  if (stillIn.length !== 1) return null
-  if (round.stage === 'pool' && round.number < 4)
-    ruling('Q10', `only ${stillIn[0]} is left after round ${round.number}`)
-  return stillIn
+  if (round.stage === 'pool' && round.number < 4) return null
+  return stillIn.length === 1 ? stillIn : null
 }
 
-/** Rule 15: fewest prediction points (jinx excluded); tied, whoever went out of the main game first. */
+/**
+ * Rule 15: fewest prediction points (jinx excluded); tied, whoever went out for good first (Q11: final exit;
+ * never out ranks best). Still tied, they all do it (Q13).
+ */
 export function forfeitLosers(results: RoundResult[], rounds: Round[]): string[] {
   const table = pointsTable(results)
   const fewest = Math.min(...table.map((s) => s.predictionPoints))
   const tied = table.filter((s) => s.predictionPoints === fewest).map((s) => s.playerId)
   const numberOf = new Map(rounds.map((r) => [r.id, r.number]))
-  const exits = (id: string) =>
-    results
+  const lastExit = (id: string) => {
+    const exits = results
       .filter((r) => r.playerId === id && r.outcome === 'out')
       .map((r) => numberOf.get(r.roundId) ?? bad(`unknown round ${r.roundId}`))
-  const firstOut = (which: (rounds: number[]) => number) => {
-    const at = new Map(tied.map((id) => [id, exits(id).length ? which(exits(id)) : Infinity]))
-    const first = Math.min(...at.values())
-    return tied.filter((id) => at.get(id) === first)
+    return exits.length ? Math.max(...exits) : Infinity
   }
-  const byFirstExit = firstOut((ns) => Math.min(...ns))
-  if (byFirstExit.join() !== firstOut((ns) => Math.max(...ns)).join())
-    ruling('Q11', `forfeit tie between ${tied} depends on which exit counts for a bought-back player`)
-  return byFirstExit
+  const at = new Map(tied.map((id) => [id, lastExit(id)]))
+  const first = Math.min(...at.values())
+  return tied.filter((id) => at.get(id) === first)
 }

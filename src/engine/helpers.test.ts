@@ -7,17 +7,10 @@ import {
   predictionPoints,
   topOfTable,
   type Outcome,
-  type Round,
   type RoundResult,
 } from './engine'
+import { round } from './fixtures'
 
-const round = (number: number, stage: Round['stage'] = 'pool'): Round => ({
-  id: number,
-  number,
-  stage,
-  lockAt: '',
-  featuredMatchId: null,
-})
 const res = (
   roundId: number,
   playerId: string,
@@ -108,10 +101,10 @@ describe('rule 9: winner and tiebreak', () => {
     expect(gameWinners(['a', 'b'], round(8, 'final'), table)).toEqual(['b']) // 5 each, b has an exact score
     expect(gameWinners(['b', 'c'], round(8, 'final'), table)).toEqual(['b', 'c'])
   })
-  it('Q10: one player left before Round 4 needs a ruling (buy-backs are still open)', () => {
-    expect(() => gameWinners(['a'], round(2), table)).toThrow(/Q10/)
+  it('Q10: no winner before Round 4 settles, while buy-backs and resurrection are open', () => {
+    expect(gameWinners(['a'], round(2), table)).toBeNull()
+    expect(gameWinners(['a'], round(3), table)).toBeNull()
   })
-  it.todo('Q10: one player left after Round 2 or 3 — do they win, or can others still buy back?')
 })
 
 describe('rule 15: forfeit', () => {
@@ -125,7 +118,7 @@ describe('rule 15: forfeit', () => {
     ]
     expect(forfeitLosers(results, rounds)).toEqual(['a'])
   })
-  it('tied at the bottom: whoever went out first', () => {
+  it('tied at the bottom: whoever went out first; never out ranks best', () => {
     const results = [
       res(2, 'a', 'through', 1),
       res(3, 'a', 'out', 0),
@@ -136,12 +129,12 @@ describe('rule 15: forfeit', () => {
     ]
     expect(forfeitLosers(results, rounds)).toEqual(['b'])
   })
-  it('still tied (out in the same round) returns all of them', () => {
+  it('Q13: still tied (out in the same round), they all do it', () => {
     const results = [res(2, 'a', 'out', 1), res(2, 'b', 'out', 1)]
     expect(forfeitLosers(results, rounds)).toEqual(['a', 'b'])
   })
-  it('Q11: a bought-back player whose first and last exits give different answers', () => {
-    // a out in 2, bought back, out again in 4; b out in 3. First exit says a, last exit says b.
+  it('Q11: a bought-back player is ranked by their final exit', () => {
+    // a out in 2, bought back, out for good in 4; b out in 3. b went out for good first.
     const results = [
       res(2, 'a', 'out'),
       res(3, 'a', 'through'),
@@ -150,8 +143,6 @@ describe('rule 15: forfeit', () => {
       res(3, 'b', 'out'),
       res(4, 'b', 'already_out'),
     ]
-    expect(() => forfeitLosers(results, [...rounds, round(4)])).toThrow(/Q11/)
+    expect(forfeitLosers(results, [...rounds, round(4)])).toEqual(['b'])
   })
-  it.todo('Q11: forfeit tiebreak for a bought-back player — first exit or last exit?')
-  it.todo('Q13: still tied at the bottom after "went out first" — who does the forfeit?')
 })
