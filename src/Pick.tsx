@@ -2,6 +2,7 @@ import { useEffect, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
 import { crestUrl, type Match, type Team } from './lib/supabase'
+import { matchState, won } from './live'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
 export function useThud() {
@@ -29,6 +30,8 @@ export function FixtureList({
   picked,
   featuredId,
   locked,
+  knockout = false,
+  now = Date.now(),
   onPick,
 }: {
   matches: Match[]
@@ -37,6 +40,8 @@ export function FixtureList({
   picked?: number
   featuredId: number | null
   locked: boolean
+  knockout?: boolean
+  now?: number
   onPick?: (teamId: number) => void
 }) {
   const days = new Map<string, Match[]>()
@@ -49,38 +54,70 @@ export function FixtureList({
       {[...days].map(([label, ms]) => (
         <div key={label} className="flex flex-col gap-2.5">
           <h2 className="disp mt-1.5 text-[15px] font-bold tracking-[.14em] text-muted uppercase">{label}</h2>
-          {ms.map((m) => (
-            <div key={m.id} className="flex flex-col gap-1.5">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
-                {hhmm.format(new Date(m.kickoff_at))}
-                {m.id === featuredId && (
-                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
-                    FEATURED
-                  </span>
-                )}
-              </p>
-              <div className="grid grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)] items-center">
-                {[m.home_team_id, null, m.away_team_id].map((tid, i) =>
-                  tid === null ? (
-                    <span key="v" className="disp text-center text-sm font-extrabold text-gold">
-                      v
+          {ms.map((m) => {
+            const state = matchState(m, now)
+            const final = state === 'final'
+            return (
+              <div key={m.id} className="flex flex-col gap-1.5">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+                  {hhmm.format(new Date(m.kickoff_at))}
+                  {state === 'live' && (
+                    <span className="flex items-center gap-[5px] rounded-full bg-[#e5484d] px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-white">
+                      <span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />
+                      LIVE
                     </span>
-                  ) : (
-                    <TeamCard
-                      key={tid}
-                      team={teams.get(tid)!}
-                      home={i === 0}
-                      usedIn={used.get(tid)}
-                      picked={picked === tid}
-                      dim={picked !== undefined && picked !== tid}
-                      disabled={locked || !onPick}
-                      onPick={() => onPick?.(tid)}
-                    />
-                  ),
-                )}
+                  )}
+                  {(final || state === 'off') && (
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-chalk-2">
+                      {final ? 'FULL TIME' : m.status === 'postponed' ? 'POSTPONED' : 'ABANDONED'}
+                    </span>
+                  )}
+                  {m.id === featuredId && (
+                    <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
+                      FEATURED
+                    </span>
+                  )}
+                </p>
+                <div
+                  className={`grid items-center transition-[grid-template-columns] duration-300 ${final ? 'grid-cols-[minmax(0,1fr)_46px_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]'}`}
+                >
+                  {[m.home_team_id, null, m.away_team_id].map((tid, i) =>
+                    tid === null ? (
+                      final ? (
+                        <span
+                          key="v"
+                          aria-label={`${m.home_score}–${m.away_score}`}
+                          className="disp pop flex flex-col items-center text-[22px] leading-[1.05] font-extrabold tabular-nums"
+                        >
+                          <span>{m.home_score}</span>
+                          <span aria-hidden className="text-sm text-muted">
+                            –
+                          </span>
+                          <span>{m.away_score}</span>
+                        </span>
+                      ) : (
+                        <span key="v" className="disp text-center text-sm font-extrabold text-gold">
+                          v
+                        </span>
+                      )
+                    ) : (
+                      <TeamCard
+                        key={tid}
+                        team={teams.get(tid)!}
+                        home={i === 0}
+                        usedIn={used.get(tid)}
+                        picked={picked === tid}
+                        dim={picked !== undefined && picked !== tid}
+                        lost={final && !won(m, tid, knockout) && (knockout || m.home_score !== m.away_score)}
+                        disabled={locked || !onPick}
+                        onPick={() => onPick?.(tid)}
+                      />
+                    ),
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       ))}
     </section>
@@ -93,6 +130,7 @@ function TeamCard({
   usedIn,
   picked,
   dim,
+  lost,
   disabled,
   onPick,
 }: {
@@ -101,6 +139,7 @@ function TeamCard({
   usedIn?: number
   picked: boolean
   dim: boolean
+  lost: boolean
   disabled: boolean
   onPick: () => void
 }) {
@@ -112,7 +151,7 @@ function TeamCard({
       onClick={onPick}
       aria-pressed={picked}
       aria-label={`${picked ? 'Your pick' : 'Pick'}: ${t.name} (${side})${usedIn !== undefined ? `, used in round ${usedIn}` : ''}`}
-      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : dim ? 'dim' : ''} ${usedIn !== undefined ? 'opacity-30 grayscale' : ''}`}
+      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : lost ? 'lost' : dim ? 'dim' : ''} ${usedIn !== undefined ? 'opacity-30 grayscale' : ''}`}
       style={{ background: t.card_bg, color: t.card_text }}
     >
       {picked && (

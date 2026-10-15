@@ -9,8 +9,10 @@ import Profile, { type Me } from './Profile'
 import InstallGuide from './InstallGuide'
 import MePage from './MePage'
 import TablePage from './TablePage'
+import PoolsPage from './PoolsPage'
 import RulesPage from './RulesPage'
 import { Pushed } from './Shell'
+import { EliminationOverlay } from './Elimination'
 
 export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -20,7 +22,7 @@ export default function App() {
     if (uid)
       supabase
         .from('players')
-        .select('id, name, nickname, avatar_url, kit_colour, is_admin')
+        .select('id, name, nickname, avatar_url, kit_colour, is_admin, seen_elimination_round')
         .eq('id', uid)
         .maybeSingle<Me>()
         .then(({ data }) => setMe(data))
@@ -45,22 +47,26 @@ export default function App() {
   if (!me) return <p className="p-6">You’re signed in but not on the player list. Ask Eddie.</p>
   if (!me.nickname) return <Profile me={me} onSaved={loadMe} /> // first login
   return (
-    <Routes>
-      <Route path="/round" element={<CurrentRound />} />
-      <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />
-      <Route path="/table" element={<TablePage me={session.user.id} />} />
-      <Route path="/me" element={<MePage me={me} />} />
-      <Route
-        path="/me/edit"
-        element={
-          <Pushed title="Edit profile">
-            <Profile me={me} onSaved={() => (loadMe(), history.back())} />
-          </Pushed>
-        }
-      />
-      <Route path="/rules" element={<RulesPage />} />
-      <Route path="/admin/:number?" element={<AdminPage />} />
-      <Route path="*" element={<Navigate to="/round" replace />} />
-    </Routes>
+    <>
+      <EliminationOverlay me={me.id} seen={me.seen_elimination_round} />
+      <Routes>
+        <Route path="/round" element={<CurrentRound />} />
+        <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />
+        <Route path="/pools" element={<PoolsPage me={session.user.id} />} />
+        <Route path="/table" element={<TablePage me={session.user.id} />} />
+        <Route path="/me" element={<MePage me={me} />} />
+        <Route
+          path="/me/edit"
+          element={
+            <Pushed title="Edit profile">
+              <Profile me={me} onSaved={() => (loadMe(), history.back())} />
+            </Pushed>
+          }
+        />
+        <Route path="/rules" element={<RulesPage />} />
+        <Route path="/admin/:number?" element={<AdminPage />} />
+        <Route path="*" element={<Navigate to="/round" replace />} />
+      </Routes>
+    </>
   )
 }

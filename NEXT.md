@@ -88,12 +88,32 @@ In this order; each step shippable on its own:
 ---
 
 ## After Round 1 (before the Round 2 lock, Fri 11 Dec 8pm)
-5b. **UI redesign: spec in `docs/UI-REDESIGN.md`** (signed off by Eddie 15 Oct; prototype screens in `docs/ui-prototype/`).
-   Investec Champions Cup navy + gold theme (spec §1), bottom tabs (Round / Table / Me), round pills, takeover + synthesised whistle and crowd roar (no UI
-   blips), "Your pick" only says "locked in" after the lock (gold ring), squad shows picked / not picked (new
-   `round_pick_status` RPC, never a team), Table and Me screens (new `points_table` RPC), Rules page with points calculator,
-   admin as Open → Locked → Results → Settle with hold-to-settle. Start after Round 1 settles. Update CLAUDE.md §7 sound line.
-   **Done means:** §12 of the spec.
+5b. ~~UI redesign~~ **DONE 15 Oct** (merged as PR #1, `ui-redesign`). Spec §1–12 of `docs/UI-REDESIGN.md` is built.
+   Spec §15–17 were added after the merge and are packets 5c (Pools + live states) and 5d (knocked-out experience).
+5c. ~~Live results + standings feed~~ **DONE 15 Oct, manual version** (branch `results-feed`). API-Sports' free plan
+   can't see season 2026 ("Free plans do not have access to this season, try from 2022 to 2024"; Champions Cup = league
+   54), so Eddie chose no feed for now:
+   - **Standings:** `src/data/standings.json`, updated every Monday with the project skill `/update-standings`
+     (`scripts/standings.ts` pulls ESPN's public standings JSON, no key; cross-check vs epcrugby.com; test; push to `main`).
+     The `standings.json` test checks every team is in its §15 pool and the numbers add up.
+   - **Live states (§16):** from kick-off time (`src/live.ts`: live = kick-off to +100 min, then "Result due") plus the
+     scores admins enter. No live score or minute. The Round screen re-reads every minute while a match is on.
+   - **Admin:** "Results in: X/N"; Preview settle only once every match is in. No auto/manual flag (all manual).
+   - **Not built (needs a feed):** `result_source`, `live_*` columns, `pool_standings`, `api_calls`, Edge Functions, cron.
+     If an API turns up later: ESPN's scoreboard (`site.api.espn.com/apis/site/v2/sports/rugby/271937/scoreboard?dates=
+     YYYYMMDD`) had the full 2026/27 fixtures with team ids (15 Oct), or a paid API-Sports plan. The old plan is in git
+     history (commit 2f63ba3).
+
+5d. **Built 15 Oct on `results-feed`; migration `20261015034119_seen_elimination.sql` applied 15 Oct. Eyeball the overlay
+   + out screen on a real settle.** Knocked-out experience: spec `docs/UI-REDESIGN.md` §17, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
+   Round 1 settle (Sun 18 Oct night), since that's when the first players go out. The one-time red-card overlay
+   (`players.seen_elimination_round`) + whistle and crowd `groan()`; the out player's Round screen (red hero + Replay,
+   "Get back in" with buy-back cost chips from `reentryBurns()` and the Round 4 resurrection info, jinx avatar grid,
+   "Still playing for the 20%"); "KNOCKED OUT" pick card; Me status "Out · Round N" and red road tile. The buy-back button
+   uses the existing payments flow (kind `buyback`); the re-entry plumbing that lets a bought-back player pick is packet 7.
+   **Done means:** settle a test round locally where a player loses → on their next open the overlay plays once, Replay
+   plays it with sound, the out screen shows the right burn chips, and a jinx saves.
+
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
 7. **Re-entry plumbing:** `make_pick` and the lock job accept bought-back players; pick screen greys out `reentryBurns()` and

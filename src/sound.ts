@@ -142,6 +142,34 @@ function whistle(d = 0.32) {
   g.connect(a.destination)
 }
 
+/** Crowd groan (spec §17): the roar noise through a lowpass 2000 → 380 Hz and a peak 700 → 320 Hz, from +.5 s. */
+function groan() {
+  const a = ctx()
+  if (!a) return
+  const t = a.currentTime + 0.5
+  const dur = 2.4
+  noiseBuf ??= noise(a, 3)
+  const src = a.createBufferSource()
+  src.buffer = noiseBuf
+  const lp = a.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(2000, t)
+  lp.frequency.exponentialRampToValueAtTime(380, t + dur)
+  const pk = a.createBiquadFilter()
+  pk.type = 'peaking'
+  pk.frequency.setValueAtTime(700, t)
+  pk.frequency.exponentialRampToValueAtTime(320, t + dur)
+  pk.Q.value = 1.6
+  pk.gain.value = 10
+  const g = a.createGain()
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.exponentialRampToValueAtTime(0.5, t + 0.18)
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+  src.connect(lp).connect(pk).connect(g).connect(a.destination)
+  src.start(t, Math.random() * 0.3)
+  src.stop(t + dur)
+}
+
 const later = (ms: number, f: () => void) => setTimeout(f, ms)
 
 /** The events in §5's table. Each is a no-op with sound off. */
@@ -162,6 +190,12 @@ export const sfx = {
   },
   confirmPayment() {
     if (on) whistle(0.18)
+  },
+  /** Knocked out (§17): long whistle + groan. Replay button only; the overlay's auto-play is silent. */
+  knockedOut() {
+    if (!on) return
+    whistle(0.9)
+    groan()
   },
   fullTime() {
     if (!on) return

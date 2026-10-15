@@ -617,8 +617,8 @@ function ResultsStep({
     <>
       <div className="flex items-center gap-2.5">
         <h2 className="disp flex-1 text-[22px] font-extrabold">Results</h2>
-        <span className="text-[13px] font-semibold text-muted">
-          {done} of {n} in
+        <span className={`text-[13px] font-semibold ${done === n ? 'text-in-text' : 'text-muted'}`}>
+          Results in: {done}/{n}
         </span>
       </div>
       <div aria-hidden className="h-1.5 overflow-hidden rounded-[3px] bg-white/8">
@@ -644,9 +644,10 @@ function ResultsStep({
       <button
         type="button"
         onClick={onDone}
-        className="press h-[52px] rounded-[14px] bg-gold text-base font-extrabold text-navy-900"
+        disabled={done < n}
+        className="press h-[52px] rounded-[14px] bg-gold text-base font-extrabold text-navy-900 disabled:opacity-40"
       >
-        Preview settle
+        {done < n ? `Preview settle once all ${n} are in` : 'Preview settle'}
       </button>
     </>
   )

@@ -27,8 +27,8 @@ const team = async (slug: string) =>
 /** PGlite gives Dates and numeric strings; PostgREST gives ISO strings and numbers. */
 const json = <T>(rows: unknown[]) => JSON.parse(JSON.stringify(rows)) as T
 
-async function load(number: number) {
-  const q = <T>(sql: string, params: unknown[] = []) => as(db, EDDIE, sql, params).then((r) => json<T>(r))
+async function load(number: number, uid = EDDIE) {
+  const q = <T>(sql: string, params: unknown[] = []) => as(db, uid, sql, params).then((r) => json<T>(r))
   const rounds = await q<A.Rows['rounds']>('select * from rounds order by number')
   const id = rounds.find((r) => r.number === number)!.id
   return A.build(number, {
@@ -44,7 +44,7 @@ async function load(number: number) {
     payments: (
       await q<A.Rows['payments']>('select id, player_id, kind, amount_eur, status, claimed_at from payments')
     ).map((p) => ({ ...p, amount_eur: Number(p.amount_eur) })),
-    me: EDDIE,
+    me: uid,
   })!
 }
 
@@ -180,4 +180,60 @@ it('Round 1: pay, pick, lock, results, settle, unsettle, correct, settle again; 
     noTeamsLeft: [],
   })
   await pick(BEN, r2, await team('sale-sharks'))
+})
+
+// Packet 5d: a player knocked out in Round 1 opens Round 2. Everything the out screen needs works through their own RLS.
+it('knocked out: buy-back burn chips, jinx and the seen flag, as the out player', async () => {
+  for (const p of [EDDIE, CONN, BEN, MOSSY]) {
+    const [{ id }] = await as<{ id: number }>(
+      db,
+      p,
+      `insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 10) returning id`,
+      [p],
+    )
+    await as(db, CONN, 'select confirm_payment($1)', [id])
+  }
+  await pick(EDDIE, r1, await team('leinster'))
+  await pick(CONN, r1, await team('leinster'))
+  await pick(BEN, r1, await team('saracens'))
+  await pick(MOSSY, r1, await team('bath-rugby'))
+  await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r1])
+  const fixtures = (
+    await db.query<{ home: string }>(
+      'select h.slug as home from matches m join teams h on h.id = m.home_team_id where round_id = $1',
+      [r1],
+    )
+  ).rows
+  for (const { home } of fixtures) await score(home, 20, 10)
+  await score('asm-clermont-auvergne', 10, 24) // Leinster win away
+  await score('connacht', 17, 17) // Saracens draw: Ben out
+  await settle(1)
+  expect((await outcomes(r1))[BEN]).toBe('out')
+  await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
+
+  // GetBackIn: the engine on Ben's own view. Leinster (2 picks) is Round 1's most-picked: that's the burn.
+  const d = await load(2, BEN)
+  const st = E.playerState(d.history, BEN, A.toRound(d.round))
+  expect(st.alive).toBe(false)
+  expect(st.buybackUsed).toBe(false)
+  expect([...st.used]).toEqual([await team('saracens')])
+  expect(E.reentryBurns(d.history, BEN, A.toRound(d.round), 'buyback_penalty').map((b) => b.teamId)).toEqual([
+    await team('leinster'),
+  ])
+
+  // Buy-back claim, jinx, and the overlay's seen flag.
+  await as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10)`, [BEN])
+  await as(
+    db,
+    BEN,
+    `insert into jinxes (round_id, jinxer_id, target_id) values ($1, $2, $3)
+     on conflict (round_id, jinxer_id) do update set target_id = excluded.target_id`,
+    [r2, BEN, EDDIE],
+  )
+  expect(await as(db, BEN, 'select target_id from jinxes where round_id = $1', [r2])).toEqual([{ target_id: EDDIE }])
+  expect(await as(db, EDDIE, 'select * from jinxes where round_id = $1', [r2])).toEqual([]) // hidden until the lock
+  await as(db, BEN, 'update players set seen_elimination_round = 1 where id = $1', [BEN])
+  expect((await db.query('select seen_elimination_round s from players where id = $1', [BEN])).rows[0]).toEqual({
+    s: 1,
+  })
 })

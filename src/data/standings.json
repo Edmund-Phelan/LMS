@@ -1,0 +1,38 @@
+{
+  "updated": "2026-10-15T03:29:31.487Z",
+  "source": "ESPN",
+  "pools": [
+    [
+      {"slug":"asm-clermont-auvergne","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"glasgow-warriors","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"leicester-tigers","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"leinster","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"sale-sharks","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"section-paloise","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0}
+    ],
+    [
+      {"slug":"connacht","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"exeter-chiefs","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"emirates-lions","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"saracens","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"stade-rochelais","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"stade-toulousain","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0}
+    ],
+    [
+      {"slug":"bristol-bears","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"gloucester-rugby","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"munster-rugby","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"racing-92","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"dhl-stormers","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"union-bordeaux-begles","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0}
+    ],
+    [
+      {"slug":"bath-rugby","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"vodacom-bulls","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"cardiff-rugby","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"montpellier-herault-rugby","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"northampton-saints","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0},
+      {"slug":"stade-francais-paris","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"tbp":0,"lbp":0,"pts":0}
+    ]
+  ]
+}
