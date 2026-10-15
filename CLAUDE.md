@@ -209,7 +209,7 @@ Season:
 | Week 2 | Admin: results, settle, payments, Round 1 import, CSV export. |
 | Week 3 | Rules engine complete with tests for every rule in section 5. |
 | Weeks 4–5 | Experience: field, team takeover, reveal, share cards, haptics, avatars. |
-| Last week | Dry run of a fake round with Conn + two of the lads, fix, ship by Fri 4 Dec. |
+| Last week | Dry run of a fake round with Conn + two of the lads (incl. admin settle → unsettle → settle), fix, ship by Fri 4 Dec. |
 
 Correctness before polish: no animation work until the lock, privacy and engine are proven.
 
