@@ -17,6 +17,7 @@ import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
 import Shell, { Icon, Loading } from './Shell'
 import { sfx } from './sound'
+import { matchState, pickState, type PickState } from './live'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -165,6 +166,38 @@ const Chip = ({ children }: { children: ReactNode }) => (
   <span className="rounded-full bg-black/30 px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap">{children}</span>
 )
 
+const kickoffFmt = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+/** §16 status chip for a pick after the lock. No feed, so live means "on now" (no score); results come from admins. */
+function PickChip({ m, teamId, knockout, now }: { m: Match; teamId: number; knockout: boolean; now: number }) {
+  const state = pickState(m, teamId, knockout, now)
+  const home = teamId === m.home_team_id
+  const score = home ? `${m.home_score}–${m.away_score}` : `${m.away_score}–${m.home_score}`
+  const look: Record<PickState, [string, string]> = {
+    locked: ['Locked in', 'bg-gold/16 text-gold'],
+    later: [kickoffFmt.format(new Date(m.kickoff_at)).replace(',', ''), 'bg-white/8 text-chalk-2'],
+    live: ['On now', 'bg-warn/18 text-warn'],
+    waiting: ['Result due', 'bg-white/8 text-chalk-2'],
+    through: [`Through · ${score}`, 'bg-in/16 text-in-text'],
+    out: [`Out · ${score}`, 'bg-[#e5484d]/18 text-out-text'],
+    back: ['Postponed · team back', 'bg-white/8 text-chalk-2'],
+  }
+  const [label, cls] = look[state]
+  return (
+    <span
+      className={`pop inline-flex items-center gap-[5px] rounded-full px-2.5 py-[5px] text-xs font-bold whitespace-nowrap ${cls}`}
+    >
+      {state === 'live' && <span aria-hidden className="live-dot h-[7px] w-[7px] rounded-full bg-current" />}
+      {label}
+    </span>
+  )
+}
+
 function Hero({
   round,
   locked,
@@ -247,12 +280,14 @@ function MyPick({
   locked,
   lockAt,
   round1,
+  chip,
   onReplay,
 }: {
   team?: Team
   locked: boolean
   lockAt: string
   round1: boolean
+  chip?: ReactNode
   onReplay: () => void
 }) {
   if (!team)
@@ -311,6 +346,7 @@ function MyPick({
         <span className="block text-xs opacity-80">
           {locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock'}
         </span>
+        {locked && chip && <span className="mt-2 block">{chip}</span>}
       </span>
     </button>
   )
@@ -334,6 +370,13 @@ export default function RoundPage({ me }: { me: string }) {
   useEffect(() => {
     if (locked) reload()
   }, [locked, reload])
+  // No feed: while a match is on or waiting for its result, re-read every minute so an admin's score shows up.
+  const inPlay = data?.matches.some((m) => ['live', 'waiting'].includes(matchState(m, now))) ?? false
+  useEffect(() => {
+    if (!inPlay) return
+    const id = setInterval(reload, 60_000)
+    return () => clearInterval(id)
+  }, [inPlay, reload])
 
   const season = SEASON.find((s) => s.number === number)
   const title = data?.round?.name ?? season?.title ?? `Round ${number}`
@@ -369,6 +412,11 @@ export default function RoundPage({ me }: { me: string }) {
   const myAlive = data.alive.get(me)
   const myPick = data.picks.find((p) => p.player_id === me)
   const featured = matches.find((m) => m.id === round.featured_match_id)
+  const knockout = round.stage !== 'pool'
+  const chipFor = (pick?: Pick) => {
+    const m = pick && matches.find((m) => m.home_team_id === pick.team_id || m.away_team_id === pick.team_id)
+    return m && <PickChip m={m} teamId={pick.team_id} knockout={knockout} now={now} />
+  }
   const name = (id: string) => {
     const p = players.find((p) => p.id === id)
     return p?.nickname || p?.name || '?'
@@ -408,6 +456,7 @@ export default function RoundPage({ me }: { me: string }) {
               locked={locked}
               lockAt={lockedAt(round.lock_at)}
               round1={round.number === 1}
+              chip={chipFor(myPick)}
               onReplay={() => {
                 if (!myPick) return
                 sfx.pick()
@@ -423,6 +472,8 @@ export default function RoundPage({ me }: { me: string }) {
               picked={myPick?.team_id}
               featuredId={round.featured_match_id}
               locked={locked}
+              knockout={knockout}
+              now={now}
               onPick={async (tid) => {
                 thud() // from the tap itself: iOS only allows haptics and audio inside a user gesture
                 sfx.unlock()
@@ -438,7 +489,15 @@ export default function RoundPage({ me }: { me: string }) {
             />
           )}
           {myAlive !== true && (
-            <FixtureList matches={matches} teams={teams} used={new Map()} featuredId={round.featured_match_id} locked />
+            <FixtureList
+              matches={matches}
+              teams={teams}
+              used={new Map()}
+              featuredId={round.featured_match_id}
+              locked
+              knockout={knockout}
+              now={now}
+            />
           )}
           {myAlive === false && !locked && (
             <JinxPicker
@@ -480,7 +539,17 @@ export default function RoundPage({ me }: { me: string }) {
           )}
 
           {locked && <Reveal data={data} name={name} />}
-          <Squad squad={data.squad} players={players} payments={data.payments} me={me} locked={locked} />
+          <Squad
+            squad={data.squad}
+            players={players}
+            payments={data.payments}
+            me={me}
+            locked={locked}
+            picks={data.picks}
+            teams={teams}
+            chipFor={chipFor}
+            settled={!!round.settled_at}
+          />
         </div>
       </div>
     </Shell>
@@ -621,12 +690,20 @@ function Squad({
   payments,
   me,
   locked,
+  picks,
+  teams,
+  chipFor,
+  settled,
 }: {
   squad: Data['squad']
   players: Player[]
   payments: PaymentRow[]
   me: string
   locked: boolean
+  picks: Pick[]
+  teams: Map<number, Team>
+  chipFor: (p?: Pick) => ReactNode
+  settled: boolean
 }) {
   const n = squad.filter((s) => s.has_pick).length
   const word = locked ? 'locked in' : 'picked'
@@ -649,6 +726,9 @@ function Squad({
           const p = players.find((p) => p.id === player_id)
           if (!p) return null
           const paid = entryOf(payments, p.id)?.status
+          // After the lock RLS returns everyone's picks (§16): show the team and how it's going.
+          const pick = locked ? picks.find((x) => x.player_id === p.id) : undefined
+          const team = pick && teams.get(pick.team_id)
           return (
             <li key={p.id} className="flex items-center gap-3 border-t border-white/6 px-3.5 py-3 first:border-0">
               <Avatar p={p} size={38} />
@@ -657,15 +737,26 @@ function Squad({
                   {p.nickname || p.name}
                   {p.id === me && ' (you)'}
                 </span>
-                <span className={`block text-xs ${paid === 'confirmed' ? 'text-muted' : 'text-warn'}`}>
-                  {paid === 'confirmed'
-                    ? 'Paid'
-                    : paid === 'claimed'
-                      ? 'Payment waiting for a confirm'
-                      : 'Entry not paid yet'}
-                </span>
+                {team ? (
+                  <span className="mt-0.5 flex items-center gap-1.5 text-xs text-chalk-2">
+                    <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-white">
+                      <img src={crestUrl(team)} alt="" className="h-[14px] w-[14px] object-contain" />
+                    </span>
+                    <span className="truncate">{team.name}</span>
+                  </span>
+                ) : (
+                  <span className={`block text-xs ${paid === 'confirmed' ? 'text-muted' : 'text-warn'}`}>
+                    {paid === 'confirmed'
+                      ? 'Paid'
+                      : paid === 'claimed'
+                        ? 'Payment waiting for a confirm'
+                        : 'Entry not paid yet'}
+                  </span>
+                )}
               </span>
-              {has_pick ? (
+              {pick ? (
+                chipFor(pick)
+              ) : has_pick ? (
                 <span
                   className={`pop flex items-center gap-[5px] rounded-full px-2.5 py-[5px] text-xs font-bold ${locked ? 'bg-gold/16 text-gold' : 'bg-blue/18 text-blue-text'}`}
                 >
@@ -683,7 +774,9 @@ function Squad({
       </ul>
       <p className="text-center text-xs text-muted">
         {locked
-          ? 'The team sheet is above, one card per player.'
+          ? settled
+            ? 'The team sheet is above, one card per player.'
+            : 'Through and Out are official once the round is settled.'
           : 'Teams stay hidden until the lock, admins included. Then the cards flip.'}
       </p>
     </section>

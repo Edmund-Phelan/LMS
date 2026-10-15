@@ -113,6 +113,18 @@ button {
   opacity: 0.55;
   filter: saturate(0.7);
 }
+.card.lost {
+  opacity: 0.4;
+  filter: grayscale(0.7);
+}
+.live-dot {
+  animation: liveDot 1.2s ease-in-out infinite;
+}
+@keyframes liveDot {
+  50% {
+    opacity: 0.35;
+  }
+}
 .card.picked {
   box-shadow:
     0 0 0 3px #f2b226,
