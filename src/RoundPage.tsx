@@ -357,7 +357,8 @@ function MyPick({
         </span>
         <span className="disp block text-[26px] leading-[1.05] font-extrabold">{team.name}</span>
         <span className="block text-xs opacity-80">
-          {knockedOut ?? (locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock')}
+          {knockedOut ??
+            (locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock · tap to remove')}
         </span>
         {locked && chip && !knockedOut && <span className="mt-2 block">{chip}</span>}
       </span>
@@ -568,6 +569,8 @@ export default function RoundPage({ me }: { me: string }) {
               knockedOut={knockedOut}
               onReplay={() => {
                 if (!myPick) return
+                // Before the lock, tapping your pick offers to remove it (Eddie, 15 Oct); after, it replays the takeover.
+                if (!locked) return setConfirming(myPick.team_id)
                 sfx.pick()
                 setTakeover(teams.get(myPick.team_id)!)
               }}
