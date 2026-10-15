@@ -48,7 +48,7 @@ async function load(number: number): Promise<Data | null> {
   const [teams, matches, players, picks, used, status, predictions, jinxes] = await Promise.all([
     supabase.from('teams').select('*').returns<Team[]>(),
     supabase.from('matches').select('*').eq('round_id', round.id).order('kickoff_at').returns<Match[]>(),
-    supabase.from('players').select('id, name, nickname').order('name').returns<Player[]>(),
+    supabase.from('players').select('id, name, nickname, is_admin').order('name').returns<Player[]>(),
     supabase.from('picks').select('round_id, player_id, team_id, is_auto').eq('round_id', round.id).returns<Pick[]>(),
     supabase.rpc('my_used_teams', { r: round.id }),
     supabase.rpc('round_status', { r: round.id }),
@@ -144,9 +144,16 @@ export default function RoundPage({ me }: { me: string }) {
         ) : (
           <span />
         )}
-        <button onClick={() => supabase.auth.signOut()} className="underline">
-          Sign out
-        </button>
+        <span className="flex gap-4">
+          {players.find((p) => p.id === me)?.is_admin && (
+            <Link to={`/admin/${number}`} className="underline">
+              Admin
+            </Link>
+          )}
+          <button onClick={() => supabase.auth.signOut()} className="underline">
+            Sign out
+          </button>
+        </span>
         <Link to={`/round/${number + 1}`} className="underline">
           Round {number + 1} →
         </Link>

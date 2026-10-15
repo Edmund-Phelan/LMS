@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './Login'
+import AdminPage from './AdminPage'
 import RoundPage, { CurrentRound } from './RoundPage'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<CurrentRound />} />
       <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />
+      <Route path="/admin/:number?" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
