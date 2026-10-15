@@ -375,12 +375,21 @@ export default function RoundPage({ me }: { me: string }) {
   const endTakeover = useCallback(() => setTakeover(null), [])
   const [confirming, setConfirming] = useState<number | null>(null) // team id in the §18 sheet
   const endConfirm = useCallback(() => setConfirming(null), [])
+  const [payFirst, setPayFirst] = useState<number | null>(null) // Round 1: tapped a team before paying
   const [replay, setReplay] = useState(false)
   const endReplay = useCallback(() => setReplay(false), [])
   const reload = useCallback(() => load(number, me).then((d) => setData({ ...d, number })), [number, me])
   useEffect(() => {
     reload()
   }, [reload])
+
+  // Paid (claimed) from the pay-first sheet: carry straight on to backing the team they tapped.
+  useEffect(() => {
+    if (payFirst !== null && data && entryOf(data.payments, me)) {
+      setConfirming(payFirst)
+      setPayFirst(null)
+    }
+  }, [payFirst, data, me])
 
   // The phone clock only decides what to show; the server decides what's allowed.
   const locked = data?.round ? now >= Date.parse(data.round.lock_at) : false
@@ -455,6 +464,32 @@ export default function RoundPage({ me }: { me: string }) {
   return (
     <Shell title={round.name}>
       <Takeover team={takeover} onDone={endTakeover} />
+      {payFirst !== null && (
+        <div
+          className="fixed inset-0 z-40 flex items-end bg-black/50"
+          role="dialog"
+          aria-label="Pay to pick"
+          onClick={() => setPayFirst(null)}
+        >
+          <div
+            className="open-in mx-auto flex w-full max-w-[480px] flex-col gap-3 rounded-t-3xl bg-navy-800 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="disp text-2xl font-extrabold">Pay your €10 to pick</h2>
+            <p className="text-sm text-muted">
+              Pay Eddie on Revolut, then tap “I’ve paid”. You can back {teams.get(payFirst)?.name} straight after.
+            </p>
+            <PayEntry me={me} payments={data.payments} run={run} />
+            <button
+              type="button"
+              onClick={() => setPayFirst(null)}
+              className="press h-[50px] rounded-[14px] border border-white/16 font-bold"
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
       {confirming !== null && myAlive === true && (
         <PickSheet
           team={teams.get(confirming)!}
@@ -466,7 +501,15 @@ export default function RoundPage({ me }: { me: string }) {
             matches.every((m) => [m.home_team_id, m.away_team_id].every((t) => t === confirming || data.used.has(t)))
           }
           locked={locked}
+          round1={round.number === 1}
           onCancel={endConfirm}
+          onRemove={async () => {
+            setConfirming(null)
+            setError(null)
+            const { error } = await supabase.rpc('clear_pick', { p_round_id: round.id })
+            if (error) setError(error.message)
+            await reload()
+          }}
           onConfirm={async () => {
             thud() // still inside the touch: the hold completes with the finger down
             setConfirming(null)
@@ -541,11 +584,10 @@ export default function RoundPage({ me }: { me: string }) {
               knockout={knockout}
               now={now}
               onPick={(tid) => {
-                // §18: your current pick replays the takeover; any other team opens the confirm sheet.
-                if (tid !== myPick?.team_id) return setConfirming(tid)
-                thud()
-                sfx.pick()
-                setTakeover(teams.get(tid)!)
+                // Round 1: pay (claim) before you pick (Eddie, 15 Oct; picks_need_entry enforces it).
+                if (round.number === 1 && !entryOf(data.payments, me)) return setPayFirst(tid)
+                // §18 confirm sheet; on your current pick it offers to remove it (Eddie, 15 Oct).
+                setConfirming(tid)
               }}
             />
           )}

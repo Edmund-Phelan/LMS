@@ -326,7 +326,10 @@ function OpenStep({
   const { round } = data
   const [rejecting, setRejecting] = useState<PaymentRow | null>(null)
   const [confirmed, setConfirmed] = useState<string | null>(null)
+  const [marking, setMarking] = useState<string | null>(null) // armed "Mark paid" (second tap records it)
   const claims = data.paymentRows.filter((p) => p.status === 'claimed')
+  // Paid on Revolut but never tapped "I've paid" (Eddie, 15 Oct): no entry row at all.
+  const noEntry = data.players.filter((p) => !data.paymentRows.some((r) => r.player_id === p.id && r.kind === 'entry'))
   const paid = new Set(
     data.paymentRows.filter((p) => p.kind === 'entry' && p.status === 'confirmed').map((p) => p.player_id),
   )
@@ -390,6 +393,31 @@ function OpenStep({
             </div>
           )
         })}
+        {noEntry.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-bold tracking-[.08em] text-muted uppercase">
+              Not paid · paid you anyway? Mark it
+            </p>
+            {noEntry.map((p) => (
+              <div key={p.id} className="flex items-center gap-2.5">
+                <Avatar p={p} size={32} />
+                <span className="min-w-0 flex-1 truncate font-semibold">{name(p.id)}</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (marking !== p.id) return setMarking(p.id) // first tap arms it: confirmed can't be undone
+                    setMarking(null)
+                    sfx.confirmPayment()
+                    if (await run(supabase.rpc('mark_paid', { p_player: p.id }))) setConfirmed(name(p.id))
+                  }}
+                  className={`press h-9 shrink-0 rounded-xl px-3 text-sm font-extrabold ${marking === p.id ? 'bg-gold text-navy-900' : 'border border-white/16 text-chalk'}`}
+                >
+                  {marking === p.id ? `Tap again: ${name(p.id)} paid €10` : 'Mark paid'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         {confirmed && (
           <p className="pop rounded-[14px] bg-in/12 p-3 text-center font-bold text-in-text">
             {confirmed} confirmed. Paid mark is live for everyone.
