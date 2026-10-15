@@ -90,60 +90,19 @@ In this order; each step shippable on its own:
 ## After Round 1 (before the Round 2 lock, Fri 11 Dec 8pm)
 5b. ~~UI redesign~~ **DONE 15 Oct** (merged as PR #1, `ui-redesign`). Spec §1–12 of `docs/UI-REDESIGN.md` is built.
    Spec §15–17 were added after the merge and are packets 5c (Pools + live states) and 5d (knocked-out experience).
-5c. **Live results + standings feed (API-Sports Rugby), before the Round 2 lock** (Eddie, 15 Oct). Scores update in the
-   app while games are on, the Pools tab shows the real Champions Cup standings, admins still settle by hand. UI: spec
-   `docs/UI-REDESIGN.md` §15 (Pools), §16 (live states); prototype boards `docs/ui-prototype/Live.dc.html` and
-   `Pools.dc.html`. Plan:
-   - **Eddie provides (before Claude Code starts):** a free API-Sports account and its key. The key goes in two places,
-     never in git or chat: `APISPORTS_KEY=…` in `.env.local` (gitignored; for the local check script), and the Supabase
-     Edge Function secret `APISPORTS_KEY` (Dashboard → Edge Functions → Secrets). If the key isn't in `.env.local`, stop and
-     ask for it.
-   - **Build order (one shippable commit each, stop at any failed check):** 1) `scripts/apisports-check.ts`: league id,
-     confirm season 2026 is reachable on the plan, print the 24 teams with ids, write the mapping migration
-     (`teams.api_team_id`, `teams.pool`) and check it against spec §15's pools → 2) schema: live columns,
-     `result_source`, `pool_standings`, `api_calls` + DB tests → 3) Edge Function `sync-games` + the polling decision
-     (unit-tested) + `pg_cron`/`pg_net` schedule → 4) Edge Function `sync-standings` + schedule → 5) UI §16 live states →
-     6) UI §15 Pools tab (4th tab, between Round and Table) → 7) admin "auto/manual" + "Results in: X/12".
-     Deploy the functions only after Eddie OKs; while Round 1 runs, nothing may write to `matches`. Test against recorded
-     JSON fixtures in `supabase/functions/_fixtures/`, not the live API.
-   - **API facts (from the docs, 15 Oct):** base `https://v1.rugby.api-sports.io`, header `x-apisports-key`.
-     `GET /games` (needs one of `id`, `date`, `league`, `season`, `team`; add `timezone=Europe/Dublin`), **updated every
-     15 s**. Statuses: NS not started · 1H/2H/HT/ET/BT/PT in play · INTR interrupted · FT finished · AET after extra time
-     (finished) · AW awarded · POST postponed · CANC cancelled · ABD abandoned. `GET /standings` (required `league`,
-     `season`; optional `team`, `stage`, `group`), **updated every hour**; `GET /standings/stages` and `/standings/groups`
-     list the valid stage/group values. `season` is 4 characters (find out with `/seasons` or `/leagues` whether 2026/27 is
-     `2026`). Free plan: 100 requests/day, 10/minute.
-   - **Check first (stop if it fails):** with Eddie's key, one `/leagues?search=champions` call to get the league id and
-     confirm the free plan returns season 2026 (some free plans only cover past seasons; this wasn't in the docs Eddie pasted).
-     Then map all 24 teams to `teams.slug` (`teams.api_team_id`) and check them against the pools in the spec §15. If the free
-     plan can't see 2026, tell Eddie (paid tier, or ESPN's unofficial scoreboard JSON as the source).
-   - **One call covers a whole day:** `games?league=…&season=…&date=…` returns every match that day. The budget is per day;
-     Saturday (8 matches, 13:00 to ~21:45) is the tight one.
-   - **Smart polling (games):** `pg_cron` ticks every minute (free, no API call) and runs an Edge Function that calls the
-     API only while a match of the current round is **live**: from kick-off to kick-off + 130 min, or later while the API
-     still says in play. Live → every **5 min**; nothing live → no calls. After the last window, one sweep every 15 min
-     until every match is final (cap at kick-off + 4 h, then leave it to admins). Round 1 estimate: Fri ~21, Sat ~85,
-     Sun ~65 calls.
-   - **Standings:** once a day at 07:00, plus on match days once at the day's last kick-off + 3.5 h (about 1.5 h after
-     full time, since the table updates hourly), so at most 2 calls/day. Store the whole response in `pool_standings` (pool/group, position,
-     team_id, played, won, drawn, lost, points for/against, bonus points if given, points, description, `updated_at`),
-     replaced per fetch, readable by everyone. Show the API's order as it comes; never recalculate.
-   - **Budget guard:** log every call in `api_calls` (date, endpoint, status). Hard cap 95/day; above 80, games back off to
-     every 10 min and standings skip. One retry on an empty or failed response, then stop; read the `errors` field first.
-   - **Writes (games):** live score + clock into `live_home`, `live_away`, `live_status`, `live_minute`,
-     `live_updated_at`. Official `home_score`/`away_score`/`status = completed` **only** on FT / AET (pool: the 80-minute
-     result; knockouts: set `winner_team_id`, extra time and kicking competition included). AW (awarded) → write the
-     score but flag it for an admin to confirm. POST/CANC → `postponed`, ABD → `abandoned`, INTR → stays live. **Never
-     overwrite a result an admin entered** (`result_source`: `api` | `admin`; admin wins). Never settle automatically.
-   - **UI:** spec §15 (Pools tab), §16 (LIVE pills, scores between the cards, live status on "Your pick" and in the squad).
-     Admin Results screen shows "auto" vs "manual" per match and a "Results in: X/12" banner with Settle once all are final.
-   - **Secrets:** the API key lives only in a Supabase Edge Function secret, never in the front end.
-   - **Monday cross-check (optional):** a scheduled Claude task, Monday 09:00, compares the stored results with a web
-     search and messages Eddie if anything differs. It never writes.
-   - **Done means:** on a real weekend (or a replay of recorded API responses in tests) results land within 5 min of full
-     time, standings refresh within 2 h of a day's last match, the day's call count stays under 95, an admin-entered score is
-     never overwritten, postponed/abandoned/awarded are handled as above, and settle still needs a human. Unit tests for
-     the polling decision (live / not live / budget), the status mapping, and the API → match/standings mapping.
+5c. ~~Live results + standings feed~~ **DONE 15 Oct, manual version** (branch `results-feed`). API-Sports' free plan
+   can't see season 2026 ("Free plans do not have access to this season, try from 2022 to 2024"; Champions Cup = league
+   54), so Eddie chose no feed for now:
+   - **Standings:** `src/data/standings.json`, updated every Monday with the project skill `/update-standings`
+     (`scripts/standings.ts` pulls ESPN's public standings JSON, no key; cross-check vs epcrugby.com; test; push to `main`).
+     The `standings.json` test checks every team is in its §15 pool and the numbers add up.
+   - **Live states (§16):** from kick-off time (`src/live.ts`: live = kick-off to +100 min, then "Result due") plus the
+     scores admins enter. No live score or minute. The Round screen re-reads every minute while a match is on.
+   - **Admin:** "Results in: X/N"; Preview settle only once every match is in. No auto/manual flag (all manual).
+   - **Not built (needs a feed):** `result_source`, `live_*` columns, `pool_standings`, `api_calls`, Edge Functions, cron.
+     If an API turns up later: ESPN's scoreboard (`site.api.espn.com/apis/site/v2/sports/rugby/271937/scoreboard?dates=
+     YYYYMMDD`) had the full 2026/27 fixtures with team ids (15 Oct), or a paid API-Sports plan. The old plan is in git
+     history (commit 2f63ba3).
 
 5d. **Knocked-out experience: spec `docs/UI-REDESIGN.md` §17**, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
    Round 1 settle (Sun 18 Oct night), since that's when the first players go out. The one-time red-card overlay

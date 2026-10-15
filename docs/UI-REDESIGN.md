@@ -319,6 +319,8 @@ share cards.
   synth phrase.
 
 ## 15. Pools screen (`/pools`): Champions Cup standings (data from packet 5c)
+> Built manual (15 Oct): data from `src/data/standings.json`, updated Mondays; header says "Updated <date>" / "Updates every
+> Monday", no live dot. See NEXT.md 5c.
 Prototype board "Pools / standings" (`docs/ui-prototype/Pools.dc.html`; the same tab exists on every board).
 - **Real 2026/27 pools** ([Planet Rugby](https://www.planetrugby.com/news/investec-champions-cup-and-epcr-challenge-cup-pools-confirmed-ahead-of-2026-27-season)):
   1 Leinster, Glasgow, Pau, Sale, Leicester, Clermont · 2 Toulouse, Lions, Saracens, La Rochelle, Exeter, Connacht ·
@@ -338,6 +340,8 @@ Prototype board "Pools / standings" (`docs/ui-prototype/Pools.dc.html`; the same
   dashed cut line after 4th.
 
 ## 16. Live match states (fed by packet 5c)
+> Built manual (15 Oct): "LIVE" from the kick-off clock with no minute or score; scores, Through/Out and the fade once an
+> admin enters the result. Live chip reads "On now". See NEXT.md 5c.
 Prototype board "Matchday live".
 - Fixture time row: red pill with a pulsing dot, "LIVE 58'", while on; grey "FULL TIME" after.
 - The middle column between the two cards widens from 22 px to 46 px and shows the score stacked (home / – / away):
