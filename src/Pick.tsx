@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
-import { cardStyle, crestUrl, irishTime, type Match, type Team } from './lib/supabase'
+import { crestUrl, type Match, type Team } from './lib/supabase'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
 export function useThud() {
@@ -13,56 +13,117 @@ export function useThud() {
   }
 }
 
+const day = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', weekday: 'long', day: 'numeric', month: 'short' })
+const hhmm = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', hour: '2-digit', minute: '2-digit' })
+
+/** The round's fixtures grouped by day (§3.3). Badges sit inside each card so nothing overlaps the time row. */
 export function FixtureList({
   matches,
   teams,
   used,
   picked,
+  featuredId,
+  locked,
   onPick,
 }: {
   matches: Match[]
   teams: Map<number, Team>
   used: Map<number, number>
   picked?: number
-  onPick: (teamId: number) => void
+  featuredId: number | null
+  locked: boolean
+  onPick?: (teamId: number) => void
 }) {
+  const days = new Map<string, Match[]>()
+  for (const m of matches) {
+    const d = day.format(new Date(m.kickoff_at)).replace(',', '')
+    days.set(d, [...(days.get(d) ?? []), m])
+  }
   return (
-    <ul className="flex flex-col gap-3">
-      {matches.map((m) => (
-        <li key={m.id}>
-          <p className="mb-1 text-xs font-medium tracking-wide text-gray-500 uppercase">{irishTime(m.kickoff_at)}</p>
-          <div className="flex items-stretch gap-2">
-            {[m.home_team_id, m.away_team_id].map((tid, i) => {
-              const t = teams.get(tid)!
-              const usedIn = used.get(tid)
-              const chosen = picked === tid
-              return (
-                <button
-                  key={tid}
-                  disabled={usedIn !== undefined}
-                  onClick={() => onPick(tid)}
-                  aria-pressed={chosen}
-                  className={`relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl p-3 text-center transition active:scale-95 disabled:opacity-30 disabled:grayscale ${chosen ? 'ring-4 ring-amber-400 ring-offset-2' : ''}`}
-                  style={cardStyle(t)}
-                >
-                  {chosen && (
-                    <span className="absolute -top-2 rounded-full bg-amber-400 px-2 text-[10px] font-bold text-black">
-                      YOUR PICK
-                    </span>
-                  )}
-                  <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
-                  <span className="w-full truncate font-semibold">{t.name}</span>
-                  <span className="text-xs opacity-75">
-                    {i === 0 ? 'Home' : 'Away'}
-                    {usedIn !== undefined && ` · used R${usedIn}`}
+    <section className="flex flex-col gap-3.5">
+      {[...days].map(([label, ms]) => (
+        <div key={label} className="flex flex-col gap-2.5">
+          <h2 className="disp mt-1.5 text-[15px] font-bold tracking-[.14em] text-muted uppercase">{label}</h2>
+          {ms.map((m) => (
+            <div key={m.id} className="flex flex-col gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+                {hhmm.format(new Date(m.kickoff_at))}
+                {m.id === featuredId && (
+                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
+                    FEATURED
                   </span>
-                </button>
-              )
-            })}
-          </div>
-        </li>
+                )}
+              </p>
+              <div className="grid grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)] items-center">
+                {[m.home_team_id, null, m.away_team_id].map((tid, i) =>
+                  tid === null ? (
+                    <span key="v" className="disp text-center text-sm font-extrabold text-gold">
+                      v
+                    </span>
+                  ) : (
+                    <TeamCard
+                      key={tid}
+                      team={teams.get(tid)!}
+                      home={i === 0}
+                      usedIn={used.get(tid)}
+                      picked={picked === tid}
+                      dim={picked !== undefined && picked !== tid}
+                      disabled={locked || !onPick}
+                      onPick={() => onPick?.(tid)}
+                    />
+                  ),
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       ))}
-    </ul>
+    </section>
+  )
+}
+
+function TeamCard({
+  team: t,
+  home,
+  usedIn,
+  picked,
+  dim,
+  disabled,
+  onPick,
+}: {
+  team: Team
+  home: boolean
+  usedIn?: number
+  picked: boolean
+  dim: boolean
+  disabled: boolean
+  onPick: () => void
+}) {
+  const side = home ? 'home' : 'away'
+  return (
+    <button
+      type="button"
+      disabled={disabled || usedIn !== undefined}
+      onClick={onPick}
+      aria-pressed={picked}
+      aria-label={`${picked ? 'Your pick' : 'Pick'}: ${t.name} (${side})${usedIn !== undefined ? `, used in round ${usedIn}` : ''}`}
+      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : dim ? 'dim' : ''} ${usedIn !== undefined ? 'opacity-30 grayscale' : ''}`}
+      style={{ background: t.card_bg, color: t.card_text }}
+    >
+      {picked && (
+        <span className="pop absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-navy-900 shadow-[0_2px_8px_rgba(0,0,0,.3)]">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+      )}
+      <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
+      <span className="disp max-w-full truncate text-[19px] leading-[1.05] font-extrabold">{t.name}</span>
+      <span className="text-[11px] font-semibold opacity-75">
+        {home ? 'Home' : 'Away'}
+        {usedIn !== undefined && ` · used R${usedIn}`}
+      </span>
+    </button>
   )
 }
 

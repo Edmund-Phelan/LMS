@@ -42,12 +42,12 @@ export default function InstallGuide() {
   }
   return (
     <div className="fixed inset-0 z-40 flex items-end bg-black/50" role="dialog" aria-label="Add to Home Screen">
-      <div className="w-full rounded-t-2xl bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
-        <h2 className="mb-1 text-xl font-bold">Put it on your home screen</h2>
-        <p className="mb-4 text-sm text-gray-600">It works like an app, full screen, one tap away.</p>
+      <div className="w-full rounded-t-3xl bg-navy-800 p-5 text-chalk font-sans pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+        <h2 className="disp mb-1 text-2xl font-extrabold">Put it on your home screen</h2>
+        <p className="mb-4 text-sm text-muted">It works like an app, full screen, one tap away.</p>
         <ol className="mb-5 flex flex-col gap-3">
           <li className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0f5132] font-bold text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold font-bold text-navy-900">
               1
             </span>
             <span>
@@ -55,7 +55,7 @@ export default function InstallGuide() {
             </span>
           </li>
           <li className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0f5132] font-bold text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold font-bold text-navy-900">
               2
             </span>
             <span>
@@ -63,7 +63,7 @@ export default function InstallGuide() {
             </span>
           </li>
           <li className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0f5132] font-bold text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold font-bold text-navy-900">
               3
             </span>
             <span>
@@ -71,7 +71,7 @@ export default function InstallGuide() {
             </span>
           </li>
         </ol>
-        <button onClick={close} className="w-full rounded bg-black p-3 text-white">
+        <button onClick={close} className="press h-[50px] w-full rounded-[14px] bg-gold font-bold text-navy-900">
           Got it
         </button>
       </div>
