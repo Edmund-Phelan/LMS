@@ -94,6 +94,37 @@ In this order; each step shippable on its own:
    `round_pick_status` RPC, never a team), Table and Me screens (new `points_table` RPC), Rules page with points calculator,
    admin as Open → Locked → Results → Settle with hold-to-settle. Start after Round 1 settles. Update CLAUDE.md §7 sound line.
    **Done means:** §12 of the spec.
+5c. **Live results feed (API-Sports Rugby), before the Round 2 lock** (Eddie, 15 Oct). Scores update in the app while the
+   games are on; admins still settle by hand (hold-to-settle). Plan:
+   - **Check first:** sign up for the API-Sports free plan (100 requests/day, resets daily) and confirm with one call that
+     it returns the **2026/27** European Rugby Champions Cup season (some free tiers only cover past seasons). Find the league
+     id and map all 24 teams to our `teams.slug` (store `api_team_id` on `teams`). If the free plan can't see this season,
+     stop and tell Eddie (options: paid tier, or ESPN's unofficial scoreboard JSON as the source).
+   - **Calls are per day, not per match:** one `games?league=…&date=…` call returns every match that day. Budget is the
+     day, not the weekend: Saturday (8 matches, 13:00 to ~21:45) is the tight one.
+   - **Smart polling:** `pg_cron` ticks every minute (free, no API call) and runs an Edge Function that only calls the API
+     when a match of the current round is **live**: from kick-off to kick-off + 130 min, or later while the API still says
+     not finished. Live → call every **5 min**; nothing live → no calls. After the last window, one sweep every 15 min until
+     every match is final (cap at kick-off + 4 h, then leave it to admins).
+     Round 1 estimate: Fri ~21 calls, Sat ~85, Sun ~65, all under 100.
+   - **Budget guard:** log every call in an `api_calls` table (date, count, status). Hard cap 95/day. Above 80, back off to
+     every 10 min. If one call returns nothing, retry once; never loop.
+   - **Writes:** live score + match clock into new columns (`live_home`, `live_away`, `live_minute`, `live_updated_at`)
+     for the UI. Write the official `home_score`/`away_score`/`status = completed` **only** when the API says finished
+     (pool: 80-minute result; knockouts: also set `winner_team_id` from the API, incl. extra time / kicking competition).
+     Postponed / abandoned / cancelled → that status. **Never overwrite a result an admin entered** (`result_source`
+     column: `api` | `admin`; admin wins). Never settle automatically.
+   - **UI:** fixture cards and the "Your pick" card show a pulsing LIVE badge with score and minute while on; the squad
+     list stays team-free before the lock as always. Admin Results screen shows "auto" vs "manual" per match and a
+     "Results in: X/12" banner with the Settle button once all are final.
+   - **Secrets:** the API key lives only in a Supabase Edge Function secret, never in the front end.
+   - **Monday cross-check (optional):** a scheduled Claude task, Monday 09:00, compares the stored results with a web
+     search and messages Eddie if anything differs. It never writes.
+   - **Done means:** on a real weekend (or a replay with recorded API responses in tests), results land within 5 min of
+     full time, the day's call count stays under 95, an admin-entered score is never overwritten, a postponed match is
+     flagged, and settle still needs a human. Unit tests for the polling decision (live / not live / budget) and the
+     API → match mapping.
+
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
 7. **Re-entry plumbing:** `make_pick` and the lock job accept bought-back players; pick screen greys out `reentryBurns()` and
