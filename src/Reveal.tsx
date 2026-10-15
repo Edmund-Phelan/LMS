@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
-import Jersey from './Jersey'
 import { cardStyle, crestUrl, type Pick, type Team } from './lib/supabase'
 
 /** Team-sheet reveal (CLAUDE.md §6): one face-down card per player, tap to flip. Only rendered after the lock. */
@@ -85,10 +84,7 @@ function FlipCard({
         </div>
         <div className={`${face} [transform:rotateY(180deg)]`} style={cardStyle(team)}>
           <span className="w-full truncate text-sm font-bold">{player}</span>
-          <div className="flex items-center gap-1">
-            <img src={crestUrl(team)} alt="" className="h-12 w-12 object-contain" />
-            <Jersey kit={team.kit} size={40} label={team.name} />
-          </div>
+          <img src={crestUrl(team)} alt="" className="h-12 w-12 object-contain" />
           <span className="text-sm leading-tight font-black uppercase">{team.name}</span>
           {auto && <span className="text-[10px] tracking-widest uppercase opacity-75">Auto-pick</span>}
         </div>

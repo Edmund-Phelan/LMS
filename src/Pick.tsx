@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
-import Jersey from './Jersey'
 import { cardStyle, crestUrl, irishTime, type Match, type Team } from './lib/supabase'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
@@ -51,10 +50,7 @@ export function FixtureList({
                       YOUR PICK
                     </span>
                   )}
-                  <div className="flex items-center gap-1">
-                    <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
-                    <Jersey kit={t.kit} size={40} label={t.name} />
-                  </div>
+                  <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
                   <span className="w-full truncate font-semibold">{t.name}</span>
                   <span className="text-xs opacity-75">
                     {i === 0 ? 'Home' : 'Away'}
@@ -82,7 +78,7 @@ export function Takeover({ team, onDone }: { team: Team | null; onDone: () => vo
     return () => clearTimeout(id)
   }, [team, still, onDone])
 
-  const stripe = team?.kit.colours[1] ?? team?.secondary
+  const stripe = team?.secondary
   return (
     <AnimatePresence>
       {team && (
@@ -122,7 +118,6 @@ export function Takeover({ team, onDone }: { team: Team | null; onDone: () => vo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Jersey kit={team.kit} size={90} label={team.name} />
             <p className="mt-2 text-3xl font-black tracking-tight uppercase">{team.name}</p>
             <p className="text-sm opacity-80">Your pick. Change it any time before the lock.</p>
           </motion.div>
