@@ -12,3 +12,7 @@ export type Standing = {
 
 /** Sorted points desc, exact desc, name (UI-REDESIGN §6). */
 export const loadTable = async () => ((await supabase.rpc('points_table')).data ?? []) as Standing[]
+
+/** Shared rank: players level on points and exact scores share a place ("1, 2, 2, 4"). */
+export const rankOf = (table: Standing[], i: number) =>
+  table.findIndex((s) => s.points === table[i].points && s.exact === table[i].exact) + 1

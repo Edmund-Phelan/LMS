@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, type Player } from './lib/supabase'
 import { loadPayments, potEur } from './Pay'
-import { loadTable, type Standing } from './points'
+import { loadTable, rankOf, type Standing } from './points'
 import { Avatar } from './Profile'
 import Shell, { Loading } from './Shell'
 
@@ -72,7 +72,9 @@ export default function TablePage({ me }: { me: string }) {
                   key={s.player_id}
                   className={`${cols} items-center border-t border-white/6 px-3.5 py-3 ${s.player_id === me ? 'bg-gold/8' : ''}`}
                 >
-                  <span className={`disp text-xl font-extrabold ${i === 0 ? 'text-gold' : ''}`}>{i + 1}</span>
+                  <span className={`disp text-xl font-extrabold ${rankOf(data.table, i) === 1 ? 'text-gold' : ''}`}>
+                    {rankOf(data.table, i)}
+                  </span>
                   <span className={`flex min-w-0 items-center gap-2.5 ${out ? 'opacity-60' : ''}`}>
                     <Avatar p={p} size={32} />
                     <span className="min-w-0">

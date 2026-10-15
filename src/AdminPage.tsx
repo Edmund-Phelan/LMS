@@ -352,7 +352,7 @@ function OpenStep({
             >
               <Avatar p={p} size={36} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-semibold">{name(p.id)} says they’ve paid</span>
+                <span className="block leading-tight font-semibold">{name(p.id)} says they’ve paid</span>
                 <span className="block text-xs text-muted">
                   €{Number(c.amount_eur)} {c.kind === 'buyback' ? 'buy-back' : 'entry'} · {ago(c.claimed_at)} · check
                   Revolut
@@ -533,6 +533,15 @@ function OpenBanner({ data, name, run }: Pick<Names, 'data' | 'name'> & { run: R
 
 // ---------- 2. Locked ----------
 
+/** A team colour that shows on navy: the primary, unless it's too dark, then the secondary. */
+function visible(t: Team) {
+  const lum = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16)
+    return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255
+  }
+  return lum(t.primary) < 0.2 ? t.secondary : t.primary
+}
+
 function LockedStep({ data, name, team }: Names) {
   const { round } = data
   const picks = data.roundPicks
@@ -576,7 +585,7 @@ function LockedStep({ data, name, team }: Names) {
               <span className="h-2.5 flex-1 overflow-hidden rounded-[5px] bg-white/6">
                 <span
                   className="block h-full rounded-[5px] transition-[width] duration-600"
-                  style={{ width: `${(n / max) * 100}%`, background: t.primary }}
+                  style={{ width: `${(n / max) * 100}%`, background: visible(t) }}
                 />
               </span>
               <span className="disp w-5 text-right text-lg font-extrabold">{n}</span>
@@ -853,7 +862,8 @@ function Outcomes({
                 <span className="block truncate font-semibold">{name(r.playerId)}</span>
                 <span className="block truncate text-xs text-muted">
                   {detail(data, team, pick, paid.has(r.playerId))}
-                  {r.predictionPoints > 0 && ` · ${r.predictionPoints} pts${r.exactScore ? ' ★' : ''}`}
+                  {r.predictionPoints > 0 &&
+                    ` · ${r.predictionPoints} pt${r.predictionPoints > 1 ? 's' : ''}${r.exactScore ? ' ★' : ''}`}
                   {r.jinxPoints > 0 && ` · jinx +${r.jinxPoints}`}
                 </span>
               </span>

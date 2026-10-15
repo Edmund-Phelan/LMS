@@ -95,6 +95,19 @@ async function load(number: number): Promise<Data> {
   }
 }
 
+const lockedAtFmt = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  hour: '2-digit',
+  minute: '2-digit',
+  weekday: 'long',
+})
+/** "20:00 Friday" */
+const lockedAt = (iso: string) => {
+  const p = lockedAtFmt.formatToParts(new Date(iso))
+  const v = (t: string) => p.find((x) => x.type === t)!.value
+  return `${v('hour')}:${v('minute')} ${v('weekday')}`
+}
+
 export function useNow() {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -232,11 +245,13 @@ function Countdown({ ms }: { ms: number }) {
 function MyPick({
   team,
   locked,
+  lockAt,
   round1,
   onReplay,
 }: {
   team?: Team
   locked: boolean
+  lockAt: string
   round1: boolean
   onReplay: () => void
 }) {
@@ -294,7 +309,7 @@ function MyPick({
         </span>
         <span className="disp block text-[26px] leading-[1.05] font-extrabold">{team.name}</span>
         <span className="block text-xs opacity-80">
-          {locked ? 'Locked at 20:00 Friday. Good luck.' : 'Change it any time before the lock'}
+          {locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock'}
         </span>
       </span>
     </button>
@@ -391,6 +406,7 @@ export default function RoundPage({ me }: { me: string }) {
             <MyPick
               team={myPick && teams.get(myPick.team_id)}
               locked={locked}
+              lockAt={lockedAt(round.lock_at)}
               round1={round.number === 1}
               onReplay={() => {
                 if (!myPick) return

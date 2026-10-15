@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { crestUrl, supabase, type Pick, type Round, type Team } from './lib/supabase'
 import { loadPayments, type PaymentRow } from './Pay'
-import { loadTable, type Standing } from './points'
+import { loadTable, rankOf, type Standing } from './points'
 import { Avatar, type Me } from './Profile'
 import Shell, { Icon, Loading } from './Shell'
 import { setSound, useSound } from './sound'
@@ -168,7 +168,8 @@ export default function MePage({ me }: { me: Me }) {
     )
 
   const current = data.rounds.find((r) => !r.settled_at)?.number ?? null
-  const rank = data.table.findIndex((s) => s.player_id === me.id) + 1
+  const i = data.table.findIndex((s) => s.player_id === me.id)
+  const rank = i < 0 ? 0 : rankOf(data.table, i)
   const mine = data.table.find((s) => s.player_id === me.id)
   const used = new Set(data.picks.filter((p) => !data.postponed.has(p.round_id)).map((p) => p.team_id)).size
   const claims = data.payments.filter((p) => p.status === 'claimed').length
