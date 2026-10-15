@@ -93,7 +93,7 @@ export default function AdminPage() {
       </section>
 
       {round.settled_at ? (
-        <Settled data={data} name={name} teamName={teamName} />
+        <Settled data={data} name={name} teamName={teamName} reload={reload} />
       ) : (
         <SettlePanel data={data} name={name} teamName={teamName} number={number} reload={reload} />
       )}
@@ -353,11 +353,32 @@ function SettlePanel({ data, name, teamName, number, reload }: Names & { number:
   )
 }
 
-function Settled({ data, name, teamName }: Names) {
+function Settled({ data, name, teamName, reload }: Names & { reload: () => void }) {
   const { round } = data
+  const [error, setError] = useState<string | null>(null)
+
+  async function unsettle() {
+    const ok = window.confirm(
+      `Unsettle ${round.name}? Its results and burns are deleted so you can correct and settle it again. ` +
+        'Any picks and jinxes already made for the next round are cleared, and those players must pick again before the lock.',
+    )
+    if (!ok) return
+    const { data: cleared, error } = await supabase.rpc('unsettle_round', { p_round_id: round.id })
+    if (error) return setError(error.message)
+    const { picks, jinxes } = cleared as { picks: number; jinxes: number }
+    if (picks || jinxes)
+      window.alert(`Cleared ${picks} pick(s) and ${jinxes} jinx(es) for the next round. Tell the group to pick again.`)
+    reload()
+  }
+
   return (
     <section className="mb-6">
       <h2 className="mb-2 text-lg font-semibold">Settled</h2>
+      {error && (
+        <p role="alert" className="mb-3 rounded bg-red-100 p-3 text-red-800">
+          {error}
+        </p>
+      )}
       <Outcomes
         data={data}
         name={name}
@@ -371,6 +392,9 @@ function Settled({ data, name, teamName }: Names) {
         }))}
         burnOrder={round.tiebreak ? E.burnOrder(data.roundPicks, round.tiebreak) : []}
       />
+      <button onClick={unsettle} className="rounded border border-red-700 px-4 py-2 text-red-700">
+        Unsettle {round.name}
+      </button>
     </section>
   )
 }

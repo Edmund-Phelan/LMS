@@ -303,6 +303,39 @@ describe('settle_round', () => {
     await expect(settle(EDDIE)).rejects.toThrow(/already settled/)
   })
 
+  it('unsettles the latest round while the next is open, clearing its picks and jinxes', async () => {
+    const unsettle = (uid: string) => as(db, uid, 'select unsettle_round($1) as r', [r2])
+    const r3 = (await db.query<{ id: number }>('select id from rounds where number = 3')).rows[0].id
+    await expect(unsettle(EDDIE)).rejects.toThrow(/not settled/)
+    await lockNow(r2)
+    const saracens = await team('saracens')
+    await settle(EDDIE, everyone('through'), [{ player_id: OUTY, team_id: saracens, reason: 'buyback_penalty' }])
+    await db.query('insert into picks (round_id, player_id, team_id) values ($1, $2, $3)', [r3, BEN, saracens])
+    await db.query('insert into jinxes (round_id, jinxer_id, target_id) values ($1, $2, $3)', [r3, OUTY, BEN])
+    await db.query('update rounds set clean_slate = true where id = $1', [r3])
+
+    await expect(unsettle(BEN)).rejects.toThrow(/Only admins/)
+    expect(await unsettle(EDDIE)).toEqual([{ r: { picks: 1, jinxes: 1 } }])
+    for (const table of ['round_results', 'burned_teams'])
+      expect((await db.query(`select 1 from ${table} where round_id = $1`, [r2])).rows).toHaveLength(0)
+    expect(
+      (
+        await db.query(
+          'select number, settled_at, tiebreak, clean_slate from rounds where id in ($1, $2) order by number',
+          [r2, r3],
+        )
+      ).rows,
+    ).toEqual([
+      { number: 2, settled_at: null, tiebreak: null, clean_slate: false },
+      { number: 3, settled_at: null, tiebreak: null, clean_slate: false },
+    ])
+    expect((await db.query('select 1 from picks where round_id = $1', [r3])).rows).toHaveLength(0)
+
+    await settle(EDDIE)
+    await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r3])
+    await expect(unsettle(EDDIE)).rejects.toThrow(/already locked/)
+  })
+
   it('settles rounds in order', async () => {
     await db.query('update rounds set settled_at = null where id = $1', [r1])
     await lockNow(r2)
