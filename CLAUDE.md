@@ -125,6 +125,23 @@ Rules:
 15. **Forfeit (11).** Fewest prediction points (jinx excluded) does the forfeit. Tied at the bottom: whoever went out of the
     main game first. The forfeit itself is still undecided (open).
 
+Rulings (Eddie, Oct 2026 — answers to the engine's open questions, Q1–Q13):
+- **1b is checked when a round opens**, not at the lock (`openRound()`). Every player still in has no unused team playing →
+  clean slate: used *and* burned teams cleared for all of them from that round on (`rounds.clean_slate`, home-screen banner),
+  and they pick normally. Only some stuck → those are out as soon as the round opens.
+- **Rule 8** is judged only among players in at the start of the round who had a pick: stuck (1b) players aren't saved, and
+  Round 4 resurrection results don't count towards it (winning resurrections come back alongside).
+- **Jinx** lands when the target's pick loses or draws, whatever happens after (rule 8, buy-back). Postponed: no jinx.
+- **Burn order:** each round's picked teams ranked by pick count, ties broken by one random draw made at settle and stored with
+  the round (`rounds.tiebreak`, shown in results). A burn walks that list past anything used or burned, then the season-wide
+  order (same draw); nothing left, no burn.
+- **Resurrection:** postponed = still out, team back, no burns. Costs the same burns as a buy-back (this spec, not the rules doc's
+  wording). A team the player would have burned if they came back is unavailable (also for a Round 4 buy-back).
+- **No winner while a way back exists**: none before Round 4 settles; after that, the comp ends when one player is left.
+- **Forfeit tie:** ranked by final exit (a buy-back undoes the first); never out ranks best; still tied, they all do it.
+- **Featured knockout match:** official score incl. extra time, no kicking competition; level = a draw for predictions (allow
+  draw predictions in knockouts).
+
 Tests: one or more per rule, plus at least: 1b with exactly one player stuck vs all stuck; buy-back burns when the most-picked
 team is already used; multiple rounds sat out; resurrection with a home team (rejected); buy-back + resurrection in the same
 round (rejected); postponed match then the team is reused later; everyone out in the final; draw in pool vs knockout;
