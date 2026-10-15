@@ -1,18 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
-import {
-  cardStyle,
-  crestUrl,
-  irishTime,
-  supabase,
-  type Match,
-  type Pick,
-  type Player,
-  type Round,
-  type Team,
-} from './lib/supabase'
+import { irishTime, supabase, type Match, type Pick, type Player, type Round, type Team } from './lib/supabase'
 import { loadPayments, PayEntry, PlayerList, potEur, type PaymentRow } from './Pay'
 import { FixtureList, Takeover, useThud } from './Pick'
+import { RevealCards } from './Reveal'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -374,23 +365,10 @@ function Reveal({ data, name }: { data: Data; name: (id: string) => string }) {
   return (
     <>
       <section className="mb-6">
-        <h2 className="mb-2 font-semibold">Picks</h2>
-        <ul className="flex flex-col gap-2">
-          {data.picks.map((p) => {
-            const t = data.teams.get(p.team_id)!
-            return (
-              <li key={p.player_id} className="flex items-center gap-3 rounded p-2" style={cardStyle(t)}>
-                <img src={crestUrl(t)} alt="" className="h-8 w-8" />
-                <span className="flex-1">{name(p.player_id)}</span>
-                <span>
-                  {t.name}
-                  {p.is_auto && ' (auto)'}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-        {data.picks.length === 0 && <p>No picks yet. Auto-picks land within a minute of the lock.</p>}
+        <RevealCards picks={data.picks} teams={data.teams} name={name} />
+        {data.picks.length === 0 && (
+          <p>{data.round.number === 1 ? 'No picks.' : 'No picks yet. Auto-picks land within a minute of the lock.'}</p>
+        )}
       </section>
       {data.jinxes.length > 0 && (
         <section className="mb-6">
