@@ -28,7 +28,7 @@ export default function Login() {
 
   return (
     <form onSubmit={submit} className="mx-auto flex max-w-sm flex-col gap-3 p-6 pt-24">
-      <h1 className="text-2xl font-bold">Champions Cup LMS</h1>
+      <h1 className="text-2xl font-bold">BBB Last Man Standing</h1>
       {!sent ? (
         <>
           <label htmlFor="email">Email</label>

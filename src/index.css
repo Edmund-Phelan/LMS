@@ -1,1 +1,7 @@
 @import 'tailwindcss';
+
+/* Home-screen app draws under the status bar (black-translucent); keep content clear of it. */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
