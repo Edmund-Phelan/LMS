@@ -113,6 +113,7 @@ type Data = {
   postponed: Set<number> // round ids where my pick survived a postponement (team given back)
   burned: number
   outIn: number | null // round number I went out in, if I'm out now
+  outRounds: Set<number> // round ids I went out in (§17: red road tile)
   boughtBack: boolean
   table: Standing[]
   payments: PaymentRow[]
@@ -138,6 +139,7 @@ async function load(me: string): Promise<Data> {
     picks: picks.data ?? [],
     postponed: new Set((results.data ?? []).filter((r) => r.outcome === 'survived_postponed').map((r) => r.round_id)),
     burned: burned.count ?? 0,
+    outRounds: new Set((results.data ?? []).filter((r) => r.outcome === 'out').map((r) => r.round_id)),
     outIn: mine?.alive === false && outs.length ? Math.max(...outs) : null,
     boughtBack:
       mine?.alive === true &&
@@ -220,12 +222,17 @@ export default function MePage({ me }: { me: Me }) {
             {data.rounds.map((r) => {
               const pick = data.picks.find((p) => p.round_id === r.id)
               const t = pick && data.teams.get(pick.team_id)
-              const label = r.number <= 4 ? `R${r.number}` : r.name
+              const out = data.outRounds.has(r.id)
+              const label = (r.number <= 4 ? `R${r.number}` : r.name) + (out ? ' · OUT' : '')
               return t ? (
                 <div
                   key={r.id}
                   className="flex flex-col items-center gap-1.5 rounded-[14px] px-1 py-2.5"
-                  style={{ background: t.card_bg, color: t.card_text }}
+                  style={
+                    out
+                      ? { background: 'rgba(229,72,77,.16)', color: '#ff8a8a', boxShadow: 'inset 0 0 0 2px #e5484d' }
+                      : { background: t.card_bg, color: t.card_text }
+                  }
                 >
                   <span className="text-[11px] font-extrabold tracking-[.1em] opacity-80">{label}</span>
                   <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-white">

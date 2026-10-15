@@ -17,7 +17,9 @@ import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
 import Shell, { Icon, Loading } from './Shell'
 import { sfx } from './sound'
-import { matchState, pickState, type PickState } from './live'
+import { koReason, matchState, pickState, type PickState } from './live'
+import { KnockedOut, loadKnockout, type Knockout } from './Elimination'
+import { GetBackIn, OutHero, StillPlaying } from './Out'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -51,30 +53,33 @@ type Data = {
   jinxes: { jinxer_id: string; target_id: string }[]
   payments: PaymentRow[]
   squad: { player_id: string; has_pick: boolean }[] // round_pick_status: never a team
+  myOutcome: string | null // my round_results row for this round, once settled
+  ko: Knockout | null // my latest elimination
 }
 
-async function load(number: number): Promise<Data> {
+async function load(number: number, me: string): Promise<Data> {
   const { data: rounds } = await supabase.from('rounds').select('*').order('number').returns<Round[]>()
   const round = rounds?.find((r) => r.number === number) ?? null
   const rid = round?.id ?? -1
-  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, user, squad] = await Promise.all([
-    supabase.from('teams').select('*').returns<Team[]>(),
-    supabase.from('matches').select('*').eq('round_id', rid).order('kickoff_at').returns<Match[]>(),
-    supabase
-      .from('players')
-      .select('id, name, nickname, is_admin, avatar_url, kit_colour')
-      .order('name')
-      .returns<Player[]>(),
-    supabase.from('picks').select('round_id, player_id, team_id, is_auto').eq('round_id', rid).returns<Pick[]>(),
-    supabase.rpc('my_used_teams', { r: rid }),
-    supabase.rpc('round_status', { r: rid }),
-    supabase.from('predictions').select('player_id, home_score, away_score').eq('round_id', rid),
-    supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', rid),
-    loadPayments(),
-    supabase.auth.getUser(),
-    supabase.rpc('round_pick_status', { r: rid }),
-  ])
-  const me = user.data.user?.id
+  const [teams, matches, players, picks, used, status, predictions, jinxes, payments, squad, result, ko] =
+    await Promise.all([
+      supabase.from('teams').select('*').returns<Team[]>(),
+      supabase.from('matches').select('*').eq('round_id', rid).order('kickoff_at').returns<Match[]>(),
+      supabase
+        .from('players')
+        .select('id, name, nickname, is_admin, avatar_url, kit_colour')
+        .order('name')
+        .returns<Player[]>(),
+      supabase.from('picks').select('round_id, player_id, team_id, is_auto').eq('round_id', rid).returns<Pick[]>(),
+      supabase.rpc('my_used_teams', { r: rid }),
+      supabase.rpc('round_status', { r: rid }),
+      supabase.from('predictions').select('player_id, home_score, away_score').eq('round_id', rid),
+      supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', rid),
+      loadPayments(),
+      supabase.rpc('round_pick_status', { r: rid }),
+      supabase.from('round_results').select('outcome').eq('round_id', rid).eq('player_id', me).maybeSingle(),
+      loadKnockout(me),
+    ])
   return {
     rounds: rounds ?? [],
     round,
@@ -93,6 +98,8 @@ async function load(number: number): Promise<Data> {
     jinxes: jinxes.data ?? [],
     payments: payments.data ?? [],
     squad: (squad.data ?? []) as Data['squad'],
+    myOutcome: result.data?.outcome ?? null,
+    ko,
   }
 }
 
@@ -281,6 +288,7 @@ function MyPick({
   lockAt,
   round1,
   chip,
+  knockedOut,
   onReplay,
 }: {
   team?: Team
@@ -288,6 +296,7 @@ function MyPick({
   lockAt: string
   round1: boolean
   chip?: ReactNode
+  knockedOut?: string // §17: "Munster 20–20 Racing 92 · a draw is a loss"
   onReplay: () => void
 }) {
   if (!team)
@@ -326,7 +335,11 @@ function MyPick({
       style={{
         background: team.primary,
         color: team.text,
-        boxShadow: locked ? '0 0 0 3px #f2b226, 0 0 34px rgba(242,178,38,.45)' : 'none',
+        boxShadow: knockedOut
+          ? '0 0 0 3px #e5484d, 0 0 34px rgba(229,72,77,.4)'
+          : locked
+            ? '0 0 0 3px #f2b226, 0 0 34px rgba(242,178,38,.45)'
+            : 'none',
       }}
     >
       <span
@@ -339,14 +352,14 @@ function MyPick({
       </span>
       <span className="relative min-w-0 flex-1">
         <span className="flex items-center gap-[5px] text-[11px] font-bold tracking-[.16em] uppercase opacity-85">
-          {locked && Icon.lock(12, 3)}
-          {locked ? 'Locked in' : 'Your pick'}
+          {locked && !knockedOut && Icon.lock(12, 3)}
+          {knockedOut ? 'Knocked out' : locked ? 'Locked in' : 'Your pick'}
         </span>
         <span className="disp block text-[26px] leading-[1.05] font-extrabold">{team.name}</span>
         <span className="block text-xs opacity-80">
-          {locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock'}
+          {knockedOut ?? (locked ? `Locked at ${lockAt}. Good luck.` : 'Change it any time before the lock')}
         </span>
-        {locked && chip && <span className="mt-2 block">{chip}</span>}
+        {locked && chip && !knockedOut && <span className="mt-2 block">{chip}</span>}
       </span>
     </button>
   )
@@ -360,7 +373,9 @@ export default function RoundPage({ me }: { me: string }) {
   const thud = useThud()
   const [takeover, setTakeover] = useState<Team | null>(null)
   const endTakeover = useCallback(() => setTakeover(null), [])
-  const reload = useCallback(() => load(number).then((d) => setData({ ...d, number })), [number])
+  const [replay, setReplay] = useState(false)
+  const endReplay = useCallback(() => setReplay(false), [])
+  const reload = useCallback(() => load(number, me).then((d) => setData({ ...d, number })), [number, me])
   useEffect(() => {
     reload()
   }, [reload])
@@ -410,6 +425,7 @@ export default function RoundPage({ me }: { me: string }) {
     )
 
   const myAlive = data.alive.get(me)
+  const outView = myAlive === false && !!data.ko // §17: out of an earlier round
   const myPick = data.picks.find((p) => p.player_id === me)
   const featured = matches.find((m) => m.id === round.featured_match_id)
   const knockout = round.stage !== 'pool'
@@ -417,6 +433,11 @@ export default function RoundPage({ me }: { me: string }) {
     const m = pick && matches.find((m) => m.home_team_id === pick.team_id || m.away_team_id === pick.team_id)
     return m && <PickChip m={m} teamId={pick.team_id} knockout={knockout} now={now} />
   }
+  const myMatch = myPick && matches.find((m) => m.home_team_id === myPick.team_id || m.away_team_id === myPick.team_id)
+  const knockedOut =
+    data.myOutcome === 'out' && myMatch && myMatch.home_score !== null
+      ? `${teams.get(myMatch.home_team_id)?.name} ${myMatch.home_score}–${myMatch.away_score} ${teams.get(myMatch.away_team_id)?.name} · ${koReason(myMatch, myPick.team_id, knockout)}`
+      : undefined
   const name = (id: string) => {
     const p = players.find((p) => p.id === id)
     return p?.nickname || p?.name || '?'
@@ -432,23 +453,39 @@ export default function RoundPage({ me }: { me: string }) {
   return (
     <Shell title={round.name}>
       <Takeover team={takeover} onDone={endTakeover} />
+      <KnockedOut ko={replay ? data.ko : null} onDone={endReplay} />
       <div className="screen flex flex-col gap-[18px]">
         <RoundPills current={number} />
         <div className="stagger flex flex-col gap-[18px]">
-          <Hero
-            round={round}
-            locked={locked}
-            ms={Date.parse(round.lock_at) - now}
-            pot={potEur(data.payments)}
-            stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
-            picked={{ n: data.squad.filter((s) => s.has_pick).length, of: data.squad.length }}
-          />
+          {outView ? (
+            <OutHero
+              ko={data.ko!}
+              stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+              pot={potEur(data.payments)}
+              onReplay={() => {
+                sfx.knockedOut() // from the tap: iOS only plays audio inside a gesture
+                setReplay(true)
+              }}
+            />
+          ) : (
+            <Hero
+              round={round}
+              locked={locked}
+              ms={Date.parse(round.lock_at) - now}
+              pot={potEur(data.payments)}
+              stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
+              picked={{ n: data.squad.filter((s) => s.has_pick).length, of: data.squad.length }}
+            />
+          )}
           {error && (
             <p role="alert" className="rounded-2xl bg-out-text/15 p-3 text-out-text">
               {error}
             </p>
           )}
           <PayEntry me={me} payments={data.payments} run={run} />
+          {outView && (
+            <GetBackIn me={me} ko={data.ko!} round={round} teams={teams} payments={data.payments} now={now} run={run} />
+          )}
 
           {myAlive === true && (
             <MyPick
@@ -457,6 +494,7 @@ export default function RoundPage({ me }: { me: string }) {
               lockAt={lockedAt(round.lock_at)}
               round1={round.number === 1}
               chip={chipFor(myPick)}
+              knockedOut={knockedOut}
               onReplay={() => {
                 if (!myPick) return
                 sfx.pick()
@@ -516,7 +554,10 @@ export default function RoundPage({ me }: { me: string }) {
             />
           )}
 
-          {!locked && !featured && <p className="text-center text-sm text-muted">Featured match not drawn yet.</p>}
+          {outView && !locked && <StillPlaying me={me} round={round} drawn={!!featured} />}
+          {!locked && !featured && !outView && (
+            <p className="text-center text-sm text-muted">Featured match not drawn yet.</p>
+          )}
           {!locked && featured && (
             <Raffle roundId={round.id} featured={featured} matches={matches} teams={teams}>
               <Prediction
@@ -565,13 +606,14 @@ function JinxPicker({
   survivors: Player[]
   onPick: (id: string) => void
 }) {
+  const target = survivors.find((p) => p.id === current)
   return (
     <section className="hairline flex flex-col gap-3 rounded-3xl bg-navy-800 p-[18px]">
-      <div>
-        <h2 className="disp text-[22px] font-extrabold">You’re out. Jinx a survivor</h2>
-        <p className="text-[13px] text-muted">If they go out this round, you get a point for the side pot.</p>
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="disp text-[22px] font-extrabold">Jinx a survivor</h2>
+        <span className="text-[11px] font-bold whitespace-nowrap text-gold">+1 IF THEY GO OUT</span>
       </div>
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-4 gap-2.5">
         {survivors.map((p) => {
           const on = current === p.id
           return (
@@ -581,11 +623,14 @@ function JinxPicker({
               onClick={() => onPick(p.id)}
               aria-pressed={on}
               aria-label={`Jinx ${p.nickname || p.name}`}
-              className="press flex w-14 flex-col items-center gap-1.5"
+              className="press flex min-w-0 flex-col items-center gap-1.5 py-1"
             >
               <span
-                className="rounded-full transition-shadow"
-                style={{ boxShadow: on ? '0 0 0 3px #0b1742, 0 0 0 6px #f2b226' : 'none' }}
+                className="rounded-full transition-[box-shadow,transform] duration-250 ease-[cubic-bezier(.3,1.6,.5,1)]"
+                style={{
+                  boxShadow: on ? '0 0 0 3px #0b1742, 0 0 0 6px #f2b226' : 'none',
+                  transform: on ? 'scale(1.1)' : 'none',
+                }}
               >
                 <Avatar p={p} size={48} />
               </span>
@@ -598,6 +643,11 @@ function JinxPicker({
           )
         })}
       </div>
+      <p className="text-xs text-muted">
+        {target
+          ? `Jinxing ${target.nickname || target.name}. Locked in at the lock; everyone sees it at the reveal.`
+          : 'If they go out this round, you get a point for the side pot.'}
+      </p>
     </section>
   )
 }
