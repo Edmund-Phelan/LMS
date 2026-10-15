@@ -12,7 +12,7 @@ import TablePage from './TablePage'
 import PoolsPage from './PoolsPage'
 import RulesPage from './RulesPage'
 import { Pushed } from './Shell'
-import { EliminationOverlay } from './Elimination'
+import { RoundRecap } from './Recap'
 
 export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -22,7 +22,7 @@ export default function App() {
     if (uid)
       supabase
         .from('players')
-        .select('id, name, nickname, avatar_url, kit_colour, is_admin, seen_elimination_round')
+        .select('id, name, nickname, avatar_url, kit_colour, is_admin, seen_recap_round')
         .eq('id', uid)
         .maybeSingle<Me>()
         .then(({ data }) => setMe(data))
@@ -48,7 +48,7 @@ export default function App() {
   if (!me.nickname) return <Profile me={me} onSaved={loadMe} /> // first login
   return (
     <>
-      <EliminationOverlay me={me.id} seen={me.seen_elimination_round} />
+      <RoundRecap me={me.id} seen={me.seen_recap_round} />
       <Routes>
         <Route path="/round" element={<CurrentRound />} />
         <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />

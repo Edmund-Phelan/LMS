@@ -121,7 +121,11 @@ In this order; each step shippable on its own:
    **Done means:** settle a test round locally where a player loses → on their next open the overlay plays once, Replay
    plays it with sound, the out screen shows the right burn chips, and a jinx saves.
 
-5e. **Round recap on open (added 15 Oct). Needed by the Round 1 settle, Sun 18 Oct night.** Spec `docs/UI-REDESIGN.md` §19.
+5e. ~~Round recap on open~~ **DONE 15 Oct (`recap`), all cards incl. jinx; migration `20261015120815_seen_recap.sql` applied
+   15 Oct (`seen_elimination_round` kept, unused: drop it later). No local Supabase here (no Docker), so the "Done means" scenario
+   is a PGlite DB test instead (`admin-flow.test.ts`: exact-score survivor, out player whose jinx landed, no prediction, seen
+   once, unsettle → replays). Shatter sounds follow the spec table (low `chunk()` knocks), not the prototype file's glassy
+   `clink()`s. **Still to do: the real-iPhone side-by-side with the prototype (sound on) at the Round 1 settle.** Spec `docs/UI-REDESIGN.md` §19.
    One-time sequence after each settle, played like an Instagram story (progress bars, left tap back, right tap next,
    hold to pause): the **ceramic crest clash** (plates twirl, two punches, the loser cracks and shatters, the winner slams
    in; a draw breaks both), then the outcome (through / out, the out card is the existing §17 overlay), the featured-match
