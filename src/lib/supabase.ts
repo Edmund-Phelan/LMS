@@ -14,6 +14,8 @@ export type Team = {
   text: string
   crest: string
   kit: Kit
+  card_bg: string
+  card_text: string
 }
 export type Round = {
   id: number
@@ -39,6 +41,13 @@ export type Match = {
 }
 export type Player = { id: string; name: string; nickname: string | null; is_admin?: boolean }
 export type Pick = { round_id: number; player_id: string; team_id: number; is_auto: boolean; is_resurrection?: boolean }
+
+/** A team card's colours. White cards get a thin grey border so they don't vanish on the white page. */
+export const cardStyle = (t: Team) => ({
+  background: t.card_bg,
+  color: t.card_text,
+  border: t.card_bg.toLowerCase() === '#ffffff' ? '1px solid #d1d5db' : undefined,
+})
 
 export const crestUrl = (t: Team) => import.meta.env.BASE_URL + t.crest
 

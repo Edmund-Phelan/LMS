@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import {
+  cardStyle,
   crestUrl,
   irishTime,
   supabase,
@@ -203,7 +204,7 @@ export default function RoundPage({ me }: { me: string }) {
                           disabled={usedIn !== undefined}
                           onClick={() => run(supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: tid }))}
                           className={`flex flex-1 flex-col items-center gap-1 rounded p-2 disabled:opacity-30 ${chosen ? 'ring-4' : ''}`}
-                          style={{ background: t.primary, color: t.text }}
+                          style={cardStyle(t)}
                           aria-pressed={chosen}
                         >
                           <img src={crestUrl(t)} alt="" className="h-12 w-12" />
@@ -346,11 +347,7 @@ function Reveal({ data, name }: { data: Data; name: (id: string) => string }) {
           {data.picks.map((p) => {
             const t = data.teams.get(p.team_id)!
             return (
-              <li
-                key={p.player_id}
-                className="flex items-center gap-3 rounded p-2"
-                style={{ background: t.primary, color: t.text }}
-              >
+              <li key={p.player_id} className="flex items-center gap-3 rounded p-2" style={cardStyle(t)}>
                 <img src={crestUrl(t)} alt="" className="h-8 w-8" />
                 <span className="flex-1">{name(p.player_id)}</span>
                 <span>

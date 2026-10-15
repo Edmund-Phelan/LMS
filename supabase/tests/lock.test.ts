@@ -60,10 +60,16 @@ beforeEach(async () => {
 })
 
 describe('team kits', () => {
-  it('match src/data/teams.json for every club', async () => {
-    const rows = (await (await freshDb()).query<{ slug: string; kit: unknown }>('select slug, kit from teams')).rows
-    expect(Object.fromEntries(rows.map((r) => [r.slug, r.kit]))).toEqual(
-      Object.fromEntries(teams.map((t) => [t.slug, t.kit])),
+  it('kits and card colours match src/data/teams.json for every club', async () => {
+    const rows = (
+      await (
+        await freshDb()
+      ).query<{ slug: string; kit: unknown; card_bg: string; card_text: string }>(
+        'select slug, kit, card_bg, card_text from teams',
+      )
+    ).rows
+    expect(Object.fromEntries(rows.map((r) => [r.slug, [r.kit, r.card_bg, r.card_text]]))).toEqual(
+      Object.fromEntries(teams.map((t) => [t.slug, [t.kit, t.cardBg, t.cardText]])),
     )
   })
 })
