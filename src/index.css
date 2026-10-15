@@ -345,6 +345,62 @@ button {
   }
 }
 
+/* Pick confirmation sheet (§18). */
+.backdrop {
+  animation: koIn 0.25s ease-out both;
+}
+.sheet {
+  animation: sheetUp 0.34s cubic-bezier(0.3, 1.25, 0.5, 1) both;
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+.sheet-crest {
+  animation: pop 0.45s cubic-bezier(0.3, 1.7, 0.5, 1) 0.12s both;
+}
+.hold-fill {
+  animation-name: holdFill;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes holdFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hold-btn {
+  transition: transform 0.15s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.hold-btn.holding {
+  transform: scale(0.97);
+}
+.nudge {
+  animation: nudge 0.35s ease-out both;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -353,5 +409,9 @@ button {
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition: none !important;
+  }
+  /* §18: the hold is friction, not decoration. */
+  .hold-fill {
+    animation-duration: var(--hold) !important;
   }
 }

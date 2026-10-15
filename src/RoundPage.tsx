@@ -11,7 +11,7 @@ import {
   type Team,
 } from './lib/supabase'
 import { entryOf, loadPayments, PayEntry, potEur, type PaymentRow } from './Pay'
-import { FixtureList, Takeover, useThud } from './Pick'
+import { FixtureList, PickSheet, Takeover, useThud } from './Pick'
 import { Avatar } from './Profile'
 import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
@@ -373,6 +373,8 @@ export default function RoundPage({ me }: { me: string }) {
   const thud = useThud()
   const [takeover, setTakeover] = useState<Team | null>(null)
   const endTakeover = useCallback(() => setTakeover(null), [])
+  const [confirming, setConfirming] = useState<number | null>(null) // team id in the §18 sheet
+  const endConfirm = useCallback(() => setConfirming(null), [])
   const [replay, setReplay] = useState(false)
   const endReplay = useCallback(() => setReplay(false), [])
   const reload = useCallback(() => load(number, me).then((d) => setData({ ...d, number })), [number, me])
@@ -453,6 +455,32 @@ export default function RoundPage({ me }: { me: string }) {
   return (
     <Shell title={round.name}>
       <Takeover team={takeover} onDone={endTakeover} />
+      {confirming !== null && myAlive === true && (
+        <PickSheet
+          team={teams.get(confirming)!}
+          match={matches.find((m) => m.home_team_id === confirming || m.away_team_id === confirming)!}
+          teams={teams}
+          current={myPick && teams.get(myPick.team_id)}
+          lastUnused={
+            knockout &&
+            matches.every((m) => [m.home_team_id, m.away_team_id].every((t) => t === confirming || data.used.has(t)))
+          }
+          locked={locked}
+          onCancel={endConfirm}
+          onConfirm={async () => {
+            thud() // still inside the touch: the hold completes with the finger down
+            setConfirming(null)
+            setError(null)
+            const { error } = await supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: confirming })
+            if (error) setError(error.message)
+            else {
+              setTakeover(teams.get(confirming)!)
+              sfx.pick()
+            }
+            await reload()
+          }}
+        />
+      )}
       <KnockedOut ko={replay ? data.ko : null} onDone={endReplay} />
       <div className="screen flex flex-col gap-[18px]">
         <RoundPills current={number} />
@@ -512,17 +540,12 @@ export default function RoundPage({ me }: { me: string }) {
               locked={locked}
               knockout={knockout}
               now={now}
-              onPick={async (tid) => {
-                thud() // from the tap itself: iOS only allows haptics and audio inside a user gesture
-                sfx.unlock()
-                setError(null)
-                const { error } = await supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: tid })
-                if (error) setError(error.message)
-                else {
-                  setTakeover(teams.get(tid)!)
-                  sfx.pick()
-                }
-                await reload()
+              onPick={(tid) => {
+                // §18: your current pick replays the takeover; any other team opens the confirm sheet.
+                if (tid !== myPick?.team_id) return setConfirming(tid)
+                thud()
+                sfx.pick()
+                setTakeover(teams.get(tid)!)
               }}
             />
           )}
