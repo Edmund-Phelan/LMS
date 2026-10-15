@@ -29,6 +29,12 @@ export const Icon = {
       <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
     </svg>
   ),
+  grid: (
+    <svg {...svg}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18M3 14h18M9 4v16" />
+    </svg>
+  ),
   person: (
     <svg {...svg}>
       <circle cx="12" cy="8" r="4" />
@@ -106,6 +112,7 @@ const Titles = ({ eyebrow, title, eyebrowGold }: { eyebrow: string; title: strin
 
 const TABS = [
   { to: '/round', label: 'Round', icon: Icon.ball },
+  { to: '/pools', label: 'Pools', icon: Icon.grid },
   { to: '/table', label: 'Table', icon: Icon.trophy },
   { to: '/me', label: 'Me', icon: Icon.person },
 ]
@@ -125,7 +132,7 @@ export default function Shell({ title, children }: { title: string; children: Re
       bottom={
         <nav
           aria-label="Main"
-          className="grid shrink-0 grid-cols-3 border-t border-white/7 px-3 pb-[max(18px,env(safe-area-inset-bottom))] backdrop-blur-[16px]"
+          className="grid shrink-0 grid-cols-4 border-t border-white/7 px-3 pb-[max(18px,env(safe-area-inset-bottom))] backdrop-blur-[16px]"
           style={{ background: 'rgba(8,17,50,.92)', minHeight: 84 }}
         >
           {TABS.map((t) => (

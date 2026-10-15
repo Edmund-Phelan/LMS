@@ -9,6 +9,7 @@ import Profile, { type Me } from './Profile'
 import InstallGuide from './InstallGuide'
 import MePage from './MePage'
 import TablePage from './TablePage'
+import PoolsPage from './PoolsPage'
 import RulesPage from './RulesPage'
 import { Pushed } from './Shell'
 
@@ -48,6 +49,7 @@ export default function App() {
     <Routes>
       <Route path="/round" element={<CurrentRound />} />
       <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />
+      <Route path="/pools" element={<PoolsPage me={session.user.id} />} />
       <Route path="/table" element={<TablePage me={session.user.id} />} />
       <Route path="/me" element={<MePage me={me} />} />
       <Route
