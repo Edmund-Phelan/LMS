@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { openRound, playerState, settleRound, type History } from './engine'
+import { openRound, playerState, settleRound, type History, type Payment } from './engine'
 import { buyback, h1, history, match, outcomes, pick, r2, round, settle } from './fixtures'
 
 describe('rule 1: pick to win', () => {
@@ -220,5 +220,31 @@ describe('rule 14: jinx', () => {
       [{ n: 1, picks: { a: 1, b: 2, c: 3 }, res: { a: 'through', b: 'out', c: 'out' } }],
     )
     expect(() => settle(h, round(2), r2(), { a: 6 }, { jinxes: { b: 'c' } })).toThrow(/isn't still in/)
+  })
+})
+
+describe('Round 1: no pick = no entry, no confirmed entry payment = not in', () => {
+  const entry = (playerId: string, status: Payment['status'] = 'confirmed'): Payment => ({
+    playerId,
+    kind: 'entry',
+    amountEur: 10,
+    status,
+    claimedAt: '2026-10-15T12:00:00Z',
+  })
+  // 1 beats 2, 3 beats 4. a and e paid and picked; b picked unpaid; c paid, no pick; d only claimed.
+  const r1 = () => [match(1, 1, 2, 20, 10), match(1, 3, 4, 20, 10)]
+  const h0 = () => history(['a', 'b', 'c', 'd', 'e'], [])
+  const payments = [entry('a'), entry('c'), entry('d', 'claimed'), entry('e')]
+
+  it('only paid players with a pick are in; nobody without a pick is auto-picked or reported', () => {
+    const s = settle(h0(), round(1), r1(), { a: 1, b: 3, d: 3, e: 2 }, { payments })
+    expect(outcomes(s)).toEqual({ a: 'through', b: 'already_out', c: 'already_out', d: 'already_out', e: 'out' })
+    expect(s.stillIn).toEqual(['a'])
+    const h = { ...h0(), rounds: [round(1)], picks: [pick(1, 'a', 1), pick(1, 'b', 3)], roundResults: s.roundResults }
+    expect(playerState(h, 'b', round(2)).alive).toBe(false)
+  })
+  it('rule 8 is judged among entrants only: an unpaid winner does not knock them all out', () => {
+    const s = settle(h0(), round(1), r1(), { a: 2, b: 1, e: 4 }, { payments })
+    expect(outcomes(s)).toMatchObject({ a: 'through', b: 'already_out', e: 'through' })
   })
 })

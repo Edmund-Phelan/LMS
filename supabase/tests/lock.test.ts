@@ -58,6 +58,23 @@ beforeEach(async () => {
   await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
 })
 
+describe('Round 1 fixtures', () => {
+  it('seeds 12 fixtures in Irish summer time, every team once, first kick-off at the lock', async () => {
+    const seeded = await freshDb()
+    const rows = (
+      await seeded.query<{ ko: string; home: string; away: string }>(
+        `select to_char(kickoff_at at time zone 'UTC', 'MM-DD HH24:MI') as ko, h.slug as home, a.slug as away
+         from matches m join rounds r on r.id = m.round_id join teams h on h.id = m.home_team_id
+         join teams a on a.id = m.away_team_id where r.number = 1 order by kickoff_at, h.slug`,
+      )
+    ).rows
+    expect(rows).toHaveLength(12)
+    expect(rows[0]).toEqual({ ko: '10-16 19:00', home: 'gloucester-rugby', away: 'union-bordeaux-begles' })
+    expect(rows.at(-1)).toEqual({ ko: '10-18 16:30', home: 'northampton-saints', away: 'cardiff-rugby' })
+    expect(new Set(rows.flatMap((r) => [r.home, r.away])).size).toBe(24)
+  })
+})
+
 describe('lock times', () => {
   it('stores Irish 8pm in UTC across the 25 Oct clock change', async () => {
     const seeded = await freshDb() // beforeEach moves Round 2's lock
@@ -224,11 +241,14 @@ describe('auto-pick at the lock', () => {
     ).toHaveLength(0)
   })
 
-  it('never auto-picks Round 1 (no pick = no entry)', async () => {
-    await db.query('update rounds set settled_at = null where id = $1', [r1])
+  it('never auto-picks Round 1 (no pick = no entry), though everyone may pick in it', async () => {
+    await db.query('delete from round_results where round_id = $1', [r1])
     await db.query('delete from picks where round_id = $1', [r1])
-    await run()
-    expect((await db.query('select 1 from picks where round_id = $1', [r1])).rows).toHaveLength(0)
+    await db.query(`update rounds set settled_at = null, lock_at = now() + interval '1 hour' where id = $1`, [r1])
+    await pick(BEN, r1, await team('leinster'))
+    await lockNow(r1)
+    expect(await run()).toBe(0)
+    expect((await db.query('select player_id from picks where round_id = $1', [r1])).rows).toEqual([{ player_id: BEN }])
   })
 })
 
@@ -334,6 +354,43 @@ describe('settle_round', () => {
     await settle(EDDIE)
     await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r3])
     await expect(unsettle(EDDIE)).rejects.toThrow(/already locked/)
+  })
+
+  it('Round 1: only players with a pick and a confirmed entry payment can be settled in', async () => {
+    await db.query('delete from round_results where round_id = $1', [r1])
+    await db.query(`update rounds set settled_at = null, lock_at = now() - interval '1 second' where id = $1`, [r1])
+    await db.query('delete from picks where round_id = $1 and player_id = $2', [r1, OUTY]) // Outy: no pick
+    const settle1 = (outcomes: Record<string, string>) =>
+      as(db, EDDIE, 'select settle_round($1, $2, $3, $4)', [
+        r1,
+        [1, 2],
+        JSON.stringify(
+          Object.entries(outcomes).map(([player_id, outcome]) => ({
+            player_id,
+            outcome,
+            prediction_points: 0,
+            exact_score: false,
+            jinx_points: 0,
+          })),
+        ),
+        '[]',
+      ])
+    const all = { [EDDIE]: 'through', [BEN]: 'through', [OUTY]: 'already_out' }
+    await db.query(`insert into payments (player_id, kind, amount_eur, status) values ($1, 'entry', 10, 'confirmed')`, [
+      EDDIE,
+    ])
+    await db.query(`insert into payments (player_id, kind, amount_eur) values ($1, 'entry', 10)`, [BEN]) // claimed only
+    await db.query(`insert into payments (player_id, kind, amount_eur, status) values ($1, 'entry', 10, 'confirmed')`, [
+      OUTY,
+    ])
+    await expect(settle1(all)).rejects.toThrow(/confirmed entry payment/) // Ben unpaid
+    await expect(settle1({ ...all, [BEN]: 'out' })).rejects.toThrow(/confirmed entry payment/)
+    await expect(settle1({ ...all, [BEN]: 'already_out', [OUTY]: 'through' })).rejects.toThrow(/pick/) // paid, no pick
+    expect((await db.query('select 1 from round_results where round_id = $1', [r1])).rows).toHaveLength(0)
+
+    await settle1({ ...all, [BEN]: 'already_out' })
+    expect(await as(db, BEN, 'select * from round_status($1)', [r2])).toContainEqual({ player_id: BEN, alive: false })
+    await expect(pick(BEN, r2, await team('saracens'))).rejects.toThrow(/not in this round/)
   })
 
   it('settles rounds in order', async () => {

@@ -256,6 +256,12 @@ export function settleRound(
   const contenders = new Map<string, Set<number>>()
   for (const id of h.playerIds) {
     const st = state.get(id)!
+    if (round.number === 1) {
+      // Round 1: no pick = no entry (no auto-pick), no confirmed entry payment = not in the comp.
+      const entered = payments.some((p) => p.playerId === id && p.kind === 'entry' && p.status === 'confirmed')
+      if (entered && pickOf.has(id)) contenders.set(id, st.used)
+      continue
+    }
     const paid = payments.filter((p) => p.playerId === id && p.kind === 'buyback' && p.status === 'confirmed')
     if (paid.length > 1) bad(`${id} has ${paid.length} confirmed buy-backs; it's one per player`)
     const buyback = paid.length === 1 && !st.buybackUsed
@@ -292,7 +298,7 @@ export function settleRound(
   // Rule 12: resurrection, Round 4 only, an away team, back in only on a win (Q6: postponed stays out).
   for (const id of h.playerIds) {
     const pick = pickOf.get(id)
-    if (!pick || contenders.has(id)) continue
+    if (!pick || contenders.has(id) || round.number === 1) continue // Round 1: an unpaid pick doesn't count
     if (!pick.isResurrection) bad(`${id} is out and has a pick`)
     if (round.stage !== 'pool' || round.number !== 4) bad(`${id}: resurrection picks are Round 4 only`)
     const m = matchOf(pick.teamId) ?? bad(`${id} picked team ${pick.teamId}, which doesn't play this round`)
