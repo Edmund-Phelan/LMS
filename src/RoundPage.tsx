@@ -4,6 +4,7 @@ import { irishTime, supabase, type Match, type Pick, type Player, type Round, ty
 import { loadPayments, PayEntry, PlayerList, potEur, type PaymentRow } from './Pay'
 import { FixtureList, Takeover, useThud } from './Pick'
 import { RevealCards } from './Reveal'
+import Raffle from './Raffle'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -268,22 +269,25 @@ export default function RoundPage({ me }: { me: string }) {
               }
             />
           )}
+          {!featured && <p className="mb-6 text-sm text-gray-500">Featured match not drawn yet.</p>}
           {featured && (
-            <Prediction
-              key={JSON.stringify(data.prediction)}
-              label={`${teams.get(featured.home_team_id)?.name} v ${teams.get(featured.away_team_id)?.name}`}
-              initial={data.prediction}
-              onSave={(home_score, away_score) =>
-                run(
-                  supabase
-                    .from('predictions')
-                    .upsert(
-                      { round_id: round.id, player_id: me, home_score, away_score },
-                      { onConflict: 'round_id,player_id' },
-                    ),
-                )
-              }
-            />
+            <Raffle roundId={round.id} featured={featured} matches={matches} teams={teams}>
+              <Prediction
+                key={JSON.stringify(data.prediction)}
+                label={`${teams.get(featured.home_team_id)?.name} v ${teams.get(featured.away_team_id)?.name}`}
+                initial={data.prediction}
+                onSave={(home_score, away_score) =>
+                  run(
+                    supabase
+                      .from('predictions')
+                      .upsert(
+                        { round_id: round.id, player_id: me, home_score, away_score },
+                        { onConflict: 'round_id,player_id' },
+                      ),
+                  )
+                }
+              />
+            </Raffle>
           )}
         </>
       )}

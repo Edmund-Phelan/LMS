@@ -325,6 +325,78 @@ describe('payments', () => {
   })
 })
 
+describe('featured match draw', () => {
+  const draw = (uid: string | null, round = r2) =>
+    as<{ featured_match_id: number }>(db, uid, 'select * from draw_featured_match($1)', [round])
+  const r2Matches = async () =>
+    (await db.query<{ id: number }>('select id from matches where round_id = $1', [r2])).rows.map((r) => r.id)
+
+  it('admins only', async () => {
+    await expect(draw(BEN)).rejects.toThrow(/Only admins/)
+    await expect(draw(null)).rejects.toThrow(/permission denied/)
+    expect((await db.query('select featured_drawn_at from rounds where id = $1', [r2])).rows).toEqual([
+      { featured_drawn_at: null },
+    ])
+  })
+
+  it('one-shot: no redraw, and nobody can set it directly, admins included', async () => {
+    const [first] = await draw(EDDIE)
+    expect(await r2Matches()).toContain(first.featured_match_id)
+    await expect(draw(EDDIE)).rejects.toThrow(/already been drawn/)
+    const other = (await r2Matches()).find((id) => id !== first.featured_match_id)
+    await expect(as(db, EDDIE, 'update rounds set featured_match_id = $1 where id = $2', [other, r2])).rejects.toThrow(
+      /permission denied/,
+    )
+    await expect(as(db, EDDIE, 'update rounds set featured_drawn_at = null where id = $1', [r2])).rejects.toThrow(
+      /permission denied/,
+    )
+    await as(db, EDDIE, 'update rounds set clean_slate = false where id = $1', [r2]) // other admin edits still work
+    expect((await db.query('select featured_match_id from rounds where id = $1', [r2])).rows).toEqual([
+      { featured_match_id: first.featured_match_id },
+    ])
+  })
+
+  it('before the lock only, and only once there are fixtures', async () => {
+    await lockNow(r2)
+    await expect(draw(EDDIE)).rejects.toThrow(/locked/)
+    const r3 = (await db.query<{ id: number }>('select id from rounds where number = 3')).rows[0].id
+    await db.query('delete from matches where round_id = $1', [r3])
+    await expect(draw(EDDIE, r3)).rejects.toThrow(/no fixtures/)
+  })
+
+  it("always one of that round's fixtures, and random", async () => {
+    const seen = new Set<number>()
+    for (let i = 0; i < 30; i++) {
+      await db.query('update rounds set featured_match_id = null, featured_drawn_at = null where id = $1', [r2])
+      seen.add((await draw(EDDIE))[0].featured_match_id)
+    }
+    expect([...seen].sort()).toEqual((await r2Matches()).sort()) // both fixtures come up (fails ~1 in 500m)
+  })
+
+  it('the final draws itself when its fixture is added', async () => {
+    const final = (
+      await db.query<{ id: number }>(
+        `insert into rounds (number, stage, name, lock_at) values (8, 'final', 'Final', now() + interval '1 day') returning id`,
+      )
+    ).rows[0].id
+    const m = (
+      await db.query<{ id: number }>(
+        `insert into matches (round_id, home_team_id, away_team_id, kickoff_at)
+         select $1, h.id, a.id, now() + interval '1 day' from teams h, teams a
+         where h.slug = 'leinster' and a.slug = 'stade-toulousain' returning id`,
+        [final],
+      )
+    ).rows[0].id
+    expect(
+      (
+        await db.query('select featured_match_id, featured_drawn_at is not null as drawn from rounds where id = $1', [
+          final,
+        ])
+      ).rows,
+    ).toEqual([{ featured_match_id: m, drawn: true }])
+  })
+})
+
 describe('everything else', () => {
   it("players can't make themselves admin or confirm payments", async () => {
     await expect(as(db, BEN, 'update players set is_admin = true where id = $1', [BEN])).rejects.toThrow(

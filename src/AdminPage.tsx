@@ -77,6 +77,29 @@ export default function AdminPage() {
 
       <PaymentsAdmin payments={data.paymentRows} name={name} run={run} />
 
+      <section className="mb-6">
+        <h2 className="mb-2 text-lg font-semibold">Featured match</h2>
+        {round.featured_drawn_at ? (
+          <p>
+            {(() => {
+              const m = data.matches.find((m) => m.id === round.featured_match_id)
+              return m ? `${teamName(m.home_team_id)} v ${teamName(m.away_team_id)}` : 'none'
+            })()}{' '}
+            <span className="text-gray-500">(drawn {irishTime(round.featured_drawn_at)})</span>
+          </p>
+        ) : (
+          <button
+            onClick={() =>
+              confirm('Draw the featured match now? One draw per round, no re-draws.') &&
+              run(supabase.rpc('draw_featured_match', { p_round_id: round.id }))
+            }
+            className="rounded bg-black px-4 py-2 text-white"
+          >
+            Draw featured match
+          </button>
+        )}
+      </section>
+
       {!round.settled_at && <OpenPanel data={data} name={name} run={run} />}
 
       <section className="mb-6">

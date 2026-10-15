@@ -22,6 +22,7 @@ export type Round = {
   name: string
   lock_at: string
   featured_match_id: number | null
+  featured_drawn_at: string | null
   settled_at: string | null
   clean_slate: boolean
   tiebreak: number[] | null
