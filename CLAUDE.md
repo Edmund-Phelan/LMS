@@ -121,7 +121,7 @@ Rules:
     still resurrect. Players knocked out *in* Round 4 have no way back.
 13. **Points table (9).** Every player, in or out, predicts the score of the round's featured match. Wrong winner = 0.
     Right winner = 1; within 10 = 2; within 5 = 3; exact = 5. "Within" = |pred home − actual home| + |pred away − actual away|
-    (predict 30–15, ends 27–17 → off by 5 → 3 points). Starts Round 2.
+    (predict 30–15, ends 27–17 → off by 5 → 3 points). Starts Round 1 (decided 15 Oct 2026).
 14. **Jinx (10).** Each round, every player who's out names one survivor. If that survivor goes out that round, the
     jinxer gets 1 point toward the side pot. Jinx points do **not** count for the forfeit.
 15. **Forfeit (11).** Fewest prediction points (jinx excluded) does the forfeit. Tied at the bottom: whoever went out of the

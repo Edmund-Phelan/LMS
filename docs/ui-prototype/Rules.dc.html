@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rules</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050f0a}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif}
+.scroll{scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}
+button{font:inherit;color:inherit}
+.stagger>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.stagger>*:nth-child(1){animation-delay:.02s}.stagger>*:nth-child(2){animation-delay:.06s}.stagger>*:nth-child(3){animation-delay:.1s}.stagger>*:nth-child(4){animation-delay:.14s}.stagger>*:nth-child(5){animation-delay:.18s}.stagger>*:nth-child(6){animation-delay:.22s}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.open{animation:openIn .35s cubic-bezier(.2,.8,.2,1) both;transform-origin:top}
+@keyframes openIn{from{opacity:0;transform:translateY(-6px) scaleY(.96)}to{opacity:1;transform:none}}
+.press{transition:transform .15s cubic-bezier(.3,1.5,.5,1),background .2s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.97)}
+.chev{transition:transform .3s cubic-bezier(.3,1.4,.5,1)}
+.pts{animation:pop .4s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.body p{margin:0 0 10px;font-size:15px;line-height:1.5;color:#dfe6e1}
+.body p:last-child{margin-bottom:0}
+.body strong{color:#f4f1e8}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}}
+</style>
+</helmet>
+
+<div class="app" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0a1f15; color: #f4f1e8; display: flex; flex-direction: column; border-radius: 40px">
+  <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 14px 12px 0; box-sizing: border-box">
+    <a href="Main.dc.html" aria-label="Back to your profile" class="press" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #f4f1e8">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <div style="flex: 1">
+      <p class="disp" style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a9b8ae">Champions Cup 26/27</p>
+      <p class="disp" style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.05">The rules</p>
+    </div>
+  </header>
+
+  <main class="scroll stagger" style="flex: 1; overflow-y: auto; padding: 8px 16px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+
+    <section style="border-radius: 24px; padding: 22px 20px; background: repeating-linear-gradient(90deg, #0f5132 0 12.5%, #0c4529 12.5% 25%); position: relative; overflow: hidden">
+      <div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,.16), transparent 60%)"></div>
+      <p class="disp" style="position: relative; margin: 0; font-size: 32px; font-weight: 800; line-height: 1.02">Pick a winner. Every round. Lose or draw and you're gone.</p>
+      <p style="position: relative; margin: 10px 0 0; font-size: 14px; opacity: .85">Last one standing takes 80% of the pot. Agreed by the group, Oct 2026.</p>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="border-radius: 18px; padding: 14px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+        <p class="disp" style="margin: 0; font-size: 28px; font-weight: 800; color: #f2b226">1 team</p>
+        <p style="margin: 2px 0 0; font-size: 13px; color: #cfd8d2">per round, to win</p>
+      </div>
+      <div style="border-radius: 18px; padding: 14px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+        <p class="disp" style="margin: 0; font-size: 28px; font-weight: 800; color: #f2b226">Once</p>
+        <p style="margin: 2px 0 0; font-size: 13px; color: #cfd8d2">each team, all season</p>
+      </div>
+      <div style="border-radius: 18px; padding: 14px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+        <p class="disp" style="margin: 0; font-size: 28px; font-weight: 800; color: #f2b226">Fri 8pm</p>
+        <p style="margin: 2px 0 0; font-size: 13px; color: #cfd8d2">picks lock (pool rounds)</p>
+      </div>
+      <div style="border-radius: 18px; padding: 14px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+        <p class="disp" style="margin: 0; font-size: 28px; font-weight: 800; color: #f2b226">€10</p>
+        <p style="margin: 2px 0 0; font-size: 13px; color: #cfd8d2">in, before the Round 1 lock</p>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{sections}}" as="s" hint-placeholder-count="12">
+        <section style="border-radius: 18px; background: #11301f; box-shadow: inset 0 0 0 1px {{s.edge}}; overflow: hidden; transition: box-shadow .3s">
+          <h2 style="margin: 0">
+            <button type="button" class="press" onClick="{{s.toggle}}" aria-expanded="{{s.open}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 14px; border: 0; background: transparent; text-align: left">
+              <span class="disp" style="width: 30px; height: 30px; border-radius: 9px; background: {{s.badgeBg}}; color: {{s.badgeFg}}; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; flex-shrink: 0; transition: background .3s">{{s.n}}</span>
+              <span style="flex: 1; min-width: 0">
+                <span class="disp" style="display: block; font-size: 20px; font-weight: 800; line-height: 1.1">{{s.title}}</span>
+                <span style="display: block; font-size: 12px; color: #a9b8ae">{{s.sub}}</span>
+              </span>
+              <sc-if value="{{s.isOpenRule}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 8px; border-radius: 999px; background: rgba(255,179,92,.16); color: #ffb35c; font-size: 10px; font-weight: 800; letter-spacing: .08em">OPEN</span></sc-if>
+              <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9b8ae" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform: {{s.rot}}"><path d="m6 9 6 6 6-6"></path></svg>
+            </button>
+          </h2>
+          <sc-if value="{{s.open}}" hint-placeholder-val="{{false}}">
+            <div class="open body" style="padding: 0 16px 16px 56px">
+              <sc-for list="{{s.paras}}" as="p" hint-placeholder-count="2">
+                <p><strong>{{p.lead}}</strong> {{p.text}}</p>
+              </sc-for>
+
+              <sc-if value="{{s.isMoney}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px">
+                  <div style="display: flex; height: 34px; border-radius: 10px; overflow: hidden; font-size: 12px; font-weight: 800">
+                    <span style="width: 80%; background: #f2b226; color: #0a1f15; display: flex; align-items: center; padding-left: 10px">80% LAST MAN</span>
+                    <span style="width: 20%; background: #3ccf7a; color: #0a1f15; display: flex; align-items: center; justify-content: center">20%</span>
+                  </div>
+                  <p style="font-size: 13px; color: #a9b8ae">On 11 entries: €88 and €22. Buy-backs grow both.</p>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{s.isPoints}}" hint-placeholder-val="{{false}}">
+                <div style="margin-top: 6px; border-radius: 16px; padding: 14px; background: #0a1f15; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 12px">
+                  <p class="disp" style="margin: 0; font-size: 16px; font-weight: 800; letter-spacing: .1em; color: #f2b226">TRY IT</p>
+                  <div style="display: grid; grid-template-columns: 70px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center">
+                    <span></span><span style="font-size: 11px; font-weight: 700; color: #a9b8ae; text-align: center">HOME</span><span style="font-size: 11px; font-weight: 700; color: #a9b8ae; text-align: center">AWAY</span>
+                    <sc-for list="{{calc}}" as="c" hint-placeholder-count="2">
+                      <span style="font-size: 13px; font-weight: 700">{{c.label}}</span>
+                      <span style="display: flex; align-items: center; justify-content: center; gap: 4px">
+                        <button type="button" class="press" onClick="{{c.hDown}}" aria-label="{{c.label}} home down" style="width: 26px; height: 32px; border: 0; border-radius: 8px; background: rgba(255,255,255,.08)">−</button>
+                        <span class="disp" style="width: 30px; text-align: center; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">{{c.h}}</span>
+                        <button type="button" class="press" onClick="{{c.hUp}}" aria-label="{{c.label}} home up" style="width: 26px; height: 32px; border: 0; border-radius: 8px; background: rgba(255,255,255,.08)">+</button>
+                      </span>
+                      <span style="display: flex; align-items: center; justify-content: center; gap: 4px">
+                        <button type="button" class="press" onClick="{{c.aDown}}" aria-label="{{c.label}} away down" style="width: 26px; height: 32px; border: 0; border-radius: 8px; background: rgba(255,255,255,.08)">−</button>
+                        <span class="disp" style="width: 30px; text-align: center; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">{{c.a}}</span>
+                        <button type="button" class="press" onClick="{{c.aUp}}" aria-label="{{c.label}} away up" style="width: 26px; height: 32px; border: 0; border-radius: 8px; background: rgba(255,255,255,.08)">+</button>
+                      </span>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.08)">
+                    <span class="disp pts" style="font-size: 44px; font-weight: 800; line-height: 1; color: {{pts.colour}}">{{pts.n}}</span>
+                    <span style="font-size: 13px; line-height: 1.35; color: #dfe6e1">{{pts.why}}</span>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{s.isLocks}}" hint-placeholder-val="{{false}}">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 4px">
+                  <tbody>
+                    <sc-for list="{{locks}}" as="l" hint-placeholder-count="8">
+                      <tr style="border-top: 1px solid rgba(255,255,255,.06)">
+                        <td style="padding: 8px 0; font-weight: 700">{{l.r}}</td>
+                        <td style="padding: 8px 0; color: #a9b8ae">{{l.w}}</td>
+                        <td style="padding: 8px 0; text-align: right">{{l.lock}}</td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </sc-if>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+    </div>
+
+    <a href="https://claude.ai/code/artifact/a99ed3c3-a9ae-47f7-9847-4b3f50510d2a" class="press" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 14px; border: 1px solid rgba(255,255,255,.14); color: #f4f1e8; text-decoration: none; font-weight: 600">
+      Full rules doc
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M8 7h9v9"></path></svg>
+    </a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { open: 's1', ph: 30, pa: 15, ah: 27, aa: 17 };
+  }
+
+  renderVals() {
+    var self = this, st = this.state;
+    var S = [
+      { id: 's1', title: 'The pick and the lock', sub: 'One team, to win, before first kick-off', paras: [
+        { lead: 'The pick.', text: 'One team per round, to win. A win puts you through. A loss or a draw puts you out.' },
+        { lead: 'The lock.', text: 'Picks close at the round’s first kick-off. Change your pick as often as you like before then; the latest one counts.' },
+        { lead: 'Private picks.', text: 'Nobody sees anyone’s pick before the lock, admins included. At the lock every pick is revealed.' }
+      ] },
+      { id: 's2', title: 'Each team once', sub: 'And what happens if you run out', paras: [
+        { lead: 'Team reuse.', text: 'Each team once for the whole comp. Plan ahead: your semi-final pick could be in the final.' },
+        { lead: 'Running out.', text: 'No unused team playing at a lock means you’re out. If everyone still in is stuck at once, it’s a clean slate for all of them.' }
+      ] },
+      { id: 's3', title: 'Missed pick', sub: 'Round 1 is different', paras: [
+        { lead: 'From Round 2.', text: 'No pick by the lock gets you a random team you haven’t used.' },
+        { lead: 'Round 1.', text: 'No pick means no entry. And no payment means your pick doesn’t count.' }
+      ] },
+      { id: 's4', title: 'Wins, draws and postponements', sub: '80 minutes in the pools', paras: [
+        { lead: 'Pool stage.', text: 'The 80-minute result. A draw counts as a loss.' },
+        { lead: 'Knockouts.', text: 'The team that goes through, extra time or kicking competition included.' },
+        { lead: 'Postponed or abandoned.', text: 'If your team’s match isn’t completed that weekend, you survive and get the team back.' },
+        { lead: 'Everyone out at once.', text: 'If every remaining player goes out in the same round, they all stay in.' }
+      ] },
+      { id: 's5', title: 'Winning', sub: 'And the tiebreak', paras: [
+        { lead: 'Last one standing', text: 'takes 80% of the pot. Nobody can win while there’s still a way back in, so not before Round 4 is settled.' },
+        { lead: 'Several survive the final?', text: 'Higher on the points table wins. Still level: most exact scores. Still level: split.' }
+      ] },
+      { id: 's6', title: 'Money', sub: '€10 entry, 80/20 payout', isMoney: true, paras: [
+        { lead: 'Entry.', text: '€10 on Revolut with “LMS” in the note, before the Round 1 lock. Tap Pay in the app, then “I’ve paid”.' },
+        { lead: 'Proof.', text: 'An admin confirms it and a Paid mark shows next to your name for everyone.' },
+        { lead: 'The pot.', text: 'Kept apart from Eddie’s own money. The running total is always on the home screen.' }
+      ] },
+      { id: 's7', title: 'Buy-back', sub: 'The paid way back, pool stage only', paras: [
+        { lead: 'One per person.', text: 'Pay €10 again before the next lock and you’re back in. Last chance: the Round 4 lock, Fri 15 Jan, 8pm.' },
+        { lead: 'The cost.', text: 'Used teams stay used. You also lose the most-picked team of the round you went out in, plus one more for every round you sat out.' }
+      ] },
+      { id: 's8', title: 'Resurrection', sub: 'The free gamble, Round 4 only', paras: [
+        { lead: 'One pick.', text: 'Everyone who’s out gets one free pick in Round 4. It must be an away team you haven’t used.' },
+        { lead: 'Win and you’re back', text: 'for the knockouts, at the same team cost as a buy-back. Lose and you stay out.' },
+        { lead: 'Either or.', text: 'In Round 4 it’s a buy-back or a resurrection, not both. Knocked out in Round 4 itself: no way back.' }
+      ] },
+      { id: 's9', title: 'Points table', sub: 'Everyone plays, in or out', isPoints: true, paras: [
+        { lead: 'Each round', text: 'everyone predicts the score of one featured match, drawn at random when picks open.' },
+        { lead: 'Scoring.', text: 'Right winner 1. Within 10 points 2. Within 5 points 3. Exact 5. Wrong winner 0. “Within” adds how far off you were on each team’s score.' }
+      ] },
+      { id: 's10', title: 'Jinx', sub: 'Something to do once you’re out', paras: [
+        { lead: 'Each round', text: 'every player who’s out names one survivor. If that survivor goes out, you get 1 point toward the side pot.' },
+        { lead: 'Not for the forfeit.', text: 'Jinx points don’t count toward the forfeit, so survivors aren’t punished for never getting to jinx.' }
+      ] },
+      { id: 's11', title: 'The forfeit', sub: 'Fewest prediction points', isOpenRule: true, paras: [
+        { lead: 'Who.', text: 'Fewest prediction points at the end does it. Tied at the bottom: whoever went out of the main game first.' },
+        { lead: 'What.', text: 'Still to be decided: the group picks his outfit for the next night out, or the dog cage.' }
+      ] },
+      { id: 's12', title: 'Lock times', sub: 'Irish time', isLocks: true, paras: [] },
+      { id: 's13', title: 'The fine print', sub: 'The record, rule changes, privacy', paras: [
+        { lead: 'The record.', text: 'The app is the official record of picks, results, payments and who’s in. WhatsApp is for the banter.' },
+        { lead: 'Rule changes.', text: 'Only between rounds, by majority vote. Anything not covered is the admin’s call.' },
+        { lead: 'Privacy.', text: 'The app hides picks from everyone until the lock, admins too. Eddie owns the database, so in principle he could look at the raw data; he won’t.' }
+      ] }
+    ];
+    var sections = S.map(function (s, i) {
+      var open = st.open === s.id;
+      return {
+        n: i + 1, title: s.title, sub: s.sub, paras: s.paras, open: open,
+        isMoney: !!s.isMoney, isPoints: !!s.isPoints, isLocks: !!s.isLocks, isOpenRule: !!s.isOpenRule,
+        rot: open ? 'rotate(180deg)' : 'none',
+        edge: open ? 'rgba(242,178,38,.45)' : 'rgba(255,255,255,.06)',
+        badgeBg: open ? '#f2b226' : 'rgba(255,255,255,.07)', badgeFg: open ? '#0a1f15' : '#f4f1e8',
+        toggle: function () { self.setState({ open: open ? null : s.id }); }
+      };
+    });
+
+    var bump = function (k, d) { return function () { var o = {}; o[k] = Math.max(0, Math.min(99, st[k] + d)); self.setState(o); }; };
+    var calc = [
+      { label: 'You said', h: st.ph, a: st.pa, hUp: bump('ph', 1), hDown: bump('ph', -1), aUp: bump('pa', 1), aDown: bump('pa', -1) },
+      { label: 'It ended', h: st.ah, a: st.aa, hUp: bump('ah', 1), hDown: bump('ah', -1), aUp: bump('aa', 1), aDown: bump('aa', -1) }
+    ];
+    var sign = function (x) { return x > 0 ? 1 : (x < 0 ? -1 : 0); };
+    var off = Math.abs(st.ph - st.ah) + Math.abs(st.pa - st.aa);
+    var pts;
+    if (sign(st.ph - st.pa) !== sign(st.ah - st.aa)) pts = { n: 0, why: 'Wrong winner, so nothing, however close the score.', colour: '#ff8a8a' };
+    else if (off === 0) pts = { n: 5, why: 'Exact score. The big one.', colour: '#f2b226' };
+    else if (off <= 5) pts = { n: 3, why: 'Right winner, off by ' + off + ' in total. Within 5.', colour: '#6fe3a1' };
+    else if (off <= 10) pts = { n: 2, why: 'Right winner, off by ' + off + ' in total. Within 10.', colour: '#6fe3a1' };
+    else pts = { n: 1, why: 'Right winner, but off by ' + off + '.', colour: '#f4f1e8' };
+
+    var locks = [
+      { r: 'Round 1', w: '16–18 Oct', lock: 'Fri 16 Oct, 8pm' },
+      { r: 'Round 2', w: '11–13 Dec', lock: 'Fri 11 Dec, 8pm' },
+      { r: 'Round 3', w: '8–10 Jan', lock: 'Fri 8 Jan, 8pm' },
+      { r: 'Round 4', w: '15–17 Jan', lock: 'Fri 15 Jan, 8pm' },
+      { r: 'Round of 16', w: '2–4 Apr', lock: 'First kick-off, TBC' },
+      { r: 'Quarter-finals', w: '9–11 Apr', lock: 'First kick-off, TBC' },
+      { r: 'Semi-finals', w: '1–3 May', lock: 'First kick-off, TBC' },
+      { r: 'Final', w: '22 May', lock: 'Kick-off, TBC' }
+    ];
+    return { sections: sections, calc: calc, pts: pts, locks: locks };
+  }
+}
+</script>
+</body>
+</html>

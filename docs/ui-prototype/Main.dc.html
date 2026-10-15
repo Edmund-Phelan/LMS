@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BBB Last Man Standing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050f0a}
+a{color:#f2b226}a:hover{color:#ffd166}
+.app{font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif}
+.scroll{scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+button{font:inherit;color:inherit}
+.screen{animation:screenIn .34s cubic-bezier(.2,.8,.2,1) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.stagger>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.stagger>*:nth-child(1){animation-delay:.03s}.stagger>*:nth-child(2){animation-delay:.07s}.stagger>*:nth-child(3){animation-delay:.11s}.stagger>*:nth-child(4){animation-delay:.15s}.stagger>*:nth-child(5){animation-delay:.19s}.stagger>*:nth-child(6){animation-delay:.23s}.stagger>*:nth-child(7){animation-delay:.27s}.stagger>*:nth-child(8){animation-delay:.31s}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+.card{position:relative;transition:transform .22s cubic-bezier(.3,1.5,.5,1),opacity .3s,box-shadow .3s,filter .3s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card:hover{transform:translateY(-2px)}
+.card:active{transform:scale(.93)}
+.card.dim{opacity:.55;filter:saturate(.7)}
+.card.picked{box-shadow:0 0 0 3px #f2b226,0 12px 34px rgba(242,178,38,.38);transform:scale(1.03)}
+.pop{animation:pop .45s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.press{transition:transform .15s cubic-bezier(.3,1.5,.5,1),background .2s;cursor:pointer}
+.press:active{transform:scale(.94)}
+.tab{transition:color .2s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tab-ind{animation:grow .35s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,178,38,.45)}50%{box-shadow:0 0 0 8px rgba(242,178,38,0)}}
+.sec-a{animation:tickA .5s cubic-bezier(.2,.8,.2,1)}
+.sec-b{animation:tickB .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes tickA{from{transform:translateY(-40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes tickB{from{transform:translateY(-40%);opacity:0}to{transform:none;opacity:1}}
+.tk{animation:wipe .5s cubic-bezier(.7,0,.2,1) both}
+@keyframes wipe{from{clip-path:circle(0% at 50% 60%)}to{clip-path:circle(150% at 50% 60%)}}
+.tk-stripe{animation:sweep .9s cubic-bezier(.6,0,.2,1) both}
+@keyframes sweep{from{transform:translateX(-130%) rotate(-14deg)}to{transform:translateX(130%) rotate(-14deg)}}
+.tk-crest{animation:drop .75s cubic-bezier(.3,1.45,.5,1) .18s both}
+@keyframes drop{from{transform:translateY(-460px) scale(1.5) rotate(-18deg)}to{transform:none}}
+.tk-name{animation:slam .5s cubic-bezier(.2,1.5,.4,1) .5s both}
+@keyframes slam{from{opacity:0;transform:scale(2.4)}to{opacity:1;transform:none}}
+.tk-shake{animation:shake .32s ease-out .62s both}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
+.tk-sub{animation:fadeUp .4s ease-out .8s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:.85;transform:none}}
+.confetti{animation:burst 1s cubic-bezier(.1,.7,.3,1) .55s both}
+@keyframes burst{from{transform:translate(0,0) scale(.4);opacity:1}to{transform:var(--to) scale(1);opacity:0}}
+.shimmer{background:linear-gradient(100deg,#f2b226 30%,#fff2c4 50%,#f2b226 70%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 3.5s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-200% 0}}
+.switch{transition:background .25s}
+.knob{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}}
+</style>
+</helmet>
+
+<div class="app" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0a1f15; color: #f4f1e8; display: flex; flex-direction: column; border-radius: 40px">
+
+  <!-- Top bar -->
+  <header style="height: 64px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 14px 20px 0; box-sizing: border-box">
+    <div class="disp" style="width: 36px; height: 36px; border-radius: 10px; background: #f2b226; color: #0a1f15; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; letter-spacing: -.02em">BBB</div>
+    <div style="flex: 1; min-width: 0">
+      <p class="disp" style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a9b8ae">Last Man Standing</p>
+      <p class="disp" style="margin: 0; font-size: 20px; font-weight: 800; line-height: 1.05">{{headerTitle}}</p>
+    </div>
+    <button type="button" class="press" onClick="{{toggleSound}}" aria-label="{{soundLabel}}" aria-pressed="{{sound}}" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,.12); background: {{soundBg}}; display: flex; align-items: center; justify-content: center">
+      <sc-if value="{{sound}}" hint-placeholder-val="{{true}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14"></path></svg>
+      </sc-if>
+      <sc-if value="{{soundOff}}" hint-placeholder-val="{{false}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a9b8ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="m22 9-6 6"></path><path d="m16 9 6 6"></path></svg>
+      </sc-if>
+    </button>
+  </header>
+
+  <!-- Scrolling content -->
+  <main class="scroll" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 16px 24px; box-sizing: border-box">
+
+    <!-- ROUND TAB -->
+    <sc-if value="{{isRound}}" hint-placeholder-val="{{true}}">
+      <div class="screen" style="display: flex; flex-direction: column; gap: 18px">
+
+        <!-- Round switcher -->
+        <nav aria-label="Rounds" class="scroll" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 4px 16px">
+          <sc-for list="{{rounds}}" as="r" hint-placeholder-count="8">
+            <button type="button" class="press" onClick="{{r.go}}" aria-current="{{r.current}}" style="flex-shrink: 0; min-width: 58px; height: 52px; border-radius: 14px; border: 1px solid {{r.border}}; background: {{r.bg}}; color: {{r.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 10px">
+              <span class="disp" style="font-size: 17px; font-weight: 800; line-height: 1">{{r.label}}</span>
+              <span style="font-size: 10px; font-weight: 600; opacity: .75; margin-top: 3px">{{r.sub}}</span>
+            </button>
+          </sc-for>
+        </nav>
+
+        <sc-if value="{{otherRound}}" hint-placeholder-val="{{false}}">
+          <div class="pop" style="border-radius: 22px; border: 1px dashed rgba(255,255,255,.18); padding: 36px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <p class="disp" style="margin: 0; font-size: 26px; font-weight: 800">{{other.title}}</p>
+            <p style="margin: 0; font-size: 14px; color: #a9b8ae; max-width: 260px">{{other.body}}</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isR1}}" hint-placeholder-val="{{true}}">
+          <div class="stagger" style="display: flex; flex-direction: column; gap: 18px">
+
+            <!-- Hero -->
+            <section style="position: relative; overflow: hidden; border-radius: 24px; padding: 20px 18px 18px; background: repeating-linear-gradient(90deg, #0f5132 0 12.5%, #0c4529 12.5% 25%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+              <div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,.18), transparent 60%)"></div>
+              <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px">
+                <sc-if value="{{locked}}" hint-placeholder-val="{{false}}">
+                  <div class="pop" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0 2px">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                    <p class="disp" style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1">Picks are locked</p>
+                    <p style="margin: 0; font-size: 13px; opacity: .8">Locked Fri 16 Oct · 20:00. Flip the cards below.</p>
+                  </div>
+                </sc-if>
+                <sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+                <p class="disp" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #f2b226; text-align: center">Picks lock in</p>
+                <div role="timer" style="display: flex; gap: 8px; margin-top: 12px">
+                  <sc-for list="{{countdown}}" as="c" hint-placeholder-count="4">
+                    <div style="width: 70px; padding: 10px 0 8px; border-radius: 14px; background: rgba(0,0,0,.32); text-align: center; overflow: hidden">
+                      <p class="disp {{c.cls}}" style="margin: 0; font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums">{{c.n}}</p>
+                      <p style="margin: 4px 0 0; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .7">{{c.u}}</p>
+                    </div>
+                  </sc-for>
+                </div>
+                <p style="margin: 12px 0 0; font-size: 13px; opacity: .8; text-align: center">Fri 16 Oct · 20:00 Irish time</p>
+                </sc-if>
+                <div style="display: flex; gap: 8px">
+                  <span style="padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.3); font-size: 13px; font-weight: 600">Pot <span class="shimmer" style="font-weight: 800">€{{pot}}</span></span>
+                  <span style="padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.3); font-size: 13px; font-weight: 600">{{stillIn}} still in</span>
+                  <span style="padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.3); font-size: 13px; font-weight: 600">{{lockedCount}}/{{squadSize}} {{pickedWord}}</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- My pick status -->
+            <sc-if value="{{hasPick}}" hint-placeholder-val="{{false}}">
+              <button type="button" class="press {{mineCls}}" onClick="{{replay}}" aria-label="Replay your pick" style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; border: 0; text-align: left; background: {{mine.primary}}; color: {{mine.text}}; position: relative; overflow: hidden; box-shadow: {{mineRing}}; transition: box-shadow .5s">
+                <span aria-hidden="true" style="position: absolute; right: -30px; top: -20px; width: 140px; height: 140px; border-radius: 50%; background: {{mine.secondary}}; opacity: .18"></span>
+                <span style="width: 52px; height: 52px; border-radius: 26px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative"><img src="{{mine.crest}}" alt="" style="width: 38px; height: 38px; object-fit: contain"></span>
+                <span style="flex: 1; min-width: 0; position: relative">
+                  <span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .85"><sc-if value="{{locked}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></sc-if>{{mineLabel}}</span>
+                  <span class="disp" style="display: block; font-size: 26px; font-weight: 800; line-height: 1.05">{{mine.name}}</span>
+                  <span style="display: block; font-size: 12px; opacity: .8">{{mineSub}}</span>
+                </span>
+              </button>
+            </sc-if>
+            <sc-if value="{{noPick}}" hint-placeholder-val="{{true}}">
+              <div class="pulse" style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 20px; border: 2px dashed #f2b226; background: rgba(242,178,38,.07)">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 7v5l3 2"></path></svg>
+                <div>
+                  <p class="disp" style="margin: 0; font-size: 22px; font-weight: 800">No pick yet</p>
+                  <p style="margin: 0; font-size: 13px; color: #cfd8d2">{{noPickSub}}</p>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- Fixtures -->
+            <section style="display: flex; flex-direction: column; gap: 14px">
+              <sc-for list="{{days}}" as="d" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; gap: 10px">
+                  <h2 class="disp" style="margin: 6px 0 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #a9b8ae">{{d.label}}</h2>
+                  <sc-for list="{{d.fixtures}}" as="f" hint-placeholder-count="4">
+                    <div style="display: flex; flex-direction: column; gap: 6px">
+                      <p style="margin: 0; font-size: 12px; font-weight: 600; color: #a9b8ae; display: flex; align-items: center; gap: 6px">{{f.time}}<sc-if value="{{f.featured}}" hint-placeholder-val="{{false}}"><span style="padding: 2px 8px; border-radius: 999px; background: #f2b226; color: #0a1f15; font-size: 10px; font-weight: 800; letter-spacing: .08em">FEATURED</span></sc-if></p>
+                      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); align-items: center">
+                        <button type="button" disabled="{{locked}}" class="{{f.home.cls}}" onClick="{{f.home.pick}}" aria-pressed="{{f.home.picked}}" aria-label="{{f.home.aria}}" style="height: 118px; border-radius: 18px; border: {{f.home.border}}; background: {{f.home.bg}}; color: {{f.home.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px">
+                          <sc-if value="{{f.home.picked}}" hint-placeholder-val="{{false}}"><span class="pop" aria-hidden="true" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 12px; background: #f2b226; color: #0a1f15; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></sc-if>
+                          <img src="{{f.home.crest}}" alt="" style="width: 48px; height: 48px; object-fit: contain">
+                          <span class="disp" style="font-size: 19px; font-weight: 800; line-height: 1.05; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.home.name}}</span>
+                          <span style="font-size: 11px; font-weight: 600; opacity: .75">Home</span>
+                        </button>
+                        <span class="disp" style="text-align: center; font-size: 14px; font-weight: 800; color: #f2b226">v</span>
+                        <button type="button" disabled="{{locked}}" class="{{f.away.cls}}" onClick="{{f.away.pick}}" aria-pressed="{{f.away.picked}}" aria-label="{{f.away.aria}}" style="height: 118px; border-radius: 18px; border: {{f.away.border}}; background: {{f.away.bg}}; color: {{f.away.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px">
+                          <sc-if value="{{f.away.picked}}" hint-placeholder-val="{{false}}"><span class="pop" aria-hidden="true" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 12px; background: #f2b226; color: #0a1f15; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span></sc-if>
+                          <img src="{{f.away.crest}}" alt="" style="width: 48px; height: 48px; object-fit: contain">
+                          <span class="disp" style="font-size: 19px; font-weight: 800; line-height: 1.05; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{f.away.name}}</span>
+                          <span style="font-size: 11px; font-weight: 600; opacity: .75">Away</span>
+                        </button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </section>
+
+            <!-- Featured match prediction -->
+            <section style="border-radius: 24px; padding: 18px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); display: flex; flex-direction: column; gap: 14px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <h2 class="disp" style="margin: 0; font-size: 22px; font-weight: 800">Predict the featured match</h2>
+                <span style="font-size: 11px; font-weight: 700; color: #f2b226">EXACT = 5 PTS</span>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); align-items: center; gap: 4px">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+                  <span style="width: 56px; height: 56px; border-radius: 28px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/2b045bd010b1c30bbd654b59f36ef4e8" alt="" style="width: 40px; height: 40px; object-fit: contain"></span>
+                  <span style="font-size: 13px; font-weight: 600">Gloucester</span>
+                  <div style="display: flex; align-items: center; gap: 6px">
+                    <button type="button" class="press" onClick="{{decH}}" aria-label="Gloucester score down" style="width: 36px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.08); font-size: 22px; font-weight: 600">−</button>
+                    <span class="disp" style="width: 46px; text-align: center; font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums">{{predH}}</span>
+                    <button type="button" class="press" onClick="{{incH}}" aria-label="Gloucester score up" style="width: 36px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.08); font-size: 22px; font-weight: 600">+</button>
+                  </div>
+                </div>
+                <span class="disp" style="text-align: center; font-size: 20px; font-weight: 800; color: #a9b8ae">–</span>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+                  <span style="width: 56px; height: 56px; border-radius: 28px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/1569f35ddd76a750ad76c95898b36bdb" alt="" style="width: 40px; height: 40px; object-fit: contain"></span>
+                  <span style="font-size: 13px; font-weight: 600">Bordeaux-Bègles</span>
+                  <div style="display: flex; align-items: center; gap: 6px">
+                    <button type="button" class="press" onClick="{{decA}}" aria-label="Bordeaux-Bègles score down" style="width: 36px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.08); font-size: 22px; font-weight: 600">−</button>
+                    <span class="disp" style="width: 46px; text-align: center; font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums">{{predA}}</span>
+                    <button type="button" class="press" onClick="{{incA}}" aria-label="Bordeaux-Bègles score up" style="width: 36px; height: 44px; border-radius: 12px; border: 0; background: rgba(255,255,255,.08); font-size: 22px; font-weight: 600">+</button>
+                  </div>
+                </div>
+              </div>
+              <p style="margin: 0; text-align: center; font-size: 12px; color: #a9b8ae">Right winner 1 · within 10 = 2 · within 5 = 3 · exact 5</p>
+              <button type="button" class="press" onClick="{{savePred}}" style="height: 50px; border-radius: 14px; border: 0; background: {{predBtnBg}}; color: {{predBtnFg}}; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px">
+                <sc-if value="{{predSaved}}" hint-placeholder-val="{{false}}"><svg class="pop" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+                {{predBtnLabel}}
+              </button>
+            </section>
+
+            <!-- Squad: locked-in status, never the team -->
+            <section style="display: flex; flex-direction: column; gap: 10px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between">
+                <h2 class="disp" style="margin: 0; font-size: 22px; font-weight: 800">The squad</h2>
+                <span style="font-size: 13px; font-weight: 600; color: #a9b8ae">{{lockedCount}} of {{squadSize}} {{pickedWord}}</span>
+              </div>
+              <div aria-hidden="true" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden">
+                <div style="height: 100%; width: {{lockedPct}}; background: #3ccf7a; border-radius: 3px; transition: width .6s cubic-bezier(.2,.8,.2,1)"></div>
+              </div>
+              <ul style="list-style: none; margin: 0; padding: 0; border-radius: 20px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden">
+                <sc-for list="{{squad}}" as="p" hint-placeholder-count="11">
+                  <li style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: {{p.divider}}">
+                    <span style="width: 38px; height: 38px; border-radius: 19px; background: #1c4630; box-shadow: 0 0 0 3px {{p.kit}}; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0">{{p.initial}}</span>
+                    <span style="flex: 1; min-width: 0">
+                      <span style="display: block; font-weight: 600">{{p.name}}</span>
+                      <span style="display: block; font-size: 12px; color: {{p.paidColour}}">{{p.paid}}</span>
+                    </span>
+                    <sc-if value="{{p.locked}}" hint-placeholder-val="{{true}}">
+                      <span class="pop" style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: {{chipBg}}; color: {{chipFg}}; font-size: 12px; font-weight: 700">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                        {{chipLabel}}
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{p.notLocked}}" hint-placeholder-val="{{false}}">
+                      <span style="padding: 5px 10px; border-radius: 999px; border: 1px dashed rgba(255,255,255,.25); color: #a9b8ae; font-size: 12px; font-weight: 600">{{notPickedLabel}}</span>
+                    </sc-if>
+                  </li>
+                </sc-for>
+              </ul>
+              <p style="margin: 0; font-size: 12px; color: #a9b8ae; text-align: center">{{squadFoot}}</p>
+            </section>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- TABLE TAB -->
+    <sc-if value="{{isTable}}" hint-placeholder-val="{{false}}">
+      <div class="screen stagger" style="display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <h1 class="disp" style="margin: 0; font-size: 34px; font-weight: 800">Points table</h1>
+          <span style="padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,.08); font-size: 11px; font-weight: 700; color: #a9b8ae">SAMPLE DATA</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <div style="border-radius: 18px; padding: 14px; background: linear-gradient(160deg, #f2b226, #d9951a); color: #0a1f15">
+            <p style="margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .12em">LAST MAN · 80%</p>
+            <p class="disp" style="margin: 2px 0 0; font-size: 30px; font-weight: 800">€{{potLms}}</p>
+          </div>
+          <div style="border-radius: 18px; padding: 14px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08)">
+            <p style="margin: 0; font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #a9b8ae">TOP OF TABLE · 20%</p>
+            <p class="disp" style="margin: 2px 0 0; font-size: 30px; font-weight: 800">€{{potTable}}</p>
+          </div>
+        </div>
+        <ol style="list-style: none; margin: 0; padding: 0; border-radius: 20px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden">
+          <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr) 52px 52px; gap: 8px; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #a9b8ae">
+            <span>#</span><span>PLAYER</span><span style="text-align: right">EXACT</span><span style="text-align: right">PTS</span>
+          </li>
+          <sc-for list="{{table}}" as="t" hint-placeholder-count="6">
+            <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr) 52px 52px; gap: 8px; align-items: center; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,.06); background: {{t.rowBg}}">
+              <span class="disp" style="font-size: 20px; font-weight: 800; color: {{t.rankColour}}">{{t.rank}}</span>
+              <span style="display: flex; align-items: center; gap: 10px; min-width: 0">
+                <span style="width: 32px; height: 32px; border-radius: 16px; background: #1c4630; box-shadow: 0 0 0 2px {{t.kit}}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; opacity: {{t.op}}">{{t.initial}}</span>
+                <span style="min-width: 0">
+                  <span style="display: block; font-weight: 600; opacity: {{t.op}}">{{t.name}}</span>
+                  <span style="display: block; font-size: 11px; font-weight: 700; color: {{t.statusColour}}">{{t.status}}</span>
+                </span>
+              </span>
+              <span style="text-align: right; font-weight: 600; color: #cfd8d2">{{t.exact}}</span>
+              <span class="disp" style="text-align: right; font-size: 22px; font-weight: 800">{{t.pts}}</span>
+            </li>
+          </sc-for>
+        </ol>
+        <section style="border-radius: 20px; padding: 16px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+          <h2 class="disp" style="margin: 0 0 10px; font-size: 18px; font-weight: 800">How points work</h2>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; text-align: center">
+            <div style="border-radius: 12px; padding: 10px 4px; background: rgba(242,178,38,.14)"><p class="disp" style="margin: 0; font-size: 26px; font-weight: 800; color: #f2b226">5</p><p style="margin: 0; font-size: 11px; color: #cfd8d2">Exact</p></div>
+            <div style="border-radius: 12px; padding: 10px 4px; background: rgba(255,255,255,.05)"><p class="disp" style="margin: 0; font-size: 26px; font-weight: 800">3</p><p style="margin: 0; font-size: 11px; color: #cfd8d2">Within 5</p></div>
+            <div style="border-radius: 12px; padding: 10px 4px; background: rgba(255,255,255,.05)"><p class="disp" style="margin: 0; font-size: 26px; font-weight: 800">2</p><p style="margin: 0; font-size: 11px; color: #cfd8d2">Within 10</p></div>
+            <div style="border-radius: 12px; padding: 10px 4px; background: rgba(255,255,255,.05)"><p class="disp" style="margin: 0; font-size: 26px; font-weight: 800">1</p><p style="margin: 0; font-size: 11px; color: #cfd8d2">Right winner</p></div>
+          </div>
+          <p style="margin: 10px 0 0; font-size: 12px; color: #a9b8ae">Everyone predicts, in or out. Fewest points does the forfeit.</p>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ME TAB -->
+    <sc-if value="{{isMe}}" hint-placeholder-val="{{false}}">
+      <div class="screen stagger" style="display: flex; flex-direction: column; gap: 16px">
+        <section style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 6px">
+          <div style="width: 112px; height: 112px; border-radius: 56px; background: #1c4630; box-shadow: 0 0 0 5px #c8102e, 0 18px 40px rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center">
+            <span class="disp" style="font-size: 48px; font-weight: 800">E</span>
+          </div>
+          <div style="text-align: center">
+            <h1 class="disp" style="margin: 0; font-size: 34px; font-weight: 800; line-height: 1">Eddie</h1>
+            <p style="margin: 2px 0 0; font-size: 13px; color: #a9b8ae">Eddie Phelan · Admin</p>
+          </div>
+          <span style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(60,207,122,.14); color: #6fe3a1; font-size: 13px; font-weight: 700"><span style="width: 8px; height: 8px; border-radius: 4px; background: #3ccf7a"></span>Still standing</span>
+        </section>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+          <div style="border-radius: 18px; padding: 14px 10px; background: #11301f; text-align: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+            <p class="disp" style="margin: 0; font-size: 34px; font-weight: 800; color: #f2b226">6</p>
+            <p style="margin: 0; font-size: 12px; color: #cfd8d2">Points</p>
+          </div>
+          <div style="border-radius: 18px; padding: 14px 10px; background: #11301f; text-align: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+            <p class="disp" style="margin: 0; font-size: 34px; font-weight: 800">#2</p>
+            <p style="margin: 0; font-size: 12px; color: #cfd8d2">of 11 on the table</p>
+          </div>
+          <div style="border-radius: 18px; padding: 14px 10px; background: #11301f; text-align: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)">
+            <p class="disp" style="margin: 0; font-size: 34px; font-weight: 800">1</p>
+            <p style="margin: 0; font-size: 12px; color: #cfd8d2">Exact scores</p>
+          </div>
+        </div>
+
+        <section style="border-radius: 20px; padding: 16px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline">
+            <h2 class="disp" style="margin: 0; font-size: 20px; font-weight: 800">Your road</h2>
+            <span style="font-size: 12px; color: #a9b8ae">{{usedLabel}}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{road}}" as="s" hint-placeholder-count="4">
+              <div style="border-radius: 14px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; background: {{s.bg}}; color: {{s.fg}}; border: {{s.border}}">
+                <span style="font-size: 11px; font-weight: 800; letter-spacing: .1em; opacity: .8">{{s.label}}</span>
+                <sc-if value="{{s.crest}}" hint-placeholder-val="{{false}}"><span style="width: 34px; height: 34px; border-radius: 17px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="{{s.crest}}" alt="" style="width: 26px; height: 26px; object-fit: contain"></span></sc-if>
+                <sc-if value="{{s.empty}}" hint-placeholder-val="{{true}}"><span style="width: 34px; height: 34px; border-radius: 17px; border: 1px dashed rgba(255,255,255,.25)"></span></sc-if>
+                <span style="font-size: 11px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{s.name}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <ul style="list-style: none; margin: 0; padding: 0; border-radius: 20px; background: #11301f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden">
+          <li>
+            <button type="button" class="press" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px 16px; border: 0; background: transparent; text-align: left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cfd8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+              <span style="flex: 1; font-weight: 600">Edit photo, nickname &amp; kit colour</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9b8ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </li>
+          <li style="border-top: 1px solid rgba(255,255,255,.06)">
+            <button type="button" class="press" onClick="{{toggleSound}}" aria-pressed="{{sound}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px 16px; border: 0; background: transparent; text-align: left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cfd8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+              <span style="flex: 1"><span style="display: block; font-weight: 600">Crowd &amp; whistle sounds</span><span style="display: block; font-size: 12px; color: #a9b8ae">Plays on picks, saves and reveals</span></span>
+              <span class="switch" style="width: 50px; height: 30px; border-radius: 15px; background: {{switchBg}}; position: relative; flex-shrink: 0"><span class="knob" style="position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 12px; background: #fff; transform: {{knobX}}"></span></span>
+            </button>
+          </li>
+          <li style="border-top: 1px solid rgba(255,255,255,.06)">
+            <a href="Rules.dc.html" class="press" style="display: flex; align-items: center; gap: 12px; padding: 15px 16px; color: #f4f1e8; text-decoration: none">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cfd8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"></path><path d="M8 7h8"></path><path d="M8 11h6"></path></svg>
+              <span style="flex: 1; font-weight: 600">Rules</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9b8ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+          </li>
+          <li style="border-top: 1px solid rgba(255,255,255,.06)">
+            <a href="Admin.dc.html" class="press" style="display: flex; align-items: center; gap: 12px; padding: 15px 16px; text-decoration: none">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f2b226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4z"></path></svg>
+              <span style="flex: 1; font-weight: 600; color: #f2b226">Admin · Round 1</span>
+              <span style="padding: 2px 8px; border-radius: 999px; background: #f2b226; color: #0a1f15; font-size: 11px; font-weight: 800">1 claim</span>
+            </a>
+          </li>
+          <li style="border-top: 1px solid rgba(255,255,255,.06)">
+            <button type="button" class="press" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px 16px; border: 0; background: transparent; text-align: left; color: #ff8a8a">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+              <span style="flex: 1; font-weight: 600">Sign out</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </sc-if>
+  </main>
+
+  <!-- Bottom tab bar -->
+  <nav aria-label="Main" style="flex-shrink: 0; height: 84px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 12px 18px; box-sizing: border-box; background: rgba(7,23,15,.92); border-top: 1px solid rgba(255,255,255,.07); backdrop-filter: blur(16px)">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+      <button type="button" class="tab" onClick="{{t.go}}" aria-current="{{t.current}}" style="border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{t.colour}}; position: relative">
+        <sc-if value="{{t.current}}" hint-placeholder-val="{{false}}"><span class="tab-ind" style="position: absolute; top: 0; width: 34px; height: 3px; border-radius: 0 0 3px 3px; background: #f2b226"></span></sc-if>
+        <sc-if value="{{t.isRound}}" hint-placeholder-val="{{true}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="6" transform="rotate(-35 12 12)"></ellipse><path d="m9.5 14.5 5-5"></path><path d="m10.5 11.5 2 2"></path><path d="m12.5 9.5 2 2"></path></svg></sc-if>
+        <sc-if value="{{t.isTable}}" hint-placeholder-val="{{false}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3"></path><path d="M7 5H4v2a3 3 0 0 0 3 3"></path></svg></sc-if>
+        <sc-if value="{{t.isMe}}" hint-placeholder-val="{{false}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></sc-if>
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: .04em">{{t.label}}</span>
+      </button>
+    </sc-for>
+  </nav>
+
+  <!-- Team takeover -->
+  <sc-if value="{{showTk}}" hint-placeholder-val="{{false}}">
+    <button type="button" class="tk" onClick="{{endTk}}" aria-label="{{tk.aria}}" style="position: absolute; inset: 0; z-index: 20; border: 0; padding: 0; background: {{tk.primary}}; color: {{tk.text}}; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; cursor: pointer">
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 20%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45"></span>
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 44%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45; animation-delay: .08s"></span>
+      <span class="tk-stripe" aria-hidden="true" style="position: absolute; left: -50%; top: 68%; width: 200%; height: 70px; background: {{tk.secondary}}; opacity: .45; animation-delay: .16s"></span>
+      <sc-for list="{{confetti}}" as="c" hint-placeholder-count="14">
+        <span class="confetti" aria-hidden="true" style="position: absolute; top: 46%; left: 50%; width: 10px; height: 16px; border-radius: 2px; background: {{c.colour}}; --to: {{c.to}}"></span>
+      </sc-for>
+      <span class="tk-shake" style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px">
+        <span class="tk-crest" style="width: 168px; height: 168px; border-radius: 84px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 24px 60px rgba(0,0,0,.4)"><img src="{{tk.crest}}" alt="" style="width: 124px; height: 124px; object-fit: contain"></span>
+        <span class="tk-name disp" style="font-size: 52px; font-weight: 800; line-height: .95; text-transform: uppercase; text-align: center; padding: 0 20px; letter-spacing: -.01em">{{tk.name}}</span>
+      </span>
+      <span class="tk-sub" style="position: relative; font-size: 15px; font-weight: 600">Your pick. Change it any time before the lock.</span>
+    </button>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"soundOn":{"editor":"boolean","default":true},"previewLocked":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'round', round: 'R1', pick: null, showTk: false, tkSlug: null, predH: 0, predA: 0, predSaved: false, sound: null };
+  }
+
+  componentDidMount() {
+    this.timer = setInterval(() => this.forceUpdate(), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer);
+    clearTimeout(this.tkTimer);
+  }
+
+  soundOn() {
+    return this.state.sound === null ? (this.props.soundOn ?? true) : this.state.sound;
+  }
+
+  // ---------- Sound: synthesised with Web Audio, no files ----------
+  ctx() {
+    if (!this.ac) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      this.ac = new AC();
+    }
+    if (this.ac.state === 'suspended') this.ac.resume();
+    return this.ac;
+  }
+
+  noise(ac, secs) {
+    var len = Math.floor(ac.sampleRate * secs);
+    var buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (var ch = 0; ch < 2; ch++) {
+      var d = buf.getChannelData(ch);
+      var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (var i = 0; i < len; i++) {
+        var w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852;
+        b3 = 0.8665 * b3 + w * 0.3104856; b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
+        b6 = w * 0.115926;
+      }
+    }
+    return buf;
+  }
+
+  roar(intensity) {
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime, dur = 2.6;
+    if (!this.noiseBuf) this.noiseBuf = this.noise(ac, 3);
+    var src = ac.createBufferSource(); src.buffer = this.noiseBuf;
+    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 220;
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(1400, t); lp.frequency.linearRampToValueAtTime(3200, t + 0.35); lp.frequency.exponentialRampToValueAtTime(1600, t + dur);
+    var vowel = ac.createBiquadFilter(); vowel.type = 'peaking'; vowel.frequency.value = 850; vowel.Q.value = 1.4; vowel.gain.value = 9;
+    var vowel2 = ac.createBiquadFilter(); vowel2.type = 'peaking'; vowel2.frequency.value = 1350; vowel2.Q.value = 2; vowel2.gain.value = 5;
+    var flutter = ac.createGain();
+    for (var k = 0; k < dur * 22; k++) flutter.gain.setValueAtTime(0.72 + Math.random() * 0.28, t + k / 22);
+    var g = ac.createGain(); var peak = 0.55 * (intensity || 1);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + 0.28);
+    g.gain.setValueAtTime(peak, t + 0.7);
+    g.gain.exponentialRampToValueAtTime(peak * 0.45, t + 1.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(hp); hp.connect(lp); lp.connect(vowel); vowel.connect(vowel2); vowel2.connect(flutter); flutter.connect(g); g.connect(ac.destination);
+    src.start(t, Math.random() * 0.3); src.stop(t + dur);
+  }
+
+  whistle(len) {
+    var ac = this.ctx(); if (!ac) return;
+    var t = ac.currentTime, d = len || 0.32;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+    g.gain.setValueAtTime(0.16, t + d - 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    var lfo = ac.createOscillator(); lfo.frequency.value = 38;
+    var lfoG = ac.createGain(); lfoG.gain.value = 90;
+    lfo.connect(lfoG);
+    [2850, 3020].forEach(function (f) {
+      var o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      lfoG.connect(o.frequency); o.connect(g); o.start(t); o.stop(t + d);
+    });
+    lfo.start(t); lfo.stop(t + d);
+    g.connect(ac.destination);
+  }
+
+  // ---------- Actions ----------
+  pick(slug) {
+    if (this.soundOn()) { this.whistle(0.22); var self = this; setTimeout(function () { self.roar(1); }, 140); }
+    clearTimeout(this.tkTimer);
+    this.setState({ pick: slug, showTk: true, tkSlug: slug });
+    this.tkTimer = setTimeout(() => this.setState({ showTk: false }), 1800);
+  }
+
+  data() {
+    var B = '/_blob/';
+    var T = {
+      'gloucester': { name: 'Gloucester', bg: '#dd1a32', fg: '#ffffff', p: '#dd1a32', s: '#ffffff', t: '#ffffff', c: B + '2b045bd010b1c30bbd654b59f36ef4e8' },
+      'bordeaux': { name: 'Bordeaux-Bègles', bg: '#713042', fg: '#ffffff', p: '#713042', s: '#14213d', t: '#ffffff', c: B + '1569f35ddd76a750ad76c95898b36bdb' },
+      'sale': { name: 'Sale', bg: '#ffffff', fg: '#000050', p: '#000050', s: '#ffffff', t: '#ffffff', c: B + 'dfa47da03388d9c094dd038698a0d4a1' },
+      'glasgow': { name: 'Glasgow', bg: '#000000', fg: '#ffffff', p: '#000000', s: '#84aed1', t: '#ffffff', c: B + 'c21158b3a36bf4fcea6b771ebec058cb' },
+      'bulls': { name: 'Bulls', bg: '#2581c4', fg: '#ffffff', p: '#2581c4', s: '#e30714', t: '#ffffff', c: B + 'ac63d9e1d49432997a4fc3c08d54bb8b' },
+      'stade-francais': { name: 'Stade Français', bg: '#ea5097', fg: '#ffffff', p: '#ea5097', s: '#002c5b', t: '#ffffff', c: B + '2a177c52d5ee2db592805865386577b4' },
+      'clermont': { name: 'Clermont', bg: '#fdea00', fg: '#000000', p: '#fdea00', s: '#002f6c', t: '#000000', c: B + '806132b661e279872e120da988a46811' },
+      'leinster': { name: 'Leinster', bg: '#ffffff', fg: '#0053a1', p: '#0053a1', s: '#ffffff', t: '#ffffff', c: B + '32a5aab04a88a0042b0762e087b6ea34' },
+      'stormers': { name: 'Stormers', bg: '#ffffff', fg: '#00358e', p: '#00358e', s: '#fec20c', t: '#ffffff', c: B + '15371a0e0ab05023d23d7874ce98c470' },
+      'bristol': { name: 'Bristol', bg: '#ffffff', fg: '#212e83', p: '#212e83', s: '#3a6fd8', t: '#ffffff', c: B + '34486dd716bace11311026c1e27396ac' },
+      'connacht': { name: 'Connacht', bg: '#ffffff', fg: '#00853f', p: '#00853f', s: '#ffffff', t: '#ffffff', c: B + '9c1bc75e0f6efe094124ef0862c75cfc' },
+      'saracens': { name: 'Saracens', bg: '#c8102e', fg: '#ffffff', p: '#120a09', s: '#c8102e', t: '#ffffff', c: B + '7b94a1f1cb90706527ffa898a968b8c8' },
+      'la-rochelle': { name: 'La Rochelle', bg: '#171412', fg: '#ffffff', p: '#171412', s: '#fed100', t: '#ffffff', c: B + '85ba88977728e437ef1053844e4dea74' },
+      'lions': { name: 'Lions', bg: '#dc2129', fg: '#ffffff', p: '#dc2129', s: '#140404', t: '#ffffff', c: B + '57405fa37541408060cb792b0d7e1981' },
+      'bath': { name: 'Bath', bg: '#0054a6', fg: '#ffffff', p: '#0054a6', s: '#000000', t: '#ffffff', c: B + '4dc656fd6e8766a2508097fcec586a27' },
+      'montpellier': { name: 'Montpellier', bg: '#002c5b', fg: '#ffffff', p: '#002c5b', s: '#0090d4', t: '#ffffff', c: B + 'd2c77d58140b93fe80fa41751afd7cad' },
+      'munster': { name: 'Munster', bg: '#c8102e', fg: '#ffffff', p: '#c8102e', s: '#122053', t: '#ffffff', c: B + '9fe9d447a39eb839f5b1bc6e5752a40b' },
+      'racing': { name: 'Racing 92', bg: '#c2e0f7', fg: '#000000', p: '#c2e0f7', s: '#ffffff', t: '#000000', c: B + '18c3005b2e2fc7c66515749030f621b3' },
+      'pau': { name: 'Pau', bg: '#004231', fg: '#ffffff', p: '#004231', s: '#ffffff', t: '#ffffff', c: B + 'f6adf126ff551fc682bb386be9f89163' },
+      'leicester': { name: 'Leicester', bg: '#c8102e', fg: '#ffffff', p: '#094438', s: '#c8102e', t: '#ffffff', c: B + '3a688f46fc37676b86ca035e542b1e9c' },
+      'toulouse': { name: 'Toulouse', bg: '#d30c14', fg: '#ffffff', p: '#d30c14', s: '#040000', t: '#ffffff', c: B + '8ca700c3d1e916d84b55c173b7c8e033' },
+      'exeter': { name: 'Exeter', bg: '#000000', fg: '#ffffff', p: '#000000', s: '#fecc00', t: '#ffffff', c: B + 'fa6b6929cafd72c394732223889c815c' },
+      'northampton': { name: 'Northampton', bg: '#0e6240', fg: '#ffffff', p: '#0e6240', s: '#f2b226', t: '#ffffff', c: B + '3387d49b24277e02985d8023107b9859' },
+      'cardiff': { name: 'Cardiff', bg: '#89bde3', fg: '#000000', p: '#89bde3', s: '#1b1310', t: '#000000', c: B + 'ef76e3e74a042503b5f0d45eb8a4b602' }
+    };
+    var days = [
+      { label: 'Friday 16 Oct', fixtures: [['20:00', 'gloucester', 'bordeaux', true]] },
+      { label: 'Saturday 17 Oct', fixtures: [['13:00', 'sale', 'glasgow'], ['13:00', 'bulls', 'stade-francais'], ['15:15', 'clermont', 'leinster'], ['15:15', 'stormers', 'bristol'], ['17:30', 'connacht', 'saracens'], ['17:30', 'la-rochelle', 'lions'], ['20:00', 'bath', 'montpellier'], ['20:00', 'munster', 'racing']] },
+      { label: 'Sunday 18 Oct', fixtures: [['13:00', 'pau', 'leicester'], ['15:15', 'toulouse', 'exeter'], ['17:30', 'northampton', 'cardiff']] }
+    ];
+    return { T: T, days: days };
+  }
+
+  renderVals() {
+    var self = this;
+    var D = this.data(), T = D.T;
+    var st = this.state;
+    var sound = this.soundOn();
+    var locked = !!this.props.previewLocked || Date.now() >= Date.parse('2026-10-16T19:00:00Z');
+    var pick = st.pick || (this.props.previewLocked ? 'stade-francais' : null);
+
+    var side = function (slug, home) {
+      var t = T[slug];
+      var picked = pick === slug;
+      return {
+        name: t.name, crest: t.c, bg: t.bg, fg: t.fg,
+        border: t.bg === '#ffffff' ? '0' : '0',
+        picked: picked,
+        cls: 'card' + (picked ? ' picked' : (pick ? ' dim' : '')),
+        aria: (picked ? 'Your pick: ' : 'Pick ') + t.name + (home ? ' (home)' : ' (away)'),
+        pick: function () { if (!locked) self.pick(slug); }
+      };
+    };
+    var days = D.days.map(function (d) {
+      return { label: d.label, fixtures: d.fixtures.map(function (f) { return { time: f[0], featured: !!f[3], home: side(f[1], true), away: side(f[2], false) }; }) };
+    });
+
+    // Countdown to Fri 16 Oct 2026, 20:00 Irish time (19:00 UTC)
+    var ms = Math.max(0, Date.parse('2026-10-16T19:00:00Z') - Date.now());
+    var s = Math.floor(ms / 1000);
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var countdown = [
+      { n: pad(Math.floor(s / 86400)), u: 'days', cls: '' },
+      { n: pad(Math.floor((s % 86400) / 3600)), u: 'hrs', cls: '' },
+      { n: pad(Math.floor((s % 3600) / 60)), u: 'min', cls: '' },
+      { n: pad(s % 60), u: 'sec', cls: s % 2 ? 'sec-a' : 'sec-b' }
+    ];
+
+    // Squad (sample). Before the lock only "locked in" is visible, never the team.
+    var squadRaw = [
+      { name: 'Eddie (you)', kit: '#c8102e', locked: !!pick, paid: true },
+      { name: 'Conn', kit: '#0053a1', locked: true, paid: true },
+      { name: 'Cboh', kit: '#00853f', locked: true, paid: true },
+      { name: 'Kevin', kit: '#f2b226', locked: false, paid: true },
+      { name: 'Conor', kit: '#000000', locked: true, paid: true },
+      { name: 'Ed', kit: '#ea5097', locked: true, paid: true },
+      { name: 'Harvey', kit: '#7fc4ef', locked: false, paid: true },
+      { name: 'Rory', kit: '#713042', locked: true, paid: true },
+      { name: 'Eoin', kit: '#ff6b00', locked: true, paid: true },
+      { name: 'Mark', kit: '#6b21a8', locked: false, paid: true },
+      { name: 'Michael', kit: '#0053a1', locked: true, paid: false }
+    ];
+    var squad = squadRaw.map(function (p, i) {
+      return {
+        name: p.name, kit: p.kit, initial: p.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 1).toUpperCase(),
+        locked: p.locked, notLocked: !p.locked,
+        paid: p.paid ? 'Paid' : 'Entry not paid yet', paidColour: p.paid ? '#a9b8ae' : '#ffb35c',
+        divider: i === 0 ? '0' : '1px solid rgba(255,255,255,.06)'
+      };
+    });
+    var lockedCount = squadRaw.filter(function (p) { return p.locked; }).length;
+    var pot = squadRaw.filter(function (p) { return p.paid; }).length * 10;
+
+    var rounds = [['R1', '16 Oct'], ['R2', '11 Dec'], ['R3', '8 Jan'], ['R4', '15 Jan'], ['R16', '2 Apr'], ['QF', '9 Apr'], ['SF', '1 May'], ['Final', '22 May']].map(function (r) {
+      var cur = st.round === r[0];
+      return {
+        label: r[0], sub: r[1], current: cur,
+        bg: cur ? '#f2b226' : 'rgba(255,255,255,.04)', fg: cur ? '#0a1f15' : '#f4f1e8',
+        border: cur ? '#f2b226' : 'rgba(255,255,255,.1)',
+        go: function () { self.setState({ round: r[0] }); }
+      };
+    });
+    var otherCopy = {
+      R2: ['Round 2', 'Opens when Round 1 is settled. Picks lock Fri 11 Dec, 20:00.'],
+      R3: ['Round 3', 'Picks lock Fri 8 Jan, 20:00.'],
+      R4: ['Round 4', 'Picks lock Fri 15 Jan, 20:00. Last chance to buy back, and resurrection day.'],
+      R16: ['Round of 16', 'Lock time set once kick-offs are announced.'],
+      QF: ['Quarter-finals', 'Lock time set once kick-offs are announced.'],
+      SF: ['Semi-finals', 'Lock time set once kick-offs are announced.'],
+      Final: ['The Final', '22 May. Last one standing takes 80% of the pot.']
+    }[st.round] || ['', ''];
+
+    var mine = pick ? { name: T[pick].name, crest: T[pick].c, primary: T[pick].p, secondary: T[pick].s, text: T[pick].t } : { name: '', crest: '', primary: '', secondary: '', text: '' };
+    var tk = st.tkSlug ? { name: T[st.tkSlug].name, crest: T[st.tkSlug].c, primary: T[st.tkSlug].p, secondary: T[st.tkSlug].s, text: T[st.tkSlug].t, aria: 'You picked ' + T[st.tkSlug].name + '. Tap to continue.' } : { name: '', crest: '', primary: '#000', secondary: '#000', text: '#fff', aria: '' };
+    var confettiCols = tk.secondary === '#ffffff' ? ['#ffffff', '#f2b226'] : [tk.secondary, '#ffffff', '#f2b226'];
+    var confetti = [];
+    for (var i = 0; i < 16; i++) {
+      var a = (i / 16) * Math.PI * 2, r = 150 + (i % 3) * 40;
+      confetti.push({ colour: confettiCols[i % confettiCols.length], to: 'translate(' + Math.round(Math.cos(a) * r) + 'px,' + Math.round(Math.sin(a) * r) + 'px) rotate(' + (i * 47) + 'deg)' });
+    }
+
+    var step = function (key, d) { return function () { var v = Math.max(0, Math.min(99, st[key] + d)); var o = { predSaved: false }; o[key] = v; self.setState(o); }; };
+
+    var tableRaw = [
+      { name: 'Conn', kit: '#0053a1', pts: 8, exact: 1, alive: true },
+      { name: 'Eddie (you)', kit: '#c8102e', pts: 6, exact: 1, alive: true, me: true },
+      { name: 'Rory', kit: '#713042', pts: 6, exact: 0, alive: true },
+      { name: 'Cboh', kit: '#00853f', pts: 5, exact: 0, alive: true },
+      { name: 'Ed', kit: '#ea5097', pts: 4, exact: 0, alive: true },
+      { name: 'Kevin', kit: '#f2b226', pts: 3, exact: 0, alive: false },
+      { name: 'Eoin', kit: '#ff6b00', pts: 3, exact: 0, alive: true },
+      { name: 'Conor', kit: '#000000', pts: 2, exact: 0, alive: true },
+      { name: 'Harvey', kit: '#7fc4ef', pts: 1, exact: 0, alive: false },
+      { name: 'Mark', kit: '#6b21a8', pts: 1, exact: 0, alive: true },
+      { name: 'Michael', kit: '#0053a1', pts: 0, exact: 0, alive: true }
+    ];
+    var table = tableRaw.map(function (p, i) {
+      return {
+        rank: i + 1, name: p.name, kit: p.kit, pts: p.pts, exact: p.exact,
+        initial: p.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 1).toUpperCase(),
+        status: p.alive ? 'STILL IN' : 'OUT · IN THE STANDS', statusColour: p.alive ? '#6fe3a1' : '#ff8a8a',
+        op: p.alive ? 1 : 0.6,
+        rankColour: i === 0 ? '#f2b226' : '#f4f1e8',
+        rowBg: p.me ? 'rgba(242,178,38,.08)' : 'transparent'
+      };
+    });
+
+    var road = [
+      pick ? { label: 'R1', name: T[pick].name, crest: T[pick].c, empty: false, bg: T[pick].bg, fg: T[pick].fg, border: '0' } : { label: 'R1', name: 'No pick', crest: '', empty: true, bg: 'transparent', fg: '#f4f1e8', border: '1px dashed #f2b226' },
+      { label: 'R2', name: '—', crest: '', empty: true, bg: 'rgba(255,255,255,.03)', fg: '#a9b8ae', border: '0' },
+      { label: 'R3', name: '—', crest: '', empty: true, bg: 'rgba(255,255,255,.03)', fg: '#a9b8ae', border: '0' },
+      { label: 'R4', name: '—', crest: '', empty: true, bg: 'rgba(255,255,255,.03)', fg: '#a9b8ae', border: '0' }
+    ];
+
+    var tabDefs = [['round', 'Round'], ['table', 'Table'], ['me', 'Me']];
+    var tabs = tabDefs.map(function (t) {
+      var cur = st.tab === t[0];
+      return { label: t[1], current: cur, colour: cur ? '#f2b226' : '#a9b8ae', isRound: t[0] === 'round', isTable: t[0] === 'table', isMe: t[0] === 'me', go: function () { self.setState({ tab: t[0] }); } };
+    });
+
+    return {
+      headerTitle: st.tab === 'round' ? (st.round === 'R1' ? 'Round 1' : otherCopy[0]) : (st.tab === 'table' ? 'The table' : 'Your profile'),
+      sound: sound, soundOff: !sound, soundBg: sound ? 'rgba(242,178,38,.12)' : 'transparent',
+      soundLabel: sound ? 'Mute sounds' : 'Turn sounds on',
+      switchBg: sound ? '#3ccf7a' : 'rgba(255,255,255,.18)', knobX: sound ? 'translateX(20px)' : 'none',
+      toggleSound: function () { var on = !sound; self.setState({ sound: on }); if (on) self.whistle(0.18); },
+      isRound: st.tab === 'round', isTable: st.tab === 'table', isMe: st.tab === 'me',
+      rounds: rounds, isR1: st.round === 'R1', otherRound: st.round !== 'R1', other: { title: otherCopy[0], body: otherCopy[1] },
+      countdown: countdown, pot: pot, potLms: pot * 0.8, potTable: pot * 0.2,
+      stillIn: squadRaw.length, squadSize: squadRaw.length, lockedCount: lockedCount,
+      lockedPct: Math.round((lockedCount / squadRaw.length) * 100) + '%',
+      hasPick: !!pick, noPick: !pick, mine: mine,
+      replay: function () { if (!locked) self.pick(pick); },
+      locked: locked, open: !locked,
+      pickedWord: locked ? 'locked in' : 'picked',
+      mineLabel: locked ? 'Locked in' : 'Your pick',
+      mineSub: locked ? 'Locked at 20:00 Friday. Good luck.' : 'Change it any time before the lock',
+      mineRing: locked ? '0 0 0 3px #f2b226, 0 0 34px rgba(242,178,38,.45)' : 'none',
+      mineCls: locked ? 'pop' : '',
+      noPickSub: locked ? 'You missed the Round 1 lock, so you are not in this year.' : 'No pick in Round 1 means no entry. Tap a team below.',
+      chipLabel: locked ? 'Locked in' : 'Picked',
+      chipBg: locked ? 'rgba(242,178,38,.16)' : 'rgba(60,207,122,.14)',
+      chipFg: locked ? '#f2b226' : '#6fe3a1',
+      notPickedLabel: locked ? 'No pick' : 'Thinking…',
+      squadFoot: locked ? 'After the lock the team sheet flips here, one card per player.' : 'Teams stay hidden until the lock, admins included. Then the cards flip.',
+      days: days,
+      predH: st.predH, predA: st.predA,
+      incH: step('predH', 1), decH: step('predH', -1), incA: step('predA', 1), decA: step('predA', -1),
+      predSaved: st.predSaved,
+      predBtnLabel: st.predSaved ? 'Prediction saved' : 'Save prediction',
+      predBtnBg: st.predSaved ? '#3ccf7a' : '#f2b226', predBtnFg: '#0a1f15',
+      savePred: function () { if (sound) { self.whistle(0.15); self.roar(0.45); } self.setState({ predSaved: true }); },
+      squad: squad, table: table, road: road,
+      usedLabel: pick ? '1 of 24 teams used' : '0 of 24 teams used',
+      tabs: tabs,
+      showTk: st.showTk, tk: tk, confetti: confetti,
+      endTk: function () { clearTimeout(self.tkTimer); self.setState({ showTk: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
