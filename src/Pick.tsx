@@ -1,8 +1,9 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
 import { crestUrl, type Match, type Team } from './lib/supabase'
 import { matchState, won } from './live'
+import { sfx } from './sound'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
 export function useThud() {
@@ -240,5 +241,227 @@ export function Takeover({ team, onDone }: { team: Team | null; onDone: () => vo
       </span>
       <span className="tk-sub relative text-[15px] font-semibold">Your pick. Change it any time before the lock.</span>
     </button>
+  )
+}
+
+const wkHhmm = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+/**
+ * Pick confirmation sheet (docs/UI-REDESIGN.md §18, prototype docs/ui-prototype/PickConfirm.dc.html). Nothing is
+ * saved until the 0.6 s hold completes; "Pick another", the backdrop, Esc or a swipe down close it with no write.
+ */
+export function PickSheet({
+  team,
+  match,
+  teams,
+  current,
+  lastUnused,
+  locked,
+  onCancel,
+  onConfirm,
+}: {
+  team: Team
+  match: Match
+  teams: Map<number, Team>
+  current?: Team
+  lastUnused: boolean
+  locked: boolean
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  const HOLD_MS = 600 // §18: friction, so reduced motion keeps it too
+  const { vibrate } = useHaptic({ hapticDuration: 30 })
+  const [holding, setHolding] = useState(false)
+  const [hint, setHint] = useState(false)
+  const holdAt = useRef(0)
+  const holdTimer = useRef<number>(undefined)
+  const hintTimer = useRef<number>(undefined)
+  const swipeY = useRef<number | null>(null)
+  useEffect(
+    () => () => {
+      clearTimeout(holdTimer.current)
+      clearTimeout(hintTimer.current)
+    },
+    [],
+  )
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && onCancel()
+    addEventListener('keydown', esc)
+    return () => removeEventListener('keydown', esc)
+  }, [onCancel])
+  useEffect(() => {
+    if (locked) {
+      clearTimeout(holdTimer.current)
+      setHolding(false)
+    }
+  }, [locked])
+
+  const start = () => {
+    if (holding || locked) return
+    vibrate() // light tick from the touch itself (§7: haptics only inside a user tap)
+    sfx.unlock()
+    holdAt.current = Date.now()
+    clearTimeout(holdTimer.current)
+    holdTimer.current = window.setTimeout(() => {
+      setHolding(false)
+      onConfirm()
+    }, HOLD_MS)
+    setHolding(true)
+    setHint(false)
+  }
+  const end = () => {
+    if (!holding) return
+    clearTimeout(holdTimer.current)
+    const early = Date.now() - holdAt.current < HOLD_MS
+    setHolding(false)
+    setHint(early)
+    clearTimeout(hintTimer.current)
+    if (early) hintTimer.current = window.setTimeout(() => setHint(false), 1800)
+  }
+
+  const swap = current && current.id !== team.id ? current : undefined
+  const home = match.home_team_id === team.id
+  const [wk, time] = wkHhmm.format(new Date(match.kickoff_at)).split(' ')
+  const fixture = `${teams.get(match.home_team_id)?.name} v ${teams.get(match.away_team_id)?.name} · ${wk.replace(',', '')} ${time} · ${home ? 'Home' : 'Away'}`
+  const label = locked ? 'Picks are locked' : holding ? 'Keep holding…' : `Hold to back ${team.name}`
+
+  return (
+    <div className="fixed inset-0 z-40">
+      <button
+        type="button"
+        aria-label="Pick another"
+        onClick={onCancel}
+        className="backdrop absolute inset-0 cursor-pointer bg-[rgba(3,7,24,.66)]"
+      />
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={swap ? 'Swap your pick' : `Back ${team.name}`}
+        onTouchStart={(e) => (swipeY.current = e.touches[0].clientY)}
+        onTouchEnd={(e) => {
+          if (swipeY.current !== null && e.changedTouches[0].clientY - swipeY.current > 80) onCancel()
+          swipeY.current = null
+        }}
+        className="sheet absolute inset-x-0 bottom-0 mx-auto max-w-[480px] overflow-hidden rounded-t-[28px] bg-navy-800 shadow-[0_-20px_60px_rgba(0,0,0,.45)]"
+      >
+        <div className="relative h-28 overflow-hidden" style={{ background: team.primary }}>
+          <span
+            aria-hidden
+            className="absolute top-[30px] -left-[20%] h-10 w-[140%] -rotate-[8deg] opacity-35"
+            style={{ background: team.secondary }}
+          />
+          <span aria-hidden className="absolute top-2.5 left-1/2 -ml-5 h-[5px] w-10 rounded-[3px] bg-white/50" />
+        </div>
+        <div className="relative -mt-[52px] flex flex-col items-center gap-1.5 px-[22px] pb-[calc(26px+env(safe-area-inset-bottom))] text-center">
+          <span className="sheet-crest flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-[0_14px_34px_rgba(0,0,0,.35)]">
+            <img src={crestUrl(team)} alt="" className="h-[70px] w-[70px] object-contain" />
+          </span>
+          <span className="disp mt-2 text-[13px] font-bold tracking-[.2em] text-gold">
+            {swap ? 'CHANGE YOUR PICK?' : 'BACK THIS TEAM?'}
+          </span>
+          <span className="disp text-[34px] leading-[.95] font-extrabold">
+            {swap ? `Swap ${swap.name} for ${team.name}?` : team.name}
+          </span>
+          <span className="text-sm text-muted">{fixture}</span>
+
+          <div className="mt-3.5 mb-1.5 flex w-full flex-col gap-2 text-left">
+            <span className="flex items-start gap-2.5 rounded-[14px] bg-[rgba(255,178,62,.1)] px-3.5 py-3 text-sm leading-[1.35] font-semibold text-[#ffcf7a]">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+                className="mt-px shrink-0"
+              >
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+                <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+              </svg>
+              <span>
+                You can only use {team.name} once all season.{lastUnused && ' It’s your last unused team.'}
+              </span>
+            </span>
+            {swap && (
+              <span className="flex items-center gap-2.5 rounded-[14px] bg-white/[.06] px-3.5 py-2.5 text-sm text-[#d7dcec]">
+                <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-white">
+                  <img src={crestUrl(swap)} alt="" className="h-[19px] w-[19px] object-contain" />
+                </span>
+                {swap.name} goes back in your pool.
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={locked}
+            onPointerDown={(e) => {
+              e.preventDefault()
+              start()
+            }}
+            onPointerUp={end}
+            onPointerLeave={end}
+            onPointerCancel={end}
+            onKeyDown={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              e.preventDefault()
+              if (!e.repeat) start()
+            }}
+            onKeyUp={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              e.preventDefault()
+              end()
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-label={locked ? 'Picks are locked' : `Hold to back ${team.name}`}
+            className={`hold-btn relative h-14 w-full cursor-pointer touch-none overflow-hidden rounded-2xl bg-[rgba(242,178,38,.22)] text-navy-900 select-none [-webkit-touch-callout:none] disabled:cursor-default disabled:opacity-40 ${holding ? 'holding' : ''}`}
+          >
+            <span aria-hidden className="absolute inset-0 bg-gold opacity-55" />
+            {holding && (
+              <span
+                aria-hidden
+                className="hold-fill absolute inset-0 origin-left bg-gold"
+                style={{ animationDuration: `${HOLD_MS}ms`, '--hold': `${HOLD_MS}ms` } as CSSProperties}
+              />
+            )}
+            <span className="disp relative flex items-center justify-center gap-2 text-xl font-extrabold tracking-[.02em]">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M9 11V6a2 2 0 0 1 4 0v5" />
+                <path d="M13 10.5V9a2 2 0 0 1 4 0v4.5" />
+                <path d="M17 12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L4 16a2 2 0 0 1 3.2-2.4L9 15.5V11" />
+              </svg>
+              {label}
+            </span>
+          </button>
+          {hint && <span className="nudge text-[13px] font-semibold text-[#ffcf7a]">Keep holding to confirm</span>}
+          <button
+            type="button"
+            onClick={onCancel}
+            className="press mt-2 h-[50px] w-full rounded-2xl border border-white/[.18] text-base font-bold text-chalk"
+          >
+            Pick another
+          </button>
+        </div>
+      </section>
+    </div>
   )
 }
