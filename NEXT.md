@@ -11,9 +11,21 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
 
 ## Before Friday — Eddie (not Claude Code)
 - Login emails: done (Gmail SMTP, 8-digit code), 15 Oct.
-- Players: send Claude Code the list (name, nickname, email; Conn is admin). It creates the auth users and player rows via the
-  Supabase MCP.
-- Decide: does the points table / featured match start in Round 1 now that it's on the app? (Rules doc says Round 2.)
+- Players (11, from Eddie 15 Oct): **Eddie** (admin, the owner), **Conn** (admin), Cboh, Kevin, Conor, Ed, Harvey, Rory, Eoin,
+  Mark, Michael. Eddie and Ed are two different people. **Done 15 Oct:** all 11 auth users + player rows exist (Eddie's row kept
+  as is; the other 10 have `name` set, `nickname` null, Conn admin). The 10 have placeholder emails `<name>@pending.invalid` and
+  can't sign in until swapped. **Still needed from Eddie: each player's real email.** Swap one (via the Supabase MCP, never in a
+  committed file — the repo is public):
+  ```sql
+  update auth.users set email = 'real@x.com' where email = 'conn@pending.invalid';
+  update auth.identities set identity_data = identity_data || jsonb_build_object('email','real@x.com')
+   where provider = 'email' and identity_data->>'email' = 'conn@pending.invalid';
+  ```
+  Then test a code sign-in with that player.
+- **Decided 15 Oct: the side game starts in Round 1.** Every player predicts the score of the Round 1 featured match
+  (Gloucester v Bordeaux-Bègles, already drawn) before the lock, and Round 1 settles prediction points like any other round.
+  The engine already scores any round with a featured match; CLAUDE.md rule 13 and the rules doc are updated to say Round 1.
+  Packet 4's "only if Eddie starts the side game in Round 1" condition is therefore met; the raffle is done.
 
 ## 1. Round 1 on the app
 - Migration: Round 1's 12 fixtures, same format as `20261014230557_fixtures_r2_r4.sql`. Irish time (UTC+1 until 25 Oct).
@@ -76,6 +88,12 @@ In this order; each step shippable on its own:
 ---
 
 ## After Round 1 (before the Round 2 lock, Fri 11 Dec 8pm)
+5b. **UI redesign: spec in `docs/UI-REDESIGN.md`** (signed off by Eddie 15 Oct; prototype screens in `docs/ui-prototype/`).
+   Investec Champions Cup navy + gold theme (spec §1), bottom tabs (Round / Table / Me), round pills, takeover + synthesised whistle and crowd roar (no UI
+   blips), "Your pick" only says "locked in" after the lock (gold ring), squad shows picked / not picked (new
+   `round_pick_status` RPC, never a team), Table and Me screens (new `points_table` RPC), Rules page with points calculator,
+   admin as Open → Locked → Results → Settle with hold-to-settle. Start after Round 1 settles. Update CLAUDE.md §7 sound line.
+   **Done means:** §12 of the spec.
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
 7. **Re-entry plumbing:** `make_pick` and the lock job accept bought-back players; pick screen greys out `reentryBurns()` and

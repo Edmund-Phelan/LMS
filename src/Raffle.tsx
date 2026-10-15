@@ -75,18 +75,18 @@ export default function Raffle({
   const home = teams.get(featured.home_team_id)!
   const away = teams.get(featured.away_team_id)!
   return (
-    <section className="mb-6">
-      <h2 className="mb-2 font-semibold">Featured match</h2>
+    <section className="flex flex-col gap-2.5">
+      <h2 className="disp text-[22px] font-extrabold">Featured match</h2>
       <button
         onClick={stage === 'sealed' ? open : stage === 'shuffle' ? finish : undefined}
         disabled={stage === 'done'}
         aria-label={stage === 'done' ? `Featured match: ${home.name} v ${away.name}` : 'Open the raffle'}
-        className="flex h-36 w-full items-center justify-center rounded-2xl bg-[#0f5132] bg-[repeating-linear-gradient(90deg,transparent_0_12.5%,rgba(0,0,0,.18)_12.5%_25%)] text-[#f7f5ef]"
+        className="stripes hairline flex h-36 w-full items-center justify-center rounded-3xl text-chalk"
       >
         {stage === 'sealed' && (
           <span className="flex flex-col items-center">
             <span className="text-3xl">🎟️</span>
-            <span className="font-bold">Tap to draw this round’s featured match</span>
+            <span className="disp text-xl font-extrabold">Tap to draw this round’s featured match</span>
             <span className="text-xs opacity-75">Already drawn on the server; you’re just opening it</span>
           </span>
         )}
@@ -122,7 +122,7 @@ export default function Raffle({
           </span>
         )}
       </button>
-      {stage === 'done' && <div className="mt-3">{children}</div>}
+      {stage === 'done' && children}
     </section>
   )
 }

@@ -7,6 +7,10 @@ import AdminPage from './AdminPage'
 import RoundPage, { CurrentRound } from './RoundPage'
 import Profile, { type Me } from './Profile'
 import InstallGuide from './InstallGuide'
+import MePage from './MePage'
+import TablePage from './TablePage'
+import RulesPage from './RulesPage'
+import { Pushed } from './Shell'
 
 export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -16,7 +20,7 @@ export default function App() {
     if (uid)
       supabase
         .from('players')
-        .select('id, name, nickname, avatar_url, kit_colour')
+        .select('id, name, nickname, avatar_url, kit_colour, is_admin')
         .eq('id', uid)
         .maybeSingle<Me>()
         .then(({ data }) => setMe(data))
@@ -42,11 +46,21 @@ export default function App() {
   if (!me.nickname) return <Profile me={me} onSaved={loadMe} /> // first login
   return (
     <Routes>
-      <Route path="/" element={<CurrentRound />} />
+      <Route path="/round" element={<CurrentRound />} />
       <Route path="/round/:number" element={<RoundPage me={session.user.id} />} />
+      <Route path="/table" element={<TablePage me={session.user.id} />} />
+      <Route path="/me" element={<MePage me={me} />} />
+      <Route
+        path="/me/edit"
+        element={
+          <Pushed title="Edit profile">
+            <Profile me={me} onSaved={() => (loadMe(), history.back())} />
+          </Pushed>
+        }
+      />
+      <Route path="/rules" element={<RulesPage />} />
       <Route path="/admin/:number?" element={<AdminPage />} />
-      <Route path="/profile" element={<Profile me={me} onSaved={() => (loadMe(), history.back())} />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/round" replace />} />
     </Routes>
   )
 }

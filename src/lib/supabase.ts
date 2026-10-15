@@ -48,12 +48,8 @@ export type Player = {
 }
 export type Pick = { round_id: number; player_id: string; team_id: number; is_auto: boolean; is_resurrection?: boolean }
 
-/** A team card's colours. White cards get a thin grey border so they don't vanish on the white page. */
-export const cardStyle = (t: Team) => ({
-  background: t.card_bg,
-  color: t.card_text,
-  border: t.card_bg.toLowerCase() === '#ffffff' ? '1px solid #d1d5db' : undefined,
-})
+/** A team card's colours. */
+export const cardStyle = (t: Team) => ({ background: t.card_bg, color: t.card_text })
 
 export const crestUrl = (t: Team) => import.meta.env.BASE_URL + t.crest
 
@@ -66,3 +62,14 @@ const irish = new Intl.DateTimeFormat('en-IE', {
   minute: '2-digit',
 })
 export const irishTime = (iso: string) => irish.format(new Date(iso))
+
+const lockDay = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+})
+const lockTime = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', hour: '2-digit', minute: '2-digit' })
+/** "Fri 16 Oct · 20:00", Irish time. */
+export const lockLabel = (iso: string, sep = ' · ') =>
+  `${lockDay.format(new Date(iso)).replace(',', '')}${sep}${lockTime.format(new Date(iso))}`

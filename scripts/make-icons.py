@@ -4,13 +4,14 @@ python3 scripts/make-icons.py   → public/icon-192.png, icon-512.png, apple-tou
 import json
 from PIL import Image, ImageDraw, ImageFont
 
-PITCH, PITCH_DARK, CHALK, GOLD = "#0f5132", "#0a3a24", "#f7f5ef", "#f2b226"
+# Investec Champions Cup navy + star gold (docs/UI-REDESIGN.md §1).
+PITCH, PITCH_DARK, CHALK, GOLD = "#13235a", "#0f1d4c", "#f4f1e8", "#f2b226"
 FONT = "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf"
 pub = "public/"
 
 
 def stripes(d, w, h, n=8):
-    # Mown-grass stripes.
+    # Hero stripes.
     for i in range(n):
         if i % 2:
             d.rectangle([i * w / n, 0, (i + 1) * w / n, h], fill=PITCH_DARK)
@@ -50,7 +51,7 @@ def og():
         x0 = (w - (n * size + (n - 1) * gap)) / 2
         for i, t in enumerate(teams[row * n:(row + 1) * n]):
             x, y = int(x0 + i * (size + gap)), 440 + row * (size + 6)
-            d.ellipse([x - 4, y - 4, x + size + 4, y + size + 4], fill=CHALK)  # dark crests vanish on green
+            d.ellipse([x - 4, y - 4, x + size + 4, y + size + 4], fill=CHALK)  # dark crests vanish on navy
             c = Image.open(pub + t["crest"]).convert("RGBA").resize((size - 12, size - 12), Image.LANCZOS)
             im.paste(c, (x + 6, y + 6), c)
     im.save(pub + "og.png", optimize=True)

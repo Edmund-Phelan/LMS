@@ -121,7 +121,7 @@ Rules:
     still resurrect. Players knocked out *in* Round 4 have no way back.
 13. **Points table (9).** Every player, in or out, predicts the score of the round's featured match. Wrong winner = 0.
     Right winner = 1; within 10 = 2; within 5 = 3; exact = 5. "Within" = |pred home − actual home| + |pred away − actual away|
-    (predict 30–15, ends 27–17 → off by 5 → 3 points). Starts Round 2.
+    (predict 30–15, ends 27–17 → off by 5 → 3 points). Starts Round 1 (decided 15 Oct 2026).
 14. **Jinx (10).** Each round, every player who's out names one survivor. If that survivor goes out that round, the
     jinxer gets 1 point toward the side pot. Jinx points do **not** count for the forfeit.
 15. **Forfeit (11).** Fewest prediction points (jinx excluded) does the forfeit. Tied at the bottom: whoever went out of the
@@ -179,7 +179,7 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 - **Haptics:** iPhones ignore `navigator.vibrate`. Use the hidden-switch trick (`<input type="checkbox" switch>`, Safari 17.4+)
   via `react-haptic`. Only fire from a user tap (pick, card flip). It's a tick, not a buzz — 2–3 quick ticks for a thud.
   It's a bonus layer: everything must work with haptics off.
-- Sound (whistle, crowd) muted by default.
+- Sound on by default, with a mute toggle in the header and on the Me screen; respects the iPhone silent switch. Whistle + crowd roar synthesised with Web Audio (`src/sound.ts`) on picks, saves and settles only; no UI blips on tabs, pills or steppers.
 - Link-preview image (Open Graph) so the URL looks good in WhatsApp.
 - PWA manifest + icons; a 3-step "Add to Home Screen" guide for iPhone on first visit in Safari.
 

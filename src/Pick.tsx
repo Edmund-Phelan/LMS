@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, type CSSProperties } from 'react'
+import { useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
-import { cardStyle, crestUrl, irishTime, type Match, type Team } from './lib/supabase'
+import { crestUrl, type Match, type Team } from './lib/supabase'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
 export function useThud() {
@@ -13,116 +13,193 @@ export function useThud() {
   }
 }
 
+const day = new Intl.DateTimeFormat('en-IE', {
+  timeZone: 'Europe/Dublin',
+  weekday: 'long',
+  day: 'numeric',
+  month: 'short',
+})
+const hhmm = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', hour: '2-digit', minute: '2-digit' })
+
+/** The round's fixtures grouped by day (§3.3). Badges sit inside each card so nothing overlaps the time row. */
 export function FixtureList({
   matches,
   teams,
   used,
   picked,
+  featuredId,
+  locked,
   onPick,
 }: {
   matches: Match[]
   teams: Map<number, Team>
   used: Map<number, number>
   picked?: number
-  onPick: (teamId: number) => void
+  featuredId: number | null
+  locked: boolean
+  onPick?: (teamId: number) => void
 }) {
+  const days = new Map<string, Match[]>()
+  for (const m of matches) {
+    const d = day.format(new Date(m.kickoff_at)).replace(',', '')
+    days.set(d, [...(days.get(d) ?? []), m])
+  }
   return (
-    <ul className="flex flex-col gap-3">
-      {matches.map((m) => (
-        <li key={m.id}>
-          <p className="mb-1 text-xs font-medium tracking-wide text-gray-500 uppercase">{irishTime(m.kickoff_at)}</p>
-          <div className="flex items-stretch gap-2">
-            {[m.home_team_id, m.away_team_id].map((tid, i) => {
-              const t = teams.get(tid)!
-              const usedIn = used.get(tid)
-              const chosen = picked === tid
-              return (
-                <button
-                  key={tid}
-                  disabled={usedIn !== undefined}
-                  onClick={() => onPick(tid)}
-                  aria-pressed={chosen}
-                  className={`relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl p-3 text-center transition active:scale-95 disabled:opacity-30 disabled:grayscale ${chosen ? 'ring-4 ring-amber-400 ring-offset-2' : ''}`}
-                  style={cardStyle(t)}
-                >
-                  {chosen && (
-                    <span className="absolute -top-2 rounded-full bg-amber-400 px-2 text-[10px] font-bold text-black">
-                      YOUR PICK
-                    </span>
-                  )}
-                  <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
-                  <span className="w-full truncate font-semibold">{t.name}</span>
-                  <span className="text-xs opacity-75">
-                    {i === 0 ? 'Home' : 'Away'}
-                    {usedIn !== undefined && ` · used R${usedIn}`}
+    <section className="flex flex-col gap-3.5">
+      {[...days].map(([label, ms]) => (
+        <div key={label} className="flex flex-col gap-2.5">
+          <h2 className="disp mt-1.5 text-[15px] font-bold tracking-[.14em] text-muted uppercase">{label}</h2>
+          {ms.map((m) => (
+            <div key={m.id} className="flex flex-col gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+                {hhmm.format(new Date(m.kickoff_at))}
+                {m.id === featuredId && (
+                  <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
+                    FEATURED
                   </span>
-                </button>
-              )
-            })}
-          </div>
-        </li>
+                )}
+              </p>
+              <div className="grid grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)] items-center">
+                {[m.home_team_id, null, m.away_team_id].map((tid, i) =>
+                  tid === null ? (
+                    <span key="v" className="disp text-center text-sm font-extrabold text-gold">
+                      v
+                    </span>
+                  ) : (
+                    <TeamCard
+                      key={tid}
+                      team={teams.get(tid)!}
+                      home={i === 0}
+                      usedIn={used.get(tid)}
+                      picked={picked === tid}
+                      dim={picked !== undefined && picked !== tid}
+                      disabled={locked || !onPick}
+                      onPick={() => onPick?.(tid)}
+                    />
+                  ),
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       ))}
-    </ul>
+    </section>
+  )
+}
+
+function TeamCard({
+  team: t,
+  home,
+  usedIn,
+  picked,
+  dim,
+  disabled,
+  onPick,
+}: {
+  team: Team
+  home: boolean
+  usedIn?: number
+  picked: boolean
+  dim: boolean
+  disabled: boolean
+  onPick: () => void
+}) {
+  const side = home ? 'home' : 'away'
+  return (
+    <button
+      type="button"
+      disabled={disabled || usedIn !== undefined}
+      onClick={onPick}
+      aria-pressed={picked}
+      aria-label={`${picked ? 'Your pick' : 'Pick'}: ${t.name} (${side})${usedIn !== undefined ? `, used in round ${usedIn}` : ''}`}
+      className={`card flex h-[118px] min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] p-2 ${picked ? 'picked' : dim ? 'dim' : ''} ${usedIn !== undefined ? 'opacity-30 grayscale' : ''}`}
+      style={{ background: t.card_bg, color: t.card_text }}
+    >
+      {picked && (
+        <span className="pop absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-navy-900 shadow-[0_2px_8px_rgba(0,0,0,.3)]">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+      )}
+      <img src={crestUrl(t)} alt="" className="h-12 w-12 object-contain" />
+      <span className="disp max-w-full truncate text-[19px] leading-[1.05] font-extrabold">{t.name}</span>
+      <span className="text-[11px] font-semibold opacity-75">
+        {home ? 'Home' : 'Away'}
+        {usedIn !== undefined && ` · used R${usedIn}`}
+      </span>
+    </button>
   )
 }
 
 /**
- * Team takeover (CLAUDE.md §7): the team's colours flood the screen, kit stripes wipe across, crest drops in.
- * Under 1.5 s, tap to skip; reduced motion → a still frame.
+ * Team takeover (docs/UI-REDESIGN.md §4): colours wipe in, kit stripes sweep, confetti bursts, crest drops, name
+ * slams. CSS keyframes in index.css. Auto-dismiss at 1.5 s, tap to skip; reduced motion → a still frame for .8 s.
  */
 export function Takeover({ team, onDone }: { team: Team | null; onDone: () => void }) {
   const still = useReducedMotion()
   useEffect(() => {
     if (!team) return
-    const id = setTimeout(onDone, still ? 800 : 1400)
+    const id = setTimeout(onDone, still ? 800 : 1500)
     return () => clearTimeout(id)
   }, [team, still, onDone])
+  if (!team) return null
 
-  const stripe = team?.secondary
+  const colours =
+    team.secondary.toLowerCase() === '#ffffff' ? ['#ffffff', '#f2b226'] : [team.secondary, '#ffffff', '#f2b226']
   return (
-    <AnimatePresence>
-      {team && (
-        <motion.button
-          key={team.id}
-          aria-label={`You picked ${team.name}. Tap to continue.`}
-          onClick={onDone}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 overflow-hidden"
-          style={{ background: team.primary, color: team.text }}
-          initial={still ? false : { clipPath: 'circle(0% at 50% 50%)' }}
-          animate={{ clipPath: 'circle(150% at 50% 50%)' }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-        >
-          {!still &&
-            [0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                className="absolute h-16 w-[200%] -rotate-12"
-                style={{ background: stripe, top: `${25 + i * 22}%`, opacity: 0.5 }}
-                initial={{ x: '-100%' }}
-                animate={{ x: '100%' }}
-                transition={{ duration: 0.7, delay: 0.15 + i * 0.08, ease: 'easeInOut' }}
-              />
-            ))}
-          <motion.div
-            className="relative rounded-full bg-white p-4 shadow-2xl"
-            initial={still ? false : { y: -400, scale: 1.4 }}
-            animate={{ y: 0, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 18, delay: 0.25 }}
-          >
-            <img src={crestUrl(team)} alt="" className="h-32 w-32 object-contain" />
-          </motion.div>
-          <motion.div
-            className="relative flex flex-col items-center"
-            initial={still ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <p className="mt-2 text-3xl font-black tracking-tight uppercase">{team.name}</p>
-            <p className="text-sm opacity-80">Your pick. Change it any time before the lock.</p>
-          </motion.div>
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      type="button"
+      key={team.id}
+      onClick={onDone}
+      aria-label={`You picked ${team.name}. Tap to continue.`}
+      className="tk fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 overflow-hidden"
+      style={{ background: team.primary, color: team.text }}
+    >
+      {[20, 44, 68].map((top, i) => (
+        <span
+          key={top}
+          aria-hidden
+          className="tk-stripe absolute -left-1/2 h-[70px] w-[200%] opacity-45"
+          style={{ top: `${top}%`, background: team.secondary, animationDelay: `${i * 0.08}s` }}
+        />
+      ))}
+      {Array.from({ length: 16 }, (_, i) => {
+        const a = (i / 16) * Math.PI * 2
+        const r = 150 + (i % 3) * 40
+        return (
+          <span
+            key={i}
+            aria-hidden
+            className="confetti absolute top-[46%] left-1/2 h-4 w-2.5 rounded-[2px]"
+            style={
+              {
+                background: colours[i % colours.length],
+                '--to': `translate(${Math.round(Math.cos(a) * r)}px,${Math.round(Math.sin(a) * r)}px) rotate(${i * 47}deg)`,
+              } as CSSProperties
+            }
+          />
+        )
+      })}
+      <span className="tk-shake relative flex flex-col items-center gap-[18px]">
+        <span className="tk-crest flex h-[168px] w-[168px] items-center justify-center rounded-full bg-white shadow-[0_24px_60px_rgba(0,0,0,.4)]">
+          <img src={crestUrl(team)} alt="" className="h-[124px] w-[124px] object-contain" />
+        </span>
+        <span className="tk-name disp px-5 text-center text-[52px] leading-[.95] font-extrabold tracking-[-.01em] uppercase">
+          {team.name}
+        </span>
+      </span>
+      <span className="tk-sub relative text-[15px] font-semibold">Your pick. Change it any time before the lock.</span>
+    </button>
   )
 }

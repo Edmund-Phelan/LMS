@@ -23,6 +23,7 @@ export type Me = {
   nickname: string | null
   avatar_url: string | null
   kit_colour: string | null
+  is_admin: boolean
 }
 
 export function Avatar({
@@ -32,12 +33,16 @@ export function Avatar({
   p: { name: string; nickname: string | null; avatar_url?: string | null; kit_colour?: string | null }
   size?: number
 }) {
-  const ring = { boxShadow: `0 0 0 3px ${p.kit_colour ?? '#d1d5db'}`, width: size, height: size }
+  const ring = {
+    boxShadow: `0 0 0 ${size >= 100 ? 5 : size >= 36 ? 3 : 2}px ${p.kit_colour ?? 'rgba(255,255,255,.25)'}`,
+    width: size,
+    height: size,
+  }
   return p.avatar_url ? (
     <img src={p.avatar_url} alt="" className="shrink-0 rounded-full object-cover" style={ring} />
   ) : (
     <span
-      className="flex shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600"
+      className="disp flex shrink-0 items-center justify-center rounded-full bg-navy-600 font-extrabold text-chalk"
       style={{ ...ring, fontSize: size * 0.4 }}
     >
       {(p.nickname || p.name).slice(0, 1).toUpperCase()}
@@ -104,8 +109,13 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
   }
 
   return (
-    <form onSubmit={save} className="mx-auto flex max-w-sm flex-col gap-4 p-6">
-      <h1 className="text-2xl font-bold">{me.nickname ? 'Your profile' : `Welcome, ${me.name}`}</h1>
+    <form
+      onSubmit={save}
+      className={`mx-auto flex max-w-sm flex-col gap-4 font-sans text-chalk ${me.nickname ? 'screen py-2' : 'min-h-dvh bg-navy-900 p-6 pt-[calc(2rem+env(safe-area-inset-top))]'}`}
+    >
+      <h1 className="disp text-[34px] leading-none font-extrabold">
+        {me.nickname ? 'Your profile' : `Welcome, ${me.name}`}
+      </h1>
 
       <div className="flex flex-col items-center gap-2">
         {img ? (
@@ -139,7 +149,7 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
             />
           </label>
         )}
-        <label className="cursor-pointer rounded border px-4 py-2">
+        <label className="press flex min-h-11 cursor-pointer items-center rounded-[14px] border border-white/16 px-4 font-semibold">
           {img || me.avatar_url ? 'Change photo' : 'Add a photo'}
           <input
             type="file"
@@ -154,22 +164,22 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
             }}
           />
         </label>
-        {img && <p className="text-xs text-gray-500">Drag to move, slide to zoom.</p>}
+        {img && <p className="text-xs text-muted">Drag to move, slide to zoom.</p>}
       </div>
 
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1 text-sm font-semibold text-chalk-2">
         Nickname
         <input
           required
           maxLength={20}
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          className="rounded border p-3 text-lg"
+          className="rounded-[14px] border border-white/16 bg-navy-800 p-3 text-lg text-chalk outline-none focus:border-gold"
         />
       </label>
 
       <fieldset>
-        <legend className="mb-1">Kit colour</legend>
+        <legend className="mb-2 text-sm font-semibold text-chalk-2">Kit colour</legend>
         <div className="flex flex-wrap gap-2">
           {KIT_COLOURS.map((c) => (
             <button
@@ -178,7 +188,7 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
               aria-label={c}
               aria-pressed={colour === c}
               onClick={() => setColour(c)}
-              className={`h-10 w-10 rounded-full border border-gray-300 ${colour === c ? 'ring-4 ring-offset-2' : ''}`}
+              className={`press h-11 w-11 rounded-full border border-white/25 ${colour === c ? 'ring-4 ring-offset-2 ring-offset-navy-900' : ''}`}
               style={{ background: c, ['--tw-ring-color' as string]: c }}
             />
           ))}
@@ -186,11 +196,14 @@ export default function Profile({ me, onSaved }: { me: Me; onSaved: () => void }
       </fieldset>
 
       {error && (
-        <p role="alert" className="text-red-600">
+        <p role="alert" className="text-out-text">
           {error}
         </p>
       )}
-      <button disabled={busy || !nickname.trim()} className="rounded bg-black p-3 text-white disabled:opacity-50">
+      <button
+        disabled={busy || !nickname.trim()}
+        className="press h-[50px] rounded-[14px] bg-gold font-bold text-navy-900 disabled:opacity-50"
+      >
         {busy ? 'Saving…' : 'Save'}
       </button>
     </form>

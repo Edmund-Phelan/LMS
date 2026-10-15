@@ -21,15 +21,19 @@ export function RevealCards({
   }
   return (
     <>
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-semibold">The team sheet</h2>
+      <div className="flex items-baseline justify-between">
+        <h2 className="disp text-[22px] font-extrabold">The team sheet</h2>
         {open.size < picks.length && (
-          <button onClick={() => setOpen(new Set(picks.map((p) => p.player_id)))} className="text-sm underline">
+          <button
+            type="button"
+            onClick={() => setOpen(new Set(picks.map((p) => p.player_id)))}
+            className="min-h-11 px-2 text-sm font-semibold text-gold"
+          >
             Flip all
           </button>
         )}
       </div>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-3">
         {picks.map((p) => (
           <li key={p.player_id}>
             <FlipCard
@@ -61,7 +65,7 @@ function FlipCard({
 }) {
   const still = useReducedMotion()
   const face =
-    'absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl p-2 [backface-visibility:hidden]'
+    'absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-[18px] p-2 [backface-visibility:hidden]'
   return (
     <button
       onClick={onFlip}
@@ -75,17 +79,15 @@ function FlipCard({
         animate={{ rotateY: open ? 180 : 0 }}
         transition={still ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 22 }}
       >
-        <div
-          className={`${face} bg-[#0f5132] bg-[repeating-linear-gradient(90deg,transparent_0_25%,rgba(0,0,0,.18)_25%_50%)] text-[#f7f5ef]`}
-        >
-          <span className="text-4xl font-black text-[#f2b226]">?</span>
-          <span className="w-full truncate font-bold">{player}</span>
+        <div className={`${face} stripes hairline text-chalk`}>
+          <span className="disp text-4xl font-extrabold text-gold">?</span>
+          <span className="disp w-full truncate text-lg font-extrabold">{player}</span>
           <span className="text-[10px] tracking-widest uppercase opacity-75">Tap to reveal</span>
         </div>
         <div className={`${face} [transform:rotateY(180deg)]`} style={cardStyle(team)}>
           <span className="w-full truncate text-sm font-bold">{player}</span>
           <img src={crestUrl(team)} alt="" className="h-12 w-12 object-contain" />
-          <span className="text-sm leading-tight font-black uppercase">{team.name}</span>
+          <span className="disp text-lg leading-tight font-extrabold uppercase">{team.name}</span>
           {auto && <span className="text-[10px] tracking-widest uppercase opacity-75">Auto-pick</span>}
         </div>
       </motion.div>
