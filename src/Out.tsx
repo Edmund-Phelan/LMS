@@ -61,8 +61,8 @@ export function OutHero({
 type Cost = { burns: number[]; used: number[]; buybackUsed: boolean }
 
 /** Rule 11 costs for coming back in `round`, from the engine (Q8: the same burns the settle will apply). */
-async function loadCost(me: string, round: Round): Promise<Cost | null> {
-  const d = await A.load(round.number)
+async function loadCost(me: string, number: number): Promise<Cost | null> {
+  const d = await A.load(number)
   if (!d) return null
   const r = A.toRound(d.round)
   const st = E.playerState(d.history, me, r)
@@ -107,8 +107,8 @@ export function GetBackIn({
 }) {
   const [cost, setCost] = useState<Cost | null>()
   useEffect(() => {
-    loadCost(me, round).then(setCost, () => setCost(null))
-  }, [me, round])
+    loadCost(me, round.number).then(setCost, () => setCost(null))
+  }, [me, round.number])
 
   const lock = Date.parse(round.lock_at)
   const buyback = payments.find((p) => p.player_id === me && p.kind === 'buyback')
