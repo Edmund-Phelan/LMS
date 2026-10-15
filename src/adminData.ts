@@ -85,23 +85,39 @@ export type Rows = {
   me: string | undefined
 }
 
+// Every query has a fixed order: Settle compares a fresh load with the preview, so row order must be stable.
 export async function load(number: number): Promise<Data | null> {
   const rounds = must(await supabase.from('rounds').select('*').order('number').returns<Round[]>())
   const round = rounds.find((r) => r.number === number)
   if (!round) return null
   const [teams, players, matches, picks, results, burns, predictions, jinxes, payments, user] = await Promise.all([
-    supabase.from('teams').select('*').returns<Team[]>(),
+    supabase.from('teams').select('*').order('id').returns<Team[]>(),
     supabase
       .from('players')
       .select('id, name, nickname, is_admin, avatar_url, kit_colour')
       .order('name')
       .returns<Player[]>(),
     supabase.from('matches').select('*').eq('round_id', round.id).order('kickoff_at').returns<Match[]>(),
-    supabase.from('picks').select('round_id, player_id, team_id, is_auto, is_resurrection').returns<PickRow[]>(),
-    supabase.from('round_results').select('*').returns<ResultRow[]>(),
-    supabase.from('burned_teams').select('player_id, team_id, round_id, reason').returns<BurnRow[]>(),
-    supabase.from('predictions').select('player_id, home_score, away_score').eq('round_id', round.id),
-    supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', round.id),
+    supabase
+      .from('picks')
+      .select('round_id, player_id, team_id, is_auto, is_resurrection')
+      .order('round_id')
+      .order('player_id')
+      .returns<PickRow[]>(),
+    supabase.from('round_results').select('*').order('round_id').order('player_id').returns<ResultRow[]>(),
+    supabase
+      .from('burned_teams')
+      .select('player_id, team_id, round_id, reason')
+      .order('round_id')
+      .order('player_id')
+      .order('team_id')
+      .returns<BurnRow[]>(),
+    supabase
+      .from('predictions')
+      .select('player_id, home_score, away_score')
+      .eq('round_id', round.id)
+      .order('player_id'),
+    supabase.from('jinxes').select('jinxer_id, target_id').eq('round_id', round.id).order('jinxer_id'),
     loadPayments(),
     supabase.auth.getUser(),
   ])
