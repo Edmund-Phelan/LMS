@@ -12,6 +12,7 @@ import {
   type Team,
 } from './lib/supabase'
 import { loadPayments, PayEntry, PlayerList, type PaymentRow } from './Pay'
+import { FixtureList, Takeover, useThud } from './Pick'
 
 /** Lowest unsettled round. */
 export function CurrentRound() {
@@ -101,6 +102,9 @@ export default function RoundPage({ me }: { me: string }) {
   const [data, setData] = useState<Data | null | undefined>()
   const [error, setError] = useState<string | null>(null)
   const now = useNow()
+  const thud = useThud()
+  const [takeover, setTakeover] = useState<Team | null>(null)
+  const endTakeover = useCallback(() => setTakeover(null), [])
   const reload = useCallback(() => load(number).then(setData), [number])
   useEffect(() => {
     reload()
@@ -141,6 +145,7 @@ export default function RoundPage({ me }: { me: string }) {
 
   return (
     <main className="mx-auto max-w-lg p-4 pb-16">
+      <Takeover team={takeover} onDone={endTakeover} />
       <nav className="mb-4 flex justify-between text-sm">
         {number > 1 ? (
           <Link to={`/round/${number - 1}`} className="underline">
@@ -191,34 +196,20 @@ export default function RoundPage({ me }: { me: string }) {
               <h2 className="mb-2 font-semibold">
                 Your pick {myPick ? `: ${teams.get(myPick.team_id)?.name}` : '(none yet)'}
               </h2>
-              <ul className="flex flex-col gap-3">
-                {matches.map((m) => (
-                  <li key={m.id} className="flex items-center gap-2 rounded border p-2">
-                    {[m.home_team_id, m.away_team_id].map((tid, i) => {
-                      const t = teams.get(tid)!
-                      const usedIn = data.used.get(tid)
-                      const chosen = myPick?.team_id === tid
-                      return (
-                        <button
-                          key={tid}
-                          disabled={usedIn !== undefined}
-                          onClick={() => run(supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: tid }))}
-                          className={`flex flex-1 flex-col items-center gap-1 rounded p-2 disabled:opacity-30 ${chosen ? 'ring-4' : ''}`}
-                          style={cardStyle(t)}
-                          aria-pressed={chosen}
-                        >
-                          <img src={crestUrl(t)} alt="" className="h-12 w-12" />
-                          <span>
-                            {t.name}
-                            {i === 0 ? ' (H)' : ' (A)'}
-                          </span>
-                          {usedIn !== undefined && <span className="text-xs">used R{usedIn}</span>}
-                        </button>
-                      )
-                    })}
-                  </li>
-                ))}
-              </ul>
+              <FixtureList
+                matches={matches}
+                teams={teams}
+                used={data.used}
+                picked={myPick?.team_id}
+                onPick={async (tid) => {
+                  thud() // from the tap itself: iOS only allows haptics inside a user gesture
+                  setError(null)
+                  const { error } = await supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: tid })
+                  if (error) setError(error.message)
+                  else setTakeover(teams.get(tid)!)
+                  await reload()
+                }}
+              />
             </section>
           )}
           {myAlive === false && (
