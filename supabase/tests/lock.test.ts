@@ -154,6 +154,19 @@ describe('writes only before the lock', () => {
     await pick(BEN, r2, await team('munster-rugby'))
   })
 
+  it('gives used and burned teams back on a clean slate, only to players in at its start', async () => {
+    const [munster, saracens] = [await team('munster-rugby'), await team('saracens')]
+    await db.query(
+      `insert into burned_teams (player_id, team_id, round_id, reason) values ($1, $2, $3, 'buyback_penalty')`,
+      [BEN, saracens, r1],
+    )
+    await db.query('update rounds set clean_slate = true where id = $1', [r2])
+    expect(await as(db, BEN, 'select * from my_used_teams($1)', [r2])).toEqual([])
+    await pick(BEN, r2, munster)
+    await pick(BEN, r2, saracens)
+    expect(await as(db, OUTY, 'select * from my_used_teams($1)', [r2])).toEqual([{ team_id: munster, round_number: 1 }])
+  })
+
   it("won't open the next round until the previous one is settled", async () => {
     await db.query('update rounds set settled_at = null where id = $1', [r1])
     await expect(pick(BEN, r2, await team('saracens'))).rejects.toThrow(/not in this round/)
