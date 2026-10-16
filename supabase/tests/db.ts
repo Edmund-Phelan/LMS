@@ -20,6 +20,7 @@ const SUPABASE_STUB = `
   create table cron.job (jobname text primary key, schedule text, command text);
   create function cron.schedule(a text, b text, c text) returns bigint language sql as $$
     insert into cron.job values (a, b, c) on conflict (jobname) do update set schedule = b, command = c; select 1::bigint $$;
+  create function cron.unschedule(a text) returns boolean language sql as $$ delete from cron.job where jobname = a returning true $$;
   grant usage on schema public, auth, storage to anon, authenticated;
   grant execute on function auth.uid() to anon, authenticated;
   alter default privileges in schema public grant all on tables to anon, authenticated;

@@ -230,7 +230,7 @@ describe('auto-pick at the lock', () => {
     expect(await job()).toBe('1 20 11 12 *')
     await db.query(`update rounds set lock_at = '2027-04-02 18:30:00+00' where id = $1`, [r2])
     expect(await job()).toBe('31 18 2 4 *')
-    expect((await db.query<{ schedule: string }>(`select schedule from cron.job where jobname = 'auto-pick-at-lock'`)).rows[0].schedule).toBe('0 * * * *')
+    expect((await db.query(`select 1 from cron.job where jobname = 'auto-pick-at-lock'`)).rows).toHaveLength(0)
   })
 
   it('does nothing before the lock', async () => {
