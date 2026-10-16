@@ -35,7 +35,9 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
   `random()` over the 22 teams not yet kicked off, logged in `pick_draws`. No prediction = 0 points. The general rule
   (no Round 1 auto-pick) is unchanged. Harvey missed it too and got the same one-off
   (`20261016213500_round1_harvey_auto_pick.sql`): La Rochelle, from the same 22 teams. All 11 now have a Round 1 pick.
-  Round 2 auto-pick checked: the live `auto-pick-at-lock` cron (every minute) covers every round > 1 for players
+  Round 2 auto-pick checked. Since 16 Oct (`20261016220000_auto_pick_at_lock_time.sql`) each round has its own job,
+  `auto-pick-round-<id>`, at the minute after its lock, rescheduled by a trigger whenever `lock_at` is set or edited;
+  `auto-pick-at-lock` is now an hourly fallback. It covers every round > 1 for players
   `alive()` after the Round 1 settle (DB test in `lock.test.ts`). Bought-back players are only covered once packet 7's
   migration is applied.
 

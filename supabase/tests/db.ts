@@ -17,7 +17,9 @@ const SUPABASE_STUB = `
   alter table storage.objects enable row level security;
   grant all on storage.objects, storage.objects_id_seq to authenticated;
   create function storage.foldername(name text) returns text[] language sql as $$ select string_to_array(name, '/') $$;
-  create function cron.schedule(a text, b text, c text) returns bigint language sql as $$ select 1::bigint $$;
+  create table cron.job (jobname text primary key, schedule text, command text);
+  create function cron.schedule(a text, b text, c text) returns bigint language sql as $$
+    insert into cron.job values (a, b, c) on conflict (jobname) do update set schedule = b, command = c; select 1::bigint $$;
   grant usage on schema public, auth, storage to anon, authenticated;
   grant execute on function auth.uid() to anon, authenticated;
   alter default privileges in schema public grant all on tables to anon, authenticated;

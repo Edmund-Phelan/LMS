@@ -222,6 +222,17 @@ describe('jinxes', () => {
 describe('auto-pick at the lock', () => {
   const run = async () => (await db.query<{ n: number }>('select auto_pick_locked_rounds() as n')).rows[0].n
 
+  it("schedules a job for the minute after each round's lock, moved when the lock is edited", async () => {
+    const job = async () =>
+      (await db.query<{ schedule: string }>('select schedule from cron.job where jobname = $1', [`auto-pick-round-${r2}`]))
+        .rows[0]?.schedule
+    await db.query(`update rounds set lock_at = '2026-12-11 20:00:00+00' where id = $1`, [r2])
+    expect(await job()).toBe('1 20 11 12 *')
+    await db.query(`update rounds set lock_at = '2027-04-02 18:30:00+00' where id = $1`, [r2])
+    expect(await job()).toBe('31 18 2 4 *')
+    expect((await db.query<{ schedule: string }>(`select schedule from cron.job where jobname = 'auto-pick-at-lock'`)).rows[0].schedule).toBe('0 * * * *')
+  })
+
   it('does nothing before the lock', async () => {
     expect(await run()).toBe(0)
   })
