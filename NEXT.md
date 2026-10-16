@@ -30,6 +30,14 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
   The engine already scores any round with a featured match; CLAUDE.md rule 13 and the rules doc are updated to say Round 1.
   Packet 4's "only if Eddie starts the side game in Round 1" condition is therefore met; the raffle is done.
 
+- **16 Oct, after the lock (one-off, admins' decision):** Cboh missed the Round 1 pick and stays in with a random team
+  (migration `20261016212500_round1_cboh_auto_pick.sql`, applied): Stade Français, `is_auto`, drawn by Postgres
+  `random()` over the 22 teams not yet kicked off, logged in `pick_draws`. No prediction = 0 points. The general rule
+  (no Round 1 auto-pick) is unchanged. **Harvey also has no Round 1 pick: not touched, admins to decide.**
+  Round 2 auto-pick checked: the live `auto-pick-at-lock` cron (every minute) covers every round > 1 for players
+  `alive()` after the Round 1 settle (DB test in `lock.test.ts`). Bought-back players are only covered once packet 7's
+  migration is applied.
+
 ## 1. Round 1 on the app
 - Migration: Round 1's 12 fixtures, same format as `20261014230557_fixtures_r2_r4.sql`. Irish time (UTC+1 until 25 Oct).
   Source: rugbyworld.com/rugby-fixtures/champions-cup-fixtures, checked 15 Oct. Home team first.
