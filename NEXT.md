@@ -33,7 +33,8 @@ Every schema change is a migration with a DB test. Never weaken RLS to make a sc
 - **16 Oct, after the lock (one-off, admins' decision):** Cboh missed the Round 1 pick and stays in with a random team
   (migration `20261016212500_round1_cboh_auto_pick.sql`, applied): Stade Français, `is_auto`, drawn by Postgres
   `random()` over the 22 teams not yet kicked off, logged in `pick_draws`. No prediction = 0 points. The general rule
-  (no Round 1 auto-pick) is unchanged. **Harvey also has no Round 1 pick: not touched, admins to decide.**
+  (no Round 1 auto-pick) is unchanged. Harvey missed it too and got the same one-off
+  (`20261016213500_round1_harvey_auto_pick.sql`): La Rochelle, from the same 22 teams. All 11 now have a Round 1 pick.
   Round 2 auto-pick checked: the live `auto-pick-at-lock` cron (every minute) covers every round > 1 for players
   `alive()` after the Round 1 settle (DB test in `lock.test.ts`). Bought-back players are only covered once packet 7's
   migration is applied.
