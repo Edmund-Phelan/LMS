@@ -21,15 +21,13 @@ export function won(m: Match, teamId: number, knockout: boolean) {
 }
 
 /** A pick after the lock, for "Your pick" and the squad chips. Through/out are provisional until settle. */
-export type PickState = 'locked' | 'later' | 'live' | 'waiting' | 'through' | 'out' | 'back'
-
-const day = new Intl.DateTimeFormat('en-IE', { timeZone: 'Europe/Dublin', dateStyle: 'short' })
+export type PickState = 'locked' | 'live' | 'waiting' | 'through' | 'out' | 'back'
 
 export function pickState(m: Match, teamId: number, knockout: boolean, now: number): PickState {
   const s = matchState(m, now)
   if (s === 'off') return 'back'
   if (s === 'final') return won(m, teamId, knockout) ? 'through' : 'out'
-  if (s === 'upcoming') return day.format(now) === day.format(Date.parse(m.kickoff_at)) ? 'locked' : 'later'
+  if (s === 'upcoming') return 'locked' // any day: every pick reads "Locked in" until kick-off (Eddie, 17 Oct)
   return s
 }
 

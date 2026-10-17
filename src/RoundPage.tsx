@@ -194,7 +194,6 @@ function PickChip({ m, teamId, knockout, now }: { m: Match; teamId: number; knoc
   const score = home ? `${m.home_score}–${m.away_score}` : `${m.away_score}–${m.home_score}`
   const look: Record<PickState, [string, string]> = {
     locked: ['Locked in', 'bg-gold/16 text-gold'],
-    later: [kickoffFmt.format(new Date(m.kickoff_at)).replace(',', ''), 'bg-white/8 text-chalk-2'],
     live: ['On now', 'bg-warn/18 text-warn'],
     waiting: ['Result due', 'bg-white/8 text-chalk-2'],
     through: [`Through · ${score}`, 'bg-in/16 text-in-text'],

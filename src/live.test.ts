@@ -39,9 +39,9 @@ describe('pickState', () => {
   it('postponed gives the team back', () => {
     expect(pickState(m({ status: 'postponed' }), 10, false, later)).toBe('back')
   })
-  it('not started: "locked" on match day (Irish), "later" before it', () => {
+  it('not started: "locked", on match day or before it', () => {
     expect(pickState(m(), 10, false, Date.parse('2026-12-12T00:30:00Z'))).toBe('locked')
-    expect(pickState(m(), 10, false, Date.parse('2026-12-11T23:30:00Z'))).toBe('later')
+    expect(pickState(m(), 10, false, Date.parse('2026-12-11T23:30:00Z'))).toBe('locked')
     expect(pickState(m(), 10, false, KO + 5 * 60_000)).toBe('live')
   })
 })

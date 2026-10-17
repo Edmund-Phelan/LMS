@@ -350,7 +350,7 @@ Prototype board "Matchday live".
 - "Your pick" card after the lock gets a status pill under the sub: amber "LIVE 58' · Level 13–13", green "Winning",
   red "Losing", each with a pulsing dot.
 - **After the lock the squad shows everyone's team** (picks are public then): crest + team name under each name, and a
-  chip: "Locked in" (gold, not started), "Sun 15:15" (later this weekend), "Winning 61'" / "Level 58'" / "Losing"
+  chip: "Locked in" (gold, not started, any day; Eddie 17 Oct: no "Sun 15:15" chip), "Winning 61'" / "Level 58'" / "Losing"
   (live, pulsing dot), "Through" (green), "Out" (red). Through/Out are provisional until settle: footnote "Official once
   the round is settled".
 - The Pools table refreshes on the standings schedule (packet 5c).
