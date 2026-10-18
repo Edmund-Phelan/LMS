@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useReducedMotion } from 'motion/react'
 import { useHaptic } from 'react-haptic'
 import { crestUrl, type Match, type Team } from './lib/supabase'
-import { matchState, won } from './live'
+import { liveScore, matchState, won } from './live'
 import { sfx } from './sound'
 
 /** iPhones only do a tick (hidden-switch trick, user taps only); 3 quick ticks = a thud. */
@@ -62,6 +62,8 @@ export function FixtureList({
           {ms.map((m) => {
             const state = matchState(m, now)
             const final = state === 'final'
+            const ls = liveScore(m, now)
+            const ago = ls && Math.max(0, Math.round((now - ls.at) / 60_000))
             return (
               <div key={m.id} className="flex flex-col gap-1.5">
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
@@ -69,13 +71,21 @@ export function FixtureList({
                   {state === 'live' && (
                     <span className="flex items-center gap-[5px] rounded-full bg-[#e5484d] px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-white">
                       <span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />
-                      LIVE
+                      {ls ? `${ls.label} · ${ls.home}–${ls.away}` : 'LIVE'}
                     </span>
                   )}
                   {(final || state === 'off') && (
                     <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-chalk-2">
                       {final ? 'FULL TIME' : m.status === 'postponed' ? 'POSTPONED' : 'ABANDONED'}
                     </span>
+                  )}
+                  {ls?.final && (
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-chalk-2">
+                      FULL TIME · CHECKING
+                    </span>
+                  )}
+                  {ls && !ls.final && (
+                    <span className="text-[11px] font-medium">· updated {ago ? `${ago} min ago` : 'just now'}</span>
                   )}
                   {m.id === featuredId && (
                     <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
@@ -84,11 +94,23 @@ export function FixtureList({
                   )}
                 </p>
                 <div
-                  className={`grid items-center transition-[grid-template-columns] duration-300 ${final ? 'grid-cols-[minmax(0,1fr)_46px_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]'}`}
+                  className={`grid items-center transition-[grid-template-columns] duration-300 ${final || ls ? 'grid-cols-[minmax(0,1fr)_46px_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]'}`}
                 >
                   {[m.home_team_id, null, m.away_team_id].map((tid, i) =>
                     tid === null ? (
-                      final ? (
+                      ls ? (
+                        <span
+                          key={`v${ls.home}-${ls.away}`} // a new score re-mounts it, so it pops in (≤ 300 ms)
+                          aria-label={`${ls.home}–${ls.away}, ${ls.label}`}
+                          className={`disp pop flex flex-col items-center text-[22px] leading-[1.05] font-extrabold tabular-nums ${ls.final ? 'text-chalk-2' : 'text-out-text'}`}
+                        >
+                          <span>{ls.home}</span>
+                          <span aria-hidden className="text-sm text-muted">
+                            –
+                          </span>
+                          <span>{ls.away}</span>
+                        </span>
+                      ) : final ? (
                         <span
                           key="v"
                           aria-label={`${m.home_score}–${m.away_score}`}

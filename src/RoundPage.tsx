@@ -17,7 +17,7 @@ import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
 import Shell, { Icon, Loading } from './Shell'
 import { sfx } from './sound'
-import { koReason, matchState, pickState, type PickState } from './live'
+import { koReason, liveScore, matchState, pickState, type PickState } from './live'
 import { KnockedOut, loadKnockout, type Knockout } from './Elimination'
 import { GetBackIn, OutHero, StillPlaying } from './Out'
 import PlayerSheet from './PlayerSheet'
@@ -187,15 +187,25 @@ const kickoffFmt = new Intl.DateTimeFormat('en-IE', {
   minute: '2-digit',
 })
 
-/** §16 status chip for a pick after the lock. No feed, so live means "on now" (no score); results come from admins. */
+/** §16 status chip for a pick after the lock: the feed's live score when fresh ("2ND HALF · Winning 24–10"), else "On now". */
 function PickChip({ m, teamId, knockout, now }: { m: Match; teamId: number; knockout: boolean; now: number }) {
   const state = pickState(m, teamId, knockout, now)
   const home = teamId === m.home_team_id
   const score = home ? `${m.home_score}–${m.away_score}` : `${m.away_score}–${m.home_score}`
+  const ls = liveScore(m, now)
+  const [mine, theirs] = ls ? (home ? [ls.home, ls.away] : [ls.away, ls.home]) : [0, 0]
+  const how =
+    mine > theirs
+      ? ['Winning', 'bg-in/16 text-in-text']
+      : mine < theirs
+        ? ['Losing', 'bg-[#e5484d]/18 text-out-text']
+        : ['Level', 'bg-warn/18 text-warn']
   const look: Record<PickState, [string, string]> = {
     locked: ['Locked in', 'bg-gold/16 text-gold'],
-    live: ['On now', 'bg-warn/18 text-warn'],
-    waiting: ['Result due', 'bg-white/8 text-chalk-2'],
+    live: ls ? [`${ls.label} · ${how[0]} ${mine}–${theirs}`, how[1]] : ['On now', 'bg-warn/18 text-warn'],
+    waiting: ls?.final
+      ? [`Full time ${mine}–${theirs} · being checked`, 'bg-white/8 text-chalk-2']
+      : ['Result due', 'bg-white/8 text-chalk-2'],
     through: [`Through · ${score}`, 'bg-in/16 text-in-text'],
     out: [`Out · ${score}`, 'bg-[#e5484d]/18 text-out-text'],
     back: ['Postponed · team back', 'bg-white/8 text-chalk-2'],
@@ -506,13 +516,26 @@ export default function RoundPage({ me }: { me: string }) {
   useEffect(() => {
     if (locked) reload()
   }, [locked, reload])
-  // No feed: while a match is on or waiting for its result, re-read every minute so an admin's score shows up.
+  // While a match is on or waiting for its result: the feed pushes score changes (Realtime on matches), and a
+  // re-read every minute stays as the fallback (feed off, socket dropped, or an admin's score).
   const inPlay = data?.matches.some((m) => ['live', 'waiting'].includes(matchState(m, now))) ?? false
+  const rid = data?.round?.id
   useEffect(() => {
-    if (!inPlay) return
+    if (!inPlay || rid === undefined) return
     const id = setInterval(reload, 60_000)
-    return () => clearInterval(id)
-  }, [inPlay, reload])
+    const channel = supabase
+      .channel(`matches-${rid}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'matches', filter: `round_id=eq.${rid}` },
+        () => reload(),
+      )
+      .subscribe()
+    return () => {
+      clearInterval(id)
+      supabase.removeChannel(channel)
+    }
+  }, [inPlay, rid, reload])
 
   const season = SEASON.find((s) => s.number === number)
   const title = data?.round?.name ?? season?.title ?? `Round ${number}`

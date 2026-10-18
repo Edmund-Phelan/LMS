@@ -1,7 +1,7 @@
 // LIVE-FEED.md §3 step 4: hl-sync. Called every minute on match days by hl_sync_tick() (pg_cron + pg_net), with the
 // x-cron-token from Vault. Each run: plan (planCalls), make at most the planned Highlightly calls, log each in api_calls,
-// and apply §4 (toMatchUpdate). feed_settings.enabled = false is shadow mode: it calls and logs what it would write,
-// and writes nothing to matches.
+// and apply §4 (toMatchUpdate). feed_settings.enabled = false is shadow mode: it calls, logs the results it would
+// write, and writes only the live score fields (display only).
 // ponytail: scores + standings only. Details, highlights, scouting and team sheets are step 7.
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4'
 import {
@@ -210,13 +210,16 @@ async function sync(now: number) {
       { delta, espn: espn.get(`${m.home.espn_team_id}-${m.away.espn_team_id}`) ?? null },
     )
     if (!patch) continue
-    if (settings.enabled) {
-      const { error } = await db
-        .from('matches')
-        .update({ ...patch, live_updated_at: new Date(now).toISOString() })
-        .eq('id', m.id)
-      if (error) await log('write', null, null, `match ${m.id}: ${error.message}`)
-    }
+    // Shadow mode (enabled = false) still writes the live fields: display only, never a result.
+    const { live_state, live_home, live_away } = patch
+    const { error } = await db
+      .from('matches')
+      .update({
+        ...(settings.enabled ? patch : { live_state, live_home, live_away }),
+        live_updated_at: new Date(now).toISOString(),
+      })
+      .eq('id', m.id)
+    if (error) await log('write', null, null, `match ${m.id}: ${error.message}`)
     written.push({ match: m.id, ...patch })
   }
   if (!settings.enabled) await log('shadow', null, remaining, JSON.stringify(written))

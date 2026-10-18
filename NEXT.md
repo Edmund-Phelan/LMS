@@ -164,7 +164,12 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    **Step 4 done 18 Oct (Eddie OK'd):** `hl-sync` deployed, `20261018160000_hl_sync_cron.sql` applied (cron every
    minute, match days only). `feed_settings.enabled = false`: shadow mode, logs to `api_calls`, writes no results.
    Highlightly's venue/ref/weather/team sheets/live win chance are empty for every R1 match checked (3): show those
-   sections only when present ("Couldn't get this for this match"); team sheets from ESPN. Next: step 5 shadow test.
+   sections only when present ("Couldn't get this for this match"); team sheets from ESPN.
+   **Step 6 done 18 Oct:** live states on the Round screen (`src/live.ts` `liveScore`): "2ND HALF · 20–17" pill, score
+   between the cards, "Updated N min ago", pick/squad chips "2ND HALF · Winning 24–10"; Realtime on `matches` + the
+   1-minute re-read. Stale > 20 min → the clock's "On now". The feed's full time shows "FULL TIME · CHECKING" with no
+   Through/Out or fade until the official result (the list score is live only). Shadow mode writes the live fields only.
+   Still to do: step 5 shadow test (November), steps 7–9.
    Nothing writes to `matches` until the November shadow test on staging passes (§3 step 5). Never auto-settle.
    **Done means:** `docs/LIVE-FEED.md` §7.
 

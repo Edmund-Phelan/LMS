@@ -1,14 +1,41 @@
 import type { Match } from './lib/supabase'
 
-// Spec §16 without a feed: "live" comes from the clock, scores only from an admin's result.
-// ponytail: no live score or minute; add them back if a results API turns up (NEXT.md 5c).
+// Spec §16 + LIVE-FEED.md §3 step 6: live scores from the feed (live_*) while it's fresh; without it, "live" comes
+// from the clock and scores only from a result. Highlightly has no match minute, so the label is the state.
 export const LIVE_MS = 100 * 60_000 // kick-off → ~full time (80 min + half-time + stoppages)
+export const STALE_MS = 20 * 60_000 // feed older than this → back to the clock
 
 export type MatchState = 'upcoming' | 'live' | 'waiting' | 'final' | 'off'
+
+const LIVE_LABEL: Record<string, string> = {
+  'First half': '1ST HALF',
+  'Half time': 'HT',
+  'Second half': '2ND HALF',
+  'Extra time': 'EXTRA TIME',
+  'Break time': 'BREAK',
+  Penalties: 'KICKS',
+  Suspended: 'SUSPENDED',
+  Interrupted: 'STOPPED',
+}
+
+/**
+ * The feed's score: in play and fresh → { label: '2ND HALF', … }; full time → final: true (shown "being checked":
+ * the list's score is live only, the result comes from the standings + ESPN check or an admin, LIVE-FEED.md §4).
+ */
+export function liveScore(m: Match, now: number) {
+  if (m.status !== 'scheduled' || m.live_home == null || m.live_away == null || !m.live_updated_at) return null
+  const final = /^Finished/.test(m.live_state ?? '')
+  const label = final ? 'FULL TIME' : m.live_state ? LIVE_LABEL[m.live_state] : undefined
+  const at = Date.parse(m.live_updated_at)
+  if (!label || (!final && now - at > STALE_MS)) return null
+  return { label, home: m.live_home, away: m.live_away, at, final }
+}
 
 export function matchState(m: Match, now: number): MatchState {
   if (m.status === 'postponed' || m.status === 'abandoned') return 'off'
   if (m.status === 'completed' && m.home_score !== null && m.away_score !== null) return 'final'
+  const ls = liveScore(m, now)
+  if (ls) return ls.final ? 'waiting' : 'live'
   const k = Date.parse(m.kickoff_at)
   return now < k ? 'upcoming' : now < k + LIVE_MS ? 'live' : 'waiting'
 }

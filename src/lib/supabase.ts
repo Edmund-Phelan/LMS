@@ -37,6 +37,11 @@ export type Match = {
   away_score: number | null
   winner_team_id: number | null
   status: EngineMatch['status']
+  // Live feed (LIVE-FEED.md): display only, never read by the engine or the settle.
+  live_state?: string | null
+  live_home?: number | null
+  live_away?: number | null
+  live_updated_at?: string | null
 }
 export type Player = {
   id: string

@@ -1,13 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import type { Match } from './lib/supabase'
-import { koReason, LIVE_MS, matchState, pickState } from './live'
+import { koReason, liveScore, LIVE_MS, matchState, pickState, STALE_MS } from './live'
 
 const KO = Date.parse('2026-12-12T15:00:00Z') // Sat 15:00 Irish (winter, UTC+0)
 const m = (p: Partial<Match> = {}): Match => ({
-  id: 1, round_id: 1, home_team_id: 10, away_team_id: 20, kickoff_at: new Date(KO).toISOString(),
-  home_score: null, away_score: null, winner_team_id: null, status: 'scheduled', ...p,
+  id: 1,
+  round_id: 1,
+  home_team_id: 10,
+  away_team_id: 20,
+  kickoff_at: new Date(KO).toISOString(),
+  home_score: null,
+  away_score: null,
+  winner_team_id: null,
+  status: 'scheduled',
+  ...p,
 })
-const ft = (h: number, a: number, p: Partial<Match> = {}) => m({ status: 'completed', home_score: h, away_score: a, ...p })
+const ft = (h: number, a: number, p: Partial<Match> = {}) =>
+  m({ status: 'completed', home_score: h, away_score: a, ...p })
 
 describe('matchState', () => {
   it('is upcoming, live for 100 min, then waiting for an admin', () => {
@@ -52,5 +61,36 @@ describe('koReason', () => {
     expect(koReason(ft(13, 20), 10, false)).toBe('lost by 7')
     expect(koReason(ft(20, 13), 20, false)).toBe('lost by 7')
     expect(koReason(ft(20, 20, { winner_team_id: 20 }), 10, true)).toBe('out on the kicking competition')
+  })
+})
+
+describe('live feed (LIVE-FEED.md step 6)', () => {
+  const at = KO + 50 * 60_000
+  const feed = (state: string, h: number, a: number, updated = at, p: Partial<Match> = {}) =>
+    m({ live_state: state, live_home: h, live_away: a, live_updated_at: new Date(updated).toISOString(), ...p })
+  it('a fresh in-play score is live, with the state as the label', () => {
+    expect(liveScore(feed('Second half', 20, 17), at + 60_000)).toMatchObject({ label: '2ND HALF', home: 20, away: 17 })
+    expect(liveScore(feed('Half time', 13, 10), at)).toMatchObject({ label: 'HT' })
+    // Past the clock's 100 min, the feed still says it's on: live, not "Result due".
+    expect(matchState(feed('Second half', 20, 17, KO + LIVE_MS + 60_000), KO + LIVE_MS + 120_000)).toBe('live')
+  })
+  it('a stale feed falls back to the clock', () => {
+    expect(liveScore(feed('Second half', 20, 17), at + STALE_MS + 1)).toBeNull()
+    expect(matchState(feed('Second half', 20, 17, KO), KO + LIVE_MS + STALE_MS)).toBe('waiting')
+  })
+  it('the feed’s full time is "being checked", never a result: no Through/Out until the official score', () => {
+    const fin = feed('Finished', 27, 45)
+    expect(liveScore(fin, at + 3_600_000)).toMatchObject({ final: true, home: 27, away: 45 })
+    expect(matchState(fin, at)).toBe('waiting')
+    expect(pickState(fin, 20, false, at)).toBe('waiting')
+  })
+  it('an official result wins over the feed', () => {
+    const done = feed('Finished', 27, 45, at, { status: 'completed', home_score: 27, away_score: 47 })
+    expect(liveScore(done, at)).toBeNull()
+    expect(matchState(done, at)).toBe('final')
+  })
+  it('not started, or no score yet: nothing from the feed', () => {
+    expect(liveScore(feed('Not started', 0, 0), at)).toBeNull()
+    expect(liveScore(m({ live_state: 'First half', live_updated_at: new Date(at).toISOString() }), at)).toBeNull()
   })
 })
