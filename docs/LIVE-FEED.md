@@ -21,6 +21,24 @@ potential: pick-week scouting (form, head-to-head, season record, win chance) an
 
 ---
 
+## 0. Step 1 result (18 Oct): gate failed on the match list → option 1 (Eddie)
+
+- League **46738** "European Rugby Champions Cup", season **2026** (`leagueName=Champions Cup` finds nothing: list
+  `/leagues?limit=100`). Gloucester 36–36 Bordeaux `Finished` ✓. 8 of the 9 finished R1 scores right.
+- **Sale v Glasgow: the `/matches` list says 27–45 `Finished`; the real score is 27–47** (club site, ESPN, press). Still
+  wrong 19 h after full time. Highlightly's own `/standings` had it right (Glasgow 47 for, 27 against).
+- **Eddie, 18 Oct: option 1 + standings.** The list score is **live only**. A pool match's official score is the
+  **standings delta** (§4), written only when ESPN's scoreboard agrees; knockouts (no standings): list score + ESPN
+  agreeing. Any disagreement → admin. ESPN was right on all 9 R1 games but lagged 18 h on 17 Oct, so a lag just waits.
+- `/matches/{id}` for a Champions Cup match: venue, referee, forecast **all null**, `lineups` **null**, `predictions.live`
+  **empty**, 21 `prematch` snapshots (`"79.87%"` strings). Nothing beyond the spec (no stats, events, clock, HT score).
+  So: no Highlightly team sheets, no venue/ref line, no swing chart unless `live[]` fills on a later match (re-check in R2).
+  ESPN's summary has `rosters` (23 per side, shirt numbers, positions, starters) → team sheets from ESPN; its
+  `boxscore.teams[].statistics` is empty → **Match stats section dropped**.
+- Highlights: 6 for the 9 finished games, all VERIFIED, youtube, `match-highlights`, official EPCR channel,
+  `embedUrl` = `www.youtube.com/embed/<id>` (swap to youtube-nocookie). `/last-five-games`, `/head-2-head` (3 meetings),
+  `/teams/statistics`, `/standings` (4 groups × 6, team ids) all fine. Fixtures: `supabase/functions/_fixtures/`.
+
 ## 1. API facts (from the docs + OpenAPI spec, 18 Oct; verify in step 1)
 
 - Base `https://rugby.highlightly.net`, header `x-rapidapi-key: <key>` (same header name even off RapidAPI).
@@ -92,7 +110,9 @@ potential: pick-week scouting (form, head-to-head, season record, win chance) an
    - `match_highlights`: `id bigint pk` (Highlightly id), `match_id → matches`, `type`, `category`, `title`, `img_url`,
      `url`, `embed_url`, `source`, `channel`, `fetched_at`.
    - `pool_standings`: one row per team (pool, position, played, won, drawn, lost, points for/against, points,
-     `updated_at`), replaced per fetch.
+     `updated_at`), replaced per fetch. Plus `standings_baseline` (round_id, team_id, played, points for/against):
+     the delta baseline for §4, copied from `pool_standings` before the round's first kick-off (zeros for Round 1),
+     never changed after. Each team plays once a round, so baseline vs now is that team's match.
    - `api_calls`: `at`, `endpoint`, `http_status`, `remaining` (from the header), `note`.
    - `match_scouting`: `match_id` pk, `h2h jsonb`, `home_form jsonb`, `away_form jsonb`, `updated_at`.
    - `team_season_stats`: `team_id`, `season`, `total jsonb`, `home jsonb`, `away jsonb`, `updated_at`.
@@ -142,8 +162,13 @@ potential: pick-week scouting (form, head-to-head, season record, win chance) an
 
 - **Live** (First half, Half time, Second half, Break time, Extra time, Penalties, Suspended, Interrupted): write only
   `live_*`. Never the official score.
-- **Finished:** write `home_score`, `away_score`, `status = completed`, `result_source = api`. Pool: that's the
-  80-minute result (rule 6; a draw is a loss). Knockouts: set `winner_team_id` if the scores differ; level → leave it
+- **Finished** (Eddie, 18 Oct, §0): the list's score is never the official one. **Pool:** the score is the standings
+  delta: each team's `scoredPoints`/`receivedPoints` now minus the last stored `pool_standings` row from before the
+  match, valid only if each team's `gamesPlayed` went up by exactly 1 and home scored = away received (and vice versa).
+  Not valid yet (standings lag) → wait for the next standings call. Valid → compare with ESPN's scoreboard: same → write
+  `home_score`, `away_score`, `status = completed`, `result_source = api`, `check_state = match`; ESPN not final →
+  `espn_lag`, wait; different, or standings ≠ list once both final for 1 h → `mismatch`, write nothing, admin types it.
+  That's the 80-minute result (rule 6; a draw is a loss). **Knockouts:** list score, written only when ESPN agrees. Knockouts: set `winner_team_id` if the scores differ; level → leave it
   null, `needs_admin = 'knockout level'` (the kicking competition isn't in the score string).
 - **Finished after extra time:** knockouts only, as above. In a pool match → don't write; `needs_admin = 'extra time in a pool match'`.
 - **Awarded:** write the score and set `needs_admin = 'awarded'` so an admin must look.
@@ -152,8 +177,8 @@ potential: pick-week scouting (form, head-to-head, season record, win chance) an
 - **Never overwrite a row with `result_source = admin`.** Never move a match backwards (final → live).
 - **Never settle automatically.** The feed only fills the scores the settle preview reads.
 - **While a round is being settled or after `settled_at`, the feed doesn't write that round's matches.**
-- **Cross-check:** when a match goes final, fetch ESPN's scoreboard for that date once (and again 1 h later if ESPN
-  isn't final yet): same score → `match`; ESPN not final → `espn_lag`; different → `mismatch`. It never writes scores.
+- **Cross-check:** ESPN's scoreboard for that date when a match's score is ready (and every 30 min while ESPN isn't
+  final, up to 24 h): it gates the write above; ESPN itself never writes a score.
 
 ## 5. Call schedule and the 100-calls/day budget
 
@@ -186,7 +211,8 @@ example (mock-up board `Budget`):
   check at 12:00 on the day only if budget allows after the reserve. A team sheet never costs a call during live windows.
 - **Highlights:** one `/highlights?leagueId&date` per match day at last full time + 1 h, + 3 h, next day 09:00 and 21:00,
   day + 2 at 09:00 (verified clips can take 48 h). Upsert into `match_highlights`.
-- **Standings:** Monday 07:00 in a match week, plus one at each match day's last full time + 1 h.
+- **Standings:** Monday 07:00 in a match week, plus one 15 min after each kick-off slot's matches go final (the result
+  source for pool matches, §4), then every 30 min until each of them has a valid delta (≈ 4–6 a match day).
 - **ESPN** (stats + cross-check) costs no Highlightly budget: summary once per match at full time + 30 min (+ retry at
   + 3 h if empty).
 - **Upgrade path:** $5.99/month = 7,500/day → poll every minute (the list refreshes once a minute anyway) and call

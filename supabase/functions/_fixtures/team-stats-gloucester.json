@@ -1,0 +1,125 @@
+[
+  {
+    "total": {
+      "games": {
+        "played": 1,
+        "wins": 0,
+        "draws": 1,
+        "loses": 0
+      },
+      "points": {
+        "scored": 36,
+        "received": 36
+      }
+    },
+    "home": {
+      "games": {
+        "played": 1,
+        "wins": 0,
+        "draws": 1,
+        "loses": 0
+      },
+      "points": {
+        "scored": 36,
+        "received": 36
+      }
+    },
+    "away": {
+      "games": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 0,
+        "received": 0
+      }
+    },
+    "leagueId": 46738,
+    "leagueName": "European Rugby Champions Cup",
+    "season": 2026
+  },
+  {
+    "total": {
+      "games": {
+        "played": 2,
+        "wins": 1,
+        "draws": 0,
+        "loses": 1
+      },
+      "points": {
+        "scored": 79,
+        "received": 38
+      }
+    },
+    "home": {
+      "games": {
+        "played": 1,
+        "wins": 1,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 48,
+        "received": 0
+      }
+    },
+    "away": {
+      "games": {
+        "played": 1,
+        "wins": 0,
+        "draws": 0,
+        "loses": 1
+      },
+      "points": {
+        "scored": 31,
+        "received": 38
+      }
+    },
+    "leagueId": 11847,
+    "leagueName": "Premiership Rugby",
+    "season": 2026
+  },
+  {
+    "total": {
+      "games": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 0,
+        "received": 0
+      }
+    },
+    "home": {
+      "games": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 0,
+        "received": 0
+      }
+    },
+    "away": {
+      "games": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 0,
+        "received": 0
+      }
+    },
+    "leagueId": 9294,
+    "leagueName": "Premiership Rugby Cup",
+    "season": 2026
+  }
+]

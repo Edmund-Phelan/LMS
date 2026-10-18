@@ -1,0 +1,84 @@
+[
+  {
+    "total": {
+      "games": {
+        "played": 1,
+        "wins": 0,
+        "draws": 1,
+        "loses": 0
+      },
+      "points": {
+        "scored": 36,
+        "received": 36
+      }
+    },
+    "home": {
+      "games": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 0,
+        "received": 0
+      }
+    },
+    "away": {
+      "games": {
+        "played": 1,
+        "wins": 0,
+        "draws": 1,
+        "loses": 0
+      },
+      "points": {
+        "scored": 36,
+        "received": 36
+      }
+    },
+    "leagueId": 46738,
+    "leagueName": "European Rugby Champions Cup",
+    "season": 2026
+  },
+  {
+    "total": {
+      "games": {
+        "played": 2,
+        "wins": 2,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 74,
+        "received": 50
+      }
+    },
+    "home": {
+      "games": {
+        "played": 1,
+        "wins": 1,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 51,
+        "received": 28
+      }
+    },
+    "away": {
+      "games": {
+        "played": 1,
+        "wins": 1,
+        "draws": 0,
+        "loses": 0
+      },
+      "points": {
+        "scored": 23,
+        "received": 22
+      }
+    },
+    "leagueId": 14400,
+    "leagueName": "Top 14",
+    "season": 2026
+  }
+]

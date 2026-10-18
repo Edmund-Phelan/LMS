@@ -1,0 +1,92 @@
+[
+  {
+    "id": 46181150,
+    "week": "1",
+    "date": "2026-10-16T19:00:00.000Z",
+    "country": {
+      "code": "EU",
+      "name": "Europe",
+      "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+    },
+    "state": {
+      "score": "36 - 36",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 82480,
+      "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+      "name": "Bordeaux Begles"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 46738,
+      "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+      "name": "European Rugby Champions Cup",
+      "season": 2026
+    }
+  },
+  {
+    "id": 21859570,
+    "week": "4",
+    "date": "2023-01-21T15:15:00.000Z",
+    "country": {
+      "code": "EU",
+      "name": "Europe",
+      "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+    },
+    "state": {
+      "score": "17 - 26",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "homeTeam": {
+      "id": 82480,
+      "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+      "name": "Bordeaux Begles"
+    },
+    "league": {
+      "id": 46738,
+      "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+      "name": "European Rugby Champions Cup",
+      "season": 2022
+    }
+  },
+  {
+    "id": 21828934,
+    "week": "1",
+    "date": "2022-12-10T15:15:00.000Z",
+    "country": {
+      "code": "EU",
+      "name": "Europe",
+      "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+    },
+    "state": {
+      "score": "22 - 17",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 82480,
+      "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+      "name": "Bordeaux Begles"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 46738,
+      "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+      "name": "European Rugby Champions Cup",
+      "season": 2022
+    }
+  }
+]

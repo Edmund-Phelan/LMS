@@ -1,0 +1,283 @@
+[
+  {
+    "predictions": {
+      "live": [],
+      "prematch": [
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-13T07:27:22.614Z",
+          "probabilities": {
+            "away": "79.87%",
+            "draw": "2.65%",
+            "home": "17.48%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-13T10:57:38.868Z",
+          "probabilities": {
+            "away": "77.79%",
+            "draw": "3.64%",
+            "home": "18.57%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-13T14:33:01.490Z",
+          "probabilities": {
+            "away": "77.18%",
+            "draw": "3.64%",
+            "home": "19.17%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-13T18:21:10.604Z",
+          "probabilities": {
+            "away": "77.18%",
+            "draw": "3.64%",
+            "home": "19.17%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-14T07:48:45.696Z",
+          "probabilities": {
+            "away": "77.18%",
+            "draw": "3.64%",
+            "home": "19.17%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-14T11:28:44.627Z",
+          "probabilities": {
+            "away": "76.22%",
+            "draw": "3.63%",
+            "home": "20.16%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-14T15:20:36.390Z",
+          "probabilities": {
+            "away": "76.22%",
+            "draw": "3.63%",
+            "home": "20.16%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-14T19:17:04.877Z",
+          "probabilities": {
+            "away": "76.22%",
+            "draw": "3.63%",
+            "home": "20.16%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T08:21:48.830Z",
+          "probabilities": {
+            "away": "76.10%",
+            "draw": "2.97%",
+            "home": "20.93%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T08:33:30.545Z",
+          "probabilities": {
+            "away": "76.10%",
+            "draw": "2.97%",
+            "home": "20.93%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T12:18:59.119Z",
+          "probabilities": {
+            "away": "73.48%",
+            "draw": "2.96%",
+            "home": "23.55%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T13:59:13.387Z",
+          "probabilities": {
+            "away": "73.48%",
+            "draw": "2.96%",
+            "home": "23.55%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T15:39:25.679Z",
+          "probabilities": {
+            "away": "73.48%",
+            "draw": "2.96%",
+            "home": "23.55%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T17:19:46.639Z",
+          "probabilities": {
+            "away": "71.52%",
+            "draw": "3.05%",
+            "home": "25.43%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T18:59:58.372Z",
+          "probabilities": {
+            "away": "71.52%",
+            "draw": "3.05%",
+            "home": "25.43%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T20:40:15.720Z",
+          "probabilities": {
+            "away": "71.52%",
+            "draw": "3.05%",
+            "home": "25.43%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-15T22:20:27.048Z",
+          "probabilities": {
+            "away": "71.52%",
+            "draw": "3.05%",
+            "home": "25.43%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-16T07:06:20.294Z",
+          "probabilities": {
+            "away": "71.52%",
+            "draw": "3.05%",
+            "home": "25.43%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-16T11:11:21.462Z",
+          "probabilities": {
+            "away": "69.67%",
+            "draw": "3.68%",
+            "home": "26.66%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-16T15:35:27.817Z",
+          "probabilities": {
+            "away": "69.67%",
+            "draw": "3.68%",
+            "home": "26.66%"
+          }
+        },
+        {
+          "type": "prematch",
+          "modelType": "three-way",
+          "description": "Bordeaux Begles is most likely to win the game against Gloucester.",
+          "generatedAt": "2026-10-16T20:23:19.423Z",
+          "probabilities": {
+            "away": "56.50%",
+            "draw": "10.63%",
+            "home": "32.87%"
+          }
+        }
+      ]
+    },
+    "venue": {
+      "city": null,
+      "name": null,
+      "country": null,
+      "capacity": null
+    },
+    "forecast": {
+      "status": null,
+      "temperature": null
+    },
+    "referee": {
+      "name": null,
+      "nationality": null
+    },
+    "lineups": null,
+    "id": 46181150,
+    "week": "1",
+    "date": "2026-10-16T19:00:00.000Z",
+    "country": {
+      "code": "EU",
+      "name": "Europe",
+      "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+    },
+    "state": {
+      "score": "36 - 36",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 82480,
+      "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+      "name": "Bordeaux Begles"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 46738,
+      "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+      "name": "European Rugby Champions Cup",
+      "season": 2026
+    }
+  }
+]

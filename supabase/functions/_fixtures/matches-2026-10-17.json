@@ -1,0 +1,253 @@
+{
+  "data": [
+    {
+      "id": 46187958,
+      "week": "1",
+      "date": "2026-10-17T19:00:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "33 - 25",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 89288,
+        "logo": "https://highlightly.net/rugby/images/teams/89288.png",
+        "name": "Racing 92"
+      },
+      "homeTeam": {
+        "id": 347992,
+        "logo": null,
+        "name": "Munster"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46187107,
+      "week": "1",
+      "date": "2026-10-17T19:00:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "14 - 32",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 87586,
+        "logo": "https://highlightly.net/rugby/images/teams/87586.png",
+        "name": "Montpellier"
+      },
+      "homeTeam": {
+        "id": 50142,
+        "logo": "https://highlightly.net/rugby/images/teams/50142.png",
+        "name": "Bath"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46186256,
+      "week": "1",
+      "date": "2026-10-17T16:30:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "31 - 14",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 253531,
+        "logo": "https://highlightly.net/rugby/images/teams/253531.png",
+        "name": "Lions"
+      },
+      "homeTeam": {
+        "id": 85884,
+        "logo": "https://highlightly.net/rugby/images/teams/85884.png",
+        "name": "Stade Rochelais"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46185405,
+      "week": "1",
+      "date": "2026-10-17T16:30:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "45 - 36",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 57801,
+        "logo": "https://highlightly.net/rugby/images/teams/57801.png",
+        "name": "Saracens"
+      },
+      "homeTeam": {
+        "id": 339482,
+        "logo": null,
+        "name": "Connacht"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46184554,
+      "week": "1",
+      "date": "2026-10-17T14:15:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "49 - 12",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 50993,
+        "logo": "https://highlightly.net/rugby/images/teams/50993.png",
+        "name": "Bristol"
+      },
+      "homeTeam": {
+        "id": 529255,
+        "logo": "https://highlightly.net/rugby/images/teams/529255.png",
+        "name": "Stormers"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46183703,
+      "week": "1",
+      "date": "2026-10-17T14:15:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "23 - 48",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 347141,
+        "logo": null,
+        "name": "Leinster"
+      },
+      "homeTeam": {
+        "id": 85033,
+        "logo": "https://highlightly.net/rugby/images/teams/85033.png",
+        "name": "Clermont"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46182852,
+      "week": "1",
+      "date": "2026-10-17T12:00:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "27 - 45",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 346290,
+        "logo": null,
+        "name": "Glasgow Warriors"
+      },
+      "homeTeam": {
+        "id": 56950,
+        "logo": "https://highlightly.net/rugby/images/teams/56950.png",
+        "name": "Sale Sharks"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    },
+    {
+      "id": 46182001,
+      "week": "1",
+      "date": "2026-10-17T12:00:00.000Z",
+      "country": {
+        "code": "EU",
+        "name": "Europe",
+        "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+      },
+      "state": {
+        "score": "56 - 20",
+        "description": "Finished"
+      },
+      "awayTeam": {
+        "id": 90990,
+        "logo": "https://highlightly.net/rugby/images/teams/90990.png",
+        "name": "Stade Français Paris"
+      },
+      "homeTeam": {
+        "id": 250978,
+        "logo": "https://highlightly.net/rugby/images/teams/250978.png",
+        "name": "Bulls"
+      },
+      "league": {
+        "id": 46738,
+        "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+        "name": "European Rugby Champions Cup",
+        "season": 2026
+      }
+    }
+  ],
+  "plan": {
+    "tier": "BASIC",
+    "message": "All data available with current plan."
+  },
+  "pagination": {
+    "totalCount": 8,
+    "offset": 0,
+    "limit": 100
+  }
+}

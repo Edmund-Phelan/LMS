@@ -1,0 +1,203 @@
+{
+  "data": [
+    {
+      "id": 12414,
+      "type": "VERIFIED",
+      "imgUrl": "https://i.ytimg.com/vi/Lb7-NU5fvGc/hqdefault.jpg",
+      "title": "European Rugby Champions Cup: Connacht vs Saracens",
+      "description": null,
+      "url": "https://www.youtube.com/watch?v=Lb7-NU5fvGc",
+      "embedUrl": "https://www.youtube.com/embed/Lb7-NU5fvGc",
+      "channel": "Investec Champions Cup & EPCR Challenge Cup",
+      "source": "youtube",
+      "match": {
+        "id": 46185405,
+        "week": "1",
+        "date": "2026-10-17T16:30:00.000Z",
+        "country": {
+          "code": "EU",
+          "name": "Europe",
+          "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+        },
+        "awayTeam": {
+          "id": 57801,
+          "logo": "https://highlightly.net/rugby/images/teams/57801.png",
+          "name": "Saracens"
+        },
+        "homeTeam": {
+          "id": 339482,
+          "logo": null,
+          "name": "Connacht"
+        },
+        "league": {
+          "id": 46738,
+          "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+          "name": "European Rugby Champions Cup",
+          "season": 2026
+        }
+      },
+      "category": "match-highlights"
+    },
+    {
+      "id": 12410,
+      "type": "VERIFIED",
+      "imgUrl": "https://i.ytimg.com/vi/fUEp-KURar8/hqdefault.jpg",
+      "title": "European Rugby Champions Cup: Stade Rochelais vs Lions",
+      "description": null,
+      "url": "https://www.youtube.com/watch?v=fUEp-KURar8",
+      "embedUrl": "https://www.youtube.com/embed/fUEp-KURar8",
+      "channel": "Investec Champions Cup & EPCR Challenge Cup",
+      "source": "youtube",
+      "match": {
+        "id": 46186256,
+        "week": "1",
+        "date": "2026-10-17T16:30:00.000Z",
+        "country": {
+          "code": "EU",
+          "name": "Europe",
+          "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+        },
+        "awayTeam": {
+          "id": 253531,
+          "logo": "https://highlightly.net/rugby/images/teams/253531.png",
+          "name": "Lions"
+        },
+        "homeTeam": {
+          "id": 85884,
+          "logo": "https://highlightly.net/rugby/images/teams/85884.png",
+          "name": "Stade Rochelais"
+        },
+        "league": {
+          "id": 46738,
+          "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+          "name": "European Rugby Champions Cup",
+          "season": 2026
+        }
+      },
+      "category": "match-highlights"
+    },
+    {
+      "id": 12407,
+      "type": "VERIFIED",
+      "imgUrl": "https://i.ytimg.com/vi/ZB2gkZlSDiM/hqdefault.jpg",
+      "title": "European Rugby Champions Cup: Stormers vs Bristol",
+      "description": null,
+      "url": "https://www.youtube.com/watch?v=ZB2gkZlSDiM",
+      "embedUrl": "https://www.youtube.com/embed/ZB2gkZlSDiM",
+      "channel": "Investec Champions Cup & EPCR Challenge Cup",
+      "source": "youtube",
+      "match": {
+        "id": 46184554,
+        "week": "1",
+        "date": "2026-10-17T14:15:00.000Z",
+        "country": {
+          "code": "EU",
+          "name": "Europe",
+          "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+        },
+        "awayTeam": {
+          "id": 50993,
+          "logo": "https://highlightly.net/rugby/images/teams/50993.png",
+          "name": "Bristol"
+        },
+        "homeTeam": {
+          "id": 529255,
+          "logo": "https://highlightly.net/rugby/images/teams/529255.png",
+          "name": "Stormers"
+        },
+        "league": {
+          "id": 46738,
+          "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+          "name": "European Rugby Champions Cup",
+          "season": 2026
+        }
+      },
+      "category": "match-highlights"
+    },
+    {
+      "id": 12405,
+      "type": "VERIFIED",
+      "imgUrl": "https://i.ytimg.com/vi/PLNJb4HtoXU/hqdefault.jpg",
+      "title": "European Rugby Champions Cup: Clermont vs Leinster",
+      "description": null,
+      "url": "https://www.youtube.com/watch?v=PLNJb4HtoXU",
+      "embedUrl": "https://www.youtube.com/embed/PLNJb4HtoXU",
+      "channel": "Premier Sports",
+      "source": "youtube",
+      "match": {
+        "id": 46183703,
+        "week": "1",
+        "date": "2026-10-17T14:15:00.000Z",
+        "country": {
+          "code": "EU",
+          "name": "Europe",
+          "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+        },
+        "awayTeam": {
+          "id": 347141,
+          "logo": null,
+          "name": "Leinster"
+        },
+        "homeTeam": {
+          "id": 85033,
+          "logo": "https://highlightly.net/rugby/images/teams/85033.png",
+          "name": "Clermont"
+        },
+        "league": {
+          "id": 46738,
+          "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+          "name": "European Rugby Champions Cup",
+          "season": 2026
+        }
+      },
+      "category": "match-highlights"
+    },
+    {
+      "id": 12403,
+      "type": "VERIFIED",
+      "imgUrl": "https://i.ytimg.com/vi/yga00uKwenw/hqdefault.jpg",
+      "title": "European Rugby Champions Cup: Bulls vs Stade Français Paris",
+      "description": null,
+      "url": "https://www.youtube.com/watch?v=yga00uKwenw",
+      "embedUrl": "https://www.youtube.com/embed/yga00uKwenw",
+      "channel": "Investec Champions Cup & EPCR Challenge Cup",
+      "source": "youtube",
+      "match": {
+        "id": 46182001,
+        "week": "1",
+        "date": "2026-10-17T12:00:00.000Z",
+        "country": {
+          "code": "EU",
+          "name": "Europe",
+          "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+        },
+        "awayTeam": {
+          "id": 90990,
+          "logo": "https://highlightly.net/rugby/images/teams/90990.png",
+          "name": "Stade Français Paris"
+        },
+        "homeTeam": {
+          "id": 250978,
+          "logo": "https://highlightly.net/rugby/images/teams/250978.png",
+          "name": "Bulls"
+        },
+        "league": {
+          "id": 46738,
+          "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+          "name": "European Rugby Champions Cup",
+          "season": 2026
+        }
+      },
+      "category": "match-highlights"
+    }
+  ],
+  "plan": {
+    "tier": "BASIC",
+    "message": "All data available with current plan."
+  },
+  "pagination": {
+    "totalCount": 5,
+    "offset": 0,
+    "limit": 40
+  }
+}

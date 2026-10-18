@@ -1,0 +1,152 @@
+[
+  {
+    "id": 46181150,
+    "week": "1",
+    "date": "2026-10-16T19:00:00.000Z",
+    "country": {
+      "code": "EU",
+      "name": "Europe",
+      "logo": "http://highlightly.net/rugby/images/countries/EU.svg"
+    },
+    "state": {
+      "score": "36 - 36",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 82480,
+      "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+      "name": "Bordeaux Begles"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 46738,
+      "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+      "name": "European Rugby Champions Cup",
+      "season": 2026
+    }
+  },
+  {
+    "id": 46844079,
+    "week": "3",
+    "date": "2026-10-09T18:45:00.000Z",
+    "country": {
+      "code": "GB-ENG",
+      "name": "England",
+      "logo": "http://highlightly.net/rugby/images/countries/GB-ENG.svg"
+    },
+    "state": {
+      "score": "38 - 31",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "homeTeam": {
+      "id": 54397,
+      "logo": "https://highlightly.net/rugby/images/teams/54397.png",
+      "name": "Leicester Tigers"
+    },
+    "league": {
+      "id": 11847,
+      "logo": "https://highlightly.net/rugby/images/leagues/11847.png",
+      "name": "Premiership Rugby",
+      "season": 2026
+    }
+  },
+  {
+    "id": 46841526,
+    "week": "2",
+    "date": "2026-10-03T16:30:00.000Z",
+    "country": {
+      "code": "GB-ENG",
+      "name": "England",
+      "logo": "http://highlightly.net/rugby/images/countries/GB-ENG.svg"
+    },
+    "state": {
+      "score": "48 - 0",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 53546,
+      "logo": "https://highlightly.net/rugby/images/teams/53546.png",
+      "name": "Harlequins"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 11847,
+      "logo": "https://highlightly.net/rugby/images/leagues/11847.png",
+      "name": "Premiership Rugby",
+      "season": 2026
+    }
+  },
+  {
+    "id": 46837271,
+    "week": "1",
+    "date": "2026-09-26T14:05:00.000Z",
+    "country": {
+      "code": "GB-ENG",
+      "name": "England",
+      "logo": "http://highlightly.net/rugby/images/countries/GB-ENG.svg"
+    },
+    "state": {
+      "score": "24 - 45",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "homeTeam": {
+      "id": 51844,
+      "logo": "https://highlightly.net/rugby/images/teams/51844.png",
+      "name": "Exeter Chiefs"
+    },
+    "league": {
+      "id": 11847,
+      "logo": "https://highlightly.net/rugby/images/leagues/11847.png",
+      "name": "Premiership Rugby",
+      "season": 2026
+    }
+  },
+  {
+    "id": 46570057,
+    "week": "2",
+    "date": "2026-09-12T14:00:00.000Z",
+    "country": {
+      "code": "GB-ENG",
+      "name": "England",
+      "logo": "http://highlightly.net/rugby/images/countries/GB-ENG.svg"
+    },
+    "state": {
+      "score": "43 - 26",
+      "description": "Finished"
+    },
+    "awayTeam": {
+      "id": 56950,
+      "logo": "https://highlightly.net/rugby/images/teams/56950.png",
+      "name": "Sale Sharks"
+    },
+    "homeTeam": {
+      "id": 52695,
+      "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+      "name": "Gloucester"
+    },
+    "league": {
+      "id": 9294,
+      "logo": "https://highlightly.net/rugby/images/leagues/9294.png",
+      "name": "Premiership Rugby Cup",
+      "season": 2026
+    }
+  }
+]

@@ -1,0 +1,390 @@
+{
+  "groups": [
+    {
+      "name": "European Rugby Champions Cup 26/27, Group 1",
+      "standings": [
+        {
+          "team": {
+            "id": 347141,
+            "logo": null,
+            "name": "Leinster"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 5,
+          "position": 1,
+          "gamesPlayed": 1,
+          "scoredPoints": 48,
+          "receivedPoints": 23
+        },
+        {
+          "team": {
+            "id": 346290,
+            "logo": null,
+            "name": "Glasgow Warriors"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 5,
+          "position": 2,
+          "gamesPlayed": 1,
+          "scoredPoints": 47,
+          "receivedPoints": 27
+        },
+        {
+          "team": {
+            "id": 54397,
+            "logo": "https://highlightly.net/rugby/images/teams/54397.png",
+            "name": "Leicester Tigers"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 3,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 90139,
+            "logo": "https://highlightly.net/rugby/images/teams/90139.png",
+            "name": "Section Paloise"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 4,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 56950,
+            "logo": "https://highlightly.net/rugby/images/teams/56950.png",
+            "name": "Sale Sharks"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 5,
+          "gamesPlayed": 1,
+          "scoredPoints": 27,
+          "receivedPoints": 47
+        },
+        {
+          "team": {
+            "id": 85033,
+            "logo": "https://highlightly.net/rugby/images/teams/85033.png",
+            "name": "Clermont"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 6,
+          "gamesPlayed": 1,
+          "scoredPoints": 23,
+          "receivedPoints": 48
+        }
+      ]
+    },
+    {
+      "name": "European Rugby Champions Cup 26/27, Group 2",
+      "standings": [
+        {
+          "team": {
+            "id": 85884,
+            "logo": "https://highlightly.net/rugby/images/teams/85884.png",
+            "name": "Stade Rochelais"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 5,
+          "position": 1,
+          "gamesPlayed": 1,
+          "scoredPoints": 31,
+          "receivedPoints": 14
+        },
+        {
+          "team": {
+            "id": 339482,
+            "logo": null,
+            "name": "Connacht"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 4,
+          "position": 2,
+          "gamesPlayed": 1,
+          "scoredPoints": 45,
+          "receivedPoints": 36
+        },
+        {
+          "team": {
+            "id": 51844,
+            "logo": "https://highlightly.net/rugby/images/teams/51844.png",
+            "name": "Exeter Chiefs"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 3,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 91841,
+            "logo": "https://highlightly.net/rugby/images/teams/91841.png",
+            "name": "Stade Toulousain"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 4,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 57801,
+            "logo": "https://highlightly.net/rugby/images/teams/57801.png",
+            "name": "Saracens"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 5,
+          "gamesPlayed": 1,
+          "scoredPoints": 36,
+          "receivedPoints": 45
+        },
+        {
+          "team": {
+            "id": 253531,
+            "logo": "https://highlightly.net/rugby/images/teams/253531.png",
+            "name": "Lions"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 6,
+          "gamesPlayed": 1,
+          "scoredPoints": 14,
+          "receivedPoints": 31
+        }
+      ]
+    },
+    {
+      "name": "European Rugby Champions Cup 26/27, Group 3",
+      "standings": [
+        {
+          "team": {
+            "id": 529255,
+            "logo": "https://highlightly.net/rugby/images/teams/529255.png",
+            "name": "Stormers"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 5,
+          "position": 1,
+          "gamesPlayed": 1,
+          "scoredPoints": 49,
+          "receivedPoints": 12
+        },
+        {
+          "team": {
+            "id": 347992,
+            "logo": null,
+            "name": "Munster"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 4,
+          "position": 2,
+          "gamesPlayed": 1,
+          "scoredPoints": 33,
+          "receivedPoints": 25
+        },
+        {
+          "team": {
+            "id": 52695,
+            "logo": "https://highlightly.net/rugby/images/teams/52695.png",
+            "name": "Gloucester"
+          },
+          "wins": 0,
+          "draws": 1,
+          "loses": 0,
+          "points": 2,
+          "position": 3,
+          "gamesPlayed": 1,
+          "scoredPoints": 36,
+          "receivedPoints": 36
+        },
+        {
+          "team": {
+            "id": 82480,
+            "logo": "https://highlightly.net/rugby/images/teams/82480.png",
+            "name": "Bordeaux Begles"
+          },
+          "wins": 0,
+          "draws": 1,
+          "loses": 0,
+          "points": 2,
+          "position": 4,
+          "gamesPlayed": 1,
+          "scoredPoints": 36,
+          "receivedPoints": 36
+        },
+        {
+          "team": {
+            "id": 89288,
+            "logo": "https://highlightly.net/rugby/images/teams/89288.png",
+            "name": "Racing 92"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 5,
+          "gamesPlayed": 1,
+          "scoredPoints": 25,
+          "receivedPoints": 33
+        },
+        {
+          "team": {
+            "id": 50993,
+            "logo": "https://highlightly.net/rugby/images/teams/50993.png",
+            "name": "Bristol"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 6,
+          "gamesPlayed": 1,
+          "scoredPoints": 12,
+          "receivedPoints": 49
+        }
+      ]
+    },
+    {
+      "name": "European Rugby Champions Cup 26/27, Group 4",
+      "standings": [
+        {
+          "team": {
+            "id": 250978,
+            "logo": "https://highlightly.net/rugby/images/teams/250978.png",
+            "name": "Bulls"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 5,
+          "position": 1,
+          "gamesPlayed": 1,
+          "scoredPoints": 56,
+          "receivedPoints": 20
+        },
+        {
+          "team": {
+            "id": 87586,
+            "logo": "https://highlightly.net/rugby/images/teams/87586.png",
+            "name": "Montpellier"
+          },
+          "wins": 1,
+          "draws": 0,
+          "loses": 0,
+          "points": 4,
+          "position": 2,
+          "gamesPlayed": 1,
+          "scoredPoints": 32,
+          "receivedPoints": 14
+        },
+        {
+          "team": {
+            "id": 520745,
+            "logo": null,
+            "name": "Cardiff Rugby"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 3,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 56099,
+            "logo": "https://highlightly.net/rugby/images/teams/56099.png",
+            "name": "Northampton Saints"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 0,
+          "points": 0,
+          "position": 4,
+          "gamesPlayed": 0,
+          "scoredPoints": 0,
+          "receivedPoints": 0
+        },
+        {
+          "team": {
+            "id": 50142,
+            "logo": "https://highlightly.net/rugby/images/teams/50142.png",
+            "name": "Bath"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 5,
+          "gamesPlayed": 1,
+          "scoredPoints": 14,
+          "receivedPoints": 32
+        },
+        {
+          "team": {
+            "id": 90990,
+            "logo": "https://highlightly.net/rugby/images/teams/90990.png",
+            "name": "Stade Français Paris"
+          },
+          "wins": 0,
+          "draws": 0,
+          "loses": 1,
+          "points": 0,
+          "position": 6,
+          "gamesPlayed": 1,
+          "scoredPoints": 20,
+          "receivedPoints": 56
+        }
+      ]
+    }
+  ],
+  "league": {
+    "id": 46738,
+    "logo": "https://highlightly.net/rugby/images/leagues/46738.png",
+    "name": "European Rugby Champions Cup",
+    "season": 2026
+  }
+}
