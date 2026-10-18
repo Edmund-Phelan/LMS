@@ -79,16 +79,17 @@ async function storeStandings(json: unknown) {
 async function sync(now: number) {
   const { data: settings } = await db.from('feed_settings').select('*').single()
   const today = dublinDate(now)
-  const { data: all } = await db
+  const { data: all, error } = await db
     .from('matches')
     .select(
       'id, round_id, hl_match_id, kickoff_at, status, result_source, home_team_id, away_team_id, ' +
         'home:teams!home_team_id(hl_team_id, espn_team_id), away:teams!away_team_id(hl_team_id, espn_team_id), ' +
-        'round:rounds!inner(number, stage, settled_at)',
+        'round:rounds!round_id(number, stage, settled_at)',
     )
     .gte('kickoff_at', new Date(now - 36 * 60 * MIN).toISOString())
     .lte('kickoff_at', new Date(now + 36 * 60 * MIN).toISOString())
     .returns<MatchRow[]>()
+  if (error) throw new Error(`matches: ${error.message}`)
   const rows = (all ?? []).filter((m) => dublinDate(m.kickoff_at) === today)
   if (!rows.length) return { skipped: 'no match today' }
 
