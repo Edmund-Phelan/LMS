@@ -144,9 +144,10 @@ New `src/Shell.tsx` wraps every signed-in route except first-login profile setup
   and a chip on the right:
   - before the lock: picked → Investec-blue chip with a check, "Picked"; not picked → dashed outline "Thinking…".
   - after the lock: gold "Locked in" / dashed "No pick".
-- Footer: "Teams stay hidden until the lock, admins included. Then the cards flip."
+- Footer: "Teams stay hidden until the lock, admins included. Then everyone’s team shows here."
 - **Never shows a team before the lock.** Data comes from `round_pick_status` (§8).
-- After the lock, the existing `RevealCards` team sheet sits above the squad, restyled to the dark cards.
+- After the lock, everyone’s team shows in the squad list (crest + name, "· auto-pick" if drawn). The flip-card team
+  sheet (`RevealCards`) was removed 18 Oct (Eddie); jinxes and predictions stay as their own cards.
 
 ### 3.6 Jinx picker (players who are out)
 Replace the `<select>` with a row of survivor avatars to tap (single select, gold ring on the chosen one, same upsert).

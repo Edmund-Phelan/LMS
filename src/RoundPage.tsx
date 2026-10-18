@@ -13,7 +13,6 @@ import {
 import { entryOf, loadPayments, PayEntry, potEur, type PaymentRow } from './Pay'
 import { FixtureList, PickSheet, Takeover, useThud } from './Pick'
 import { Avatar } from './Profile'
-import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
 import Shell, { Icon, Loading } from './Shell'
 import { sfx } from './sound'
@@ -840,7 +839,7 @@ export default function RoundPage({ me }: { me: string }) {
             </Raffle>
           )}
 
-          {locked && <Reveal data={data} name={name} />}
+          {locked && <AfterLock data={data} name={name} />}
           <Squad
             squad={data.squad}
             players={players}
@@ -1062,7 +1061,10 @@ function Squad({
                     <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-white">
                       <img src={crestUrl(team)} alt="" className="h-[14px] w-[14px] object-contain" />
                     </span>
-                    <span className="truncate">{team.name}</span>
+                    <span className="truncate">
+                      {team.name}
+                      {pick?.is_auto && ' · auto-pick'}
+                    </span>
                   </span>
                 ) : boughtBack.has(p.id) ? (
                   <span className="block text-xs text-gold">{real}Bought back</span>
@@ -1112,27 +1114,20 @@ function Squad({
       <p className="text-center text-xs text-muted">
         {locked
           ? settled
-            ? 'The team sheet is above, one card per player.'
+            ? 'Results are official: the round is settled.'
             : 'Through and Out are official once the round is settled.'
-          : 'Teams stay hidden until the lock, admins included. Then the cards flip.'}
+          : 'Teams stay hidden until the lock, admins included. Then everyone’s team shows here.'}
       </p>
     </section>
   )
 }
 
-// Visible only after the lock, because that's when RLS starts returning everyone's rows.
-function Reveal({ data, name }: { data: Data; name: (id: string) => string }) {
+// Jinxes and predictions, visible only after the lock (that's when RLS starts returning everyone's rows). Everyone's
+// team is in the Squad list; the flip-card team sheet was dropped (Eddie, 18 Oct).
+function AfterLock({ data, name }: { data: Data; name: (id: string) => string }) {
   const featured = data.matches.find((m) => m.id === data.round!.featured_match_id)
   return (
     <>
-      <section className="flex flex-col gap-2.5">
-        <RevealCards picks={data.picks} teams={data.teams} name={name} />
-        {data.picks.length === 0 && (
-          <p className="text-muted">
-            {data.round!.number === 1 ? 'No picks.' : 'No picks yet. Auto-picks land within a minute of the lock.'}
-          </p>
-        )}
-      </section>
       {data.jinxes.length > 0 && (
         <section className="hairline rounded-[20px] bg-navy-800 p-4">
           <h2 className="disp mb-2 text-lg font-extrabold">Jinxes</h2>

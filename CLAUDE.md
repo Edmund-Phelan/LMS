@@ -162,7 +162,8 @@ prediction scoring boundaries (off by exactly 5 and exactly 10); jinx on a playe
 - **Pick:** the round's fixtures as cards. Used/burned teams greyed out, labelled with the round used. Tap = team takeover
   (7). Featured-match score prediction on the same screen. The featured match is a random server-side draw by an admin when
   the round opens (`draw_featured_match`, one-shot, no re-draws), revealed to each player with a tap-to-open raffle animation. Jinx picker if you're out. Change freely until the lock.
-- **Reveal (after lock):** tap-to-flip cards, one per player, like a team-sheet announcement. Lists jinxes.
+- **Reveal (after lock):** everyone's team shows in the squad list; jinxes and predictions are listed. (The tap-to-flip
+  team-sheet cards were dropped 18 Oct, Eddie: the squad list already shows every pick.)
 - **Results:** who's through, who's out, points table.
 - **Pay:** "Pay €10" opens Eddie's revolut.me link (`https://revolut.me/eddie1apt`); "I've paid" creates a claimed payment. Paid badge once confirmed.
   Buy-back request flows the same way and shows pending until confirmed.
