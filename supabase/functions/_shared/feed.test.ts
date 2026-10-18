@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
+  espnResults,
+  parseStandings,
   mapState,
   parseScore,
   planCalls,
@@ -181,5 +183,19 @@ describe('planCalls (§5)', () => {
   })
   it('all final: no call', () => {
     expect(planCalls(t0 + 100 * MIN, [ko(0, true), ko(30, true)], null, 100, 10).call).toBe(false)
+  })
+})
+
+describe('parseStandings / espnResults (recorded responses)', () => {
+  it('standings: 24 teams in 4 pools, Glasgow 47 for 27 against', () => {
+    const s = parseStandings(fx('standings'))
+    expect(s.size).toBe(24)
+    expect(new Set([...s.values()].map((r) => r.pool))).toEqual(new Set([1, 2, 3, 4]))
+    expect(s.get(346290)).toMatchObject({ pool: 1, played: 1, pointsFor: 47, pointsAgainst: 27, won: 1 })
+  })
+  it('ESPN: Sale 27–47 Glasgow, final', () => {
+    const e = espnResults(fx('espn-scoreboard-20261017'))
+    expect(e.size).toBe(8)
+    expect(e.get('25908-25952')).toEqual({ final: true, score: [27, 47] })
   })
 })

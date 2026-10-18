@@ -161,7 +161,10 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    **Step 1 done 18 Oct:** gate failed on Sale v Glasgow (list 27–45, real 27–47); Eddie chose option 1 + standings
    (LIVE-FEED.md §0, §4). Ids mapped (`20261018140000_highlightly_ids.sql`, applied). **Steps 2–3 done 18 Oct:** schema
    (`20261018150000_live_feed_schema.sql`, applied, feed off) and `supabase/functions/_shared/feed.ts` + tests.
-   Next: step 4 (`hl-sync` Edge Function + cron), **deploy only after Eddie OKs**.
+   **Step 4 done 18 Oct (Eddie OK'd):** `hl-sync` deployed, `20261018160000_hl_sync_cron.sql` applied (cron every
+   minute, match days only). `feed_settings.enabled = false`: shadow mode, logs to `api_calls`, writes no results.
+   Highlightly's venue/ref/weather/team sheets/live win chance are empty for every R1 match checked (3): show those
+   sections only when present ("Couldn't get this for this match"); team sheets from ESPN. Next: step 5 shadow test.
    Nothing writes to `matches` until the November shadow test on staging passes (§3 step 5). Never auto-settle.
    **Done means:** `docs/LIVE-FEED.md` §7.
 

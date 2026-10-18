@@ -73,3 +73,14 @@ it('reads: everyone sees standings and visible highlights; only admins see hidde
     /row-level security/,
   )
 })
+
+it('hl-sync: ESPN ids for all 24 teams, the cron job, and the token is not for players', async () => {
+  expect((await db.query('select count(*)::int n from teams where espn_team_id is not null')).rows[0]).toEqual({
+    n: 24,
+  })
+  expect((await db.query(`select schedule from cron.job where jobname = 'hl-sync'`)).rows).toEqual([
+    { schedule: '* * * * *' },
+  ])
+  await expect(as(db, EDDIE, 'select hl_cron_token()')).rejects.toThrow(/permission denied/)
+  await expect(as(db, EDDIE, 'select hl_sync_tick()')).rejects.toThrow(/permission denied/)
+})

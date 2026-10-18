@@ -168,3 +168,50 @@ export function planCalls(
   } else interval = 15 // running long: a sweep every 15 min until kick-off + 4 h
   return { call: lastListAt === null || now - lastListAt >= interval * MIN, interval }
 }
+
+export type PoolRow = Standing & {
+  pool: number
+  position: number
+  won: number
+  drawn: number
+  lost: number
+  points: number
+}
+
+/** /standings → Highlightly team id → row. The pool number is the "…, Group N" in the group name. */
+export function parseStandings(json: { groups?: { name: string; standings: any[] }[] }): Map<number, PoolRow> {
+  const out = new Map<number, PoolRow>()
+  for (const g of json.groups ?? []) {
+    const pool = Number(g.name.match(/Group (\d+)/)?.[1])
+    if (!pool) continue
+    for (const s of g.standings)
+      out.set(s.team.id, {
+        pool,
+        position: s.position,
+        played: s.gamesPlayed,
+        won: s.wins,
+        drawn: s.draws,
+        lost: s.loses,
+        pointsFor: s.scoredPoints,
+        pointsAgainst: s.receivedPoints,
+        points: s.points,
+      })
+  }
+  return out
+}
+
+/** ESPN's scoreboard → "homeEspnId-awayEspnId" → its result. Unofficial and keyless: a check, never a source. */
+export function espnResults(json: { events?: any[] }): Map<string, NonNullable<Espn>> {
+  const out = new Map<string, NonNullable<Espn>>()
+  for (const ev of json.events ?? []) {
+    const cs = ev.competitions?.[0]?.competitors ?? []
+    const h = cs.find((c: any) => c.homeAway === 'home')
+    const a = cs.find((c: any) => c.homeAway === 'away')
+    if (!h || !a) continue
+    out.set(`${h.team.id}-${a.team.id}`, {
+      final: ev.status?.type?.completed === true,
+      score: [Number(h.score), Number(a.score)],
+    })
+  }
+  return out
+}
