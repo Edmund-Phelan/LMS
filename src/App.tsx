@@ -29,6 +29,30 @@ export default function App() {
   }, [uid])
   useEffect(loadMe, [loadMe])
 
+  // A settle reloads every open app: a home-screen app resumes rather than relaunches, and the reload shows the recap
+  // with the newest code. Checked on each return to the foreground and every minute while open.
+  useEffect(() => {
+    if (!uid) return
+    let settled: number | null = null
+    const check = async () => {
+      if (document.visibilityState !== 'visible') return
+      const { count } = await supabase
+        .from('rounds')
+        .select('id', { count: 'exact', head: true })
+        .not('settled_at', 'is', null)
+      if (count === null) return
+      if (settled !== null && count !== settled) location.reload()
+      settled = count
+    }
+    void check()
+    const t = setInterval(check, 60_000)
+    document.addEventListener('visibilitychange', check)
+    return () => {
+      clearInterval(t)
+      document.removeEventListener('visibilitychange', check)
+    }
+  }, [uid])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
     const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s))
