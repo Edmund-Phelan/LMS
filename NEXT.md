@@ -142,7 +142,24 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    - **Not built (needs a feed):** `result_source`, `live_*` columns, `pool_standings`, `api_calls`, Edge Functions, cron.
      If an API turns up later: ESPN's scoreboard (`site.api.espn.com/apis/site/v2/sports/rugby/271937/scoreboard?dates=
      YYYYMMDD`) had the full 2026/27 fixtures with team ids (15 Oct), or a paid API-Sports plan. The old plan is in git
-     history (commit 2f63ba3).
+     history (commit 2f63ba3). **Superseded 18 Oct by 5h (Highlightly).**
+
+5h. **Live feed v2: Highlightly (Eddie, 18 Oct). Plan: `docs/LIVE-FEED.md` (read it whole).** Replaces 5c's "not built"
+   part with the Highlightly Rugby API (free: 100 calls/day, live scores, Champions Cup, highlights, standings, lineups).
+   Live scores in the app, official results land by themselves (admins only tap Settle), a match centre (who backed who,
+   upset meter, team sheets, highlights embedded from YouTube, stats only if the API has them), Pools on live standings.
+   **Updated 18 Oct:** plus a pick-week Scouting sheet (form, head-to-head, season record, win chance, team sheets as they're
+   named), filled by weekday jobs from the same 100 calls/day. API reference: `docs/highlightly-openapi.json`. Mock-up:
+   `docs/ui-prototype/live-feed/` (Main, MatchLive, MatchFinal, Scouting, Budget).
+   **Also in 5h (18 Oct):** the round wrap from the 15 Oct canvas: a `/wrap/:n` page with every result + highlights, an
+   admin Highlights panel (Hide / Paste a link, no publish gate) and "Copy round wrap for WhatsApp" in the Monday-post
+   format. Prototypes `docs/ui-prototype/round-wrap/` (restyle to the app tokens). `Live.dc.html`'s "LIVE 58'" clock is
+   superseded: no match minute in the API. Spec: `docs/LIVE-FEED.md` §6.
+   **Order vs packet 7:** packet 7 (buy-back re-entry) is money-correctness and also due by the Round 2 lock: finish it first.
+   **Step 1 is a gate** (`scripts/highlightly-check.ts`): it must show Gloucester 36–36 Bordeaux `Finished` and report what
+   `/matches/{id}` really contains; stop and report to Eddie before step 2. Needs `HIGHLIGHTLY_KEY` in `.env.local` (Eddie).
+   Nothing writes to `matches` until the November shadow test on staging passes (§3 step 5). Never auto-settle.
+   **Done means:** `docs/LIVE-FEED.md` §7.
 
 5d. **Built 15 Oct on `results-feed`; migration `20261015034119_seen_elimination.sql` applied 15 Oct. Eyeball the overlay
    + out screen on a real settle.** Knocked-out experience: spec `docs/UI-REDESIGN.md` §17, prototype `docs/ui-prototype/Out.dc.html`. Needed by the
@@ -177,8 +194,18 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    **Done means:** tap Bonzo → the sheet slides up, points count up, tiles pop in; before a lock it shows no current pick
    (test); swipe down / backdrop / X close it with the slide down; reduced motion = instant.
 
-6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
-   animation, share cards with banter lines, rules page.
+6. **Rest of the experience (before the Round 2 lock, nice to have).** Already built elsewhere: the rules page (5b, §10)
+   and the elimination red card (5d). Still to do, **design first**: no prototypes or spec exist yet for 6a–6c, so the first
+   step is a Claude Design canvas Eddie signs off, then a spec section in `docs/UI-REDESIGN.md`, then the build.
+   - 6a. **The field:** home-screen pitch with every player's avatar; survivors on the pitch, out players in the stands.
+   - 6b. **Wall of the fallen:** each out player beside the team (crest + score) that knocked them out.
+   - 6c. **Share cards:** an image in the losing team's colours for a knock-out or a round summary, with a random banter line
+     from a 30–40 line template bank (`{name}`, `{team}`, `{margin}`), shared into WhatsApp with the Web Share API (CLAUDE.md §6).
+   - 6d. **Share the rules:** the rules card (`docs/ui-prototype/rules-card/Main.dc.html`, 1080 x 2800, made 15 Oct for the
+     group) as a static image in `public/`, with a "Share the rules" button on the Rules page (Web Share, file share on iPhone).
+     Update its copy first: the Round 1 payment deadline line is past, and the forfeit is still TBC.
+   - **Done means:** each of 6a–6d matches its signed-off prototype on a real iPhone; share sheets open with the image attached;
+     reduced motion respected.
 7. **DONE 18 Oct.** Buy-back re-entry (`20261015170000_buyback_reentry.sql`) and the Round 4 resurrection
    (`20261018120000_resurrection_pick.sql`: `make_resurrection_pick`, away teams only, not used or burned for the comeback;
    a buy-back claim turns an unlocked resurrection pick into a normal pick) both **applied to the live project 18 Oct**. Tests in

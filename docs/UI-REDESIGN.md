@@ -340,6 +340,9 @@ Prototype board "Pools / standings" (`docs/ui-prototype/Pools.dc.html`; the same
   dashed cut line after 4th.
 
 ## 16. Live match states (fed by packet 5c)
+> **18 Oct:** the real feed is packet 5h (`docs/LIVE-FEED.md` §3 step 6). Highlightly has no match clock, so "LIVE 58'"
+> becomes the state ("1ST HALF · 13–10", "HT", "2ND HALF"). The match centre, scouting sheet and round wrap are LIVE-FEED.md §6; prototypes in
+> `docs/ui-prototype/live-feed/` and `docs/ui-prototype/round-wrap/`. `Live.dc.html`'s minute clock is superseded.
 > Built manual (15 Oct): "LIVE" from the kick-off clock with no minute or score; scores, Through/Out and the fade once an
 > admin enters the result. Live chip reads "On now". See NEXT.md 5c.
 Prototype board "Matchday live".
