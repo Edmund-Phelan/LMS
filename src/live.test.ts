@@ -69,10 +69,25 @@ describe('live feed (LIVE-FEED.md step 6)', () => {
   const feed = (state: string, h: number, a: number, updated = at, p: Partial<Match> = {}) =>
     m({ live_state: state, live_home: h, live_away: a, live_updated_at: new Date(updated).toISOString(), ...p })
   it('a fresh in-play score is live, with the state as the label', () => {
-    expect(liveScore(feed('Second half', 20, 17), at + 60_000)).toMatchObject({ label: '2ND HALF', home: 20, away: 17 })
+    expect(liveScore(feed('Second half', 20, 17), at + 60_000)).toMatchObject({
+      label: "2ND · ~41'",
+      home: 20,
+      away: 17,
+    })
     expect(liveScore(feed('Half time', 13, 10), at)).toMatchObject({ label: 'HT' })
     // Past the clock's 100 min, the feed still says it's on: live, not "Result due".
     expect(matchState(feed('Second half', 20, 17, KO + LIVE_MS + 60_000), KO + LIVE_MS + 120_000)).toBe('live')
+  })
+  it('the minute is an estimate from kick-off, held at 40 and 80 while the feed catches up', () => {
+    const min = (n: number) => KO + n * 60_000
+    const label = (state: string, n: number) => liveScore(feed(state, 0, 0, min(n)), min(n))?.label
+    expect(label('First half', 0)).toBe("1ST · ~1'")
+    expect(label('First half', 22)).toBe("1ST · ~23'")
+    expect(label('First half', 52)).toBe("1ST · ~40'")
+    expect(label('Second half', 55)).toBe("2ND · ~41'")
+    expect(label('Second half', 75)).toBe("2ND · ~56'")
+    expect(label('Second half', 130)).toBe("2ND · ~80'")
+    expect(label('Extra time', 130)).toBe('EXTRA TIME')
   })
   it('a stale feed falls back to the clock', () => {
     expect(liveScore(feed('Second half', 20, 17), at + STALE_MS + 1)).toBeNull()

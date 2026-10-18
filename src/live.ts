@@ -1,7 +1,7 @@
 import type { Match } from './lib/supabase'
 
 // Spec §16 + LIVE-FEED.md §3 step 6: live scores from the feed (live_*) while it's fresh; without it, "live" comes
-// from the clock and scores only from a result. Highlightly has no match minute, so the label is the state.
+// from the clock and scores only from a result. Highlightly has no match minute, so it's estimated from kick-off.
 export const LIVE_MS = 100 * 60_000 // kick-off → ~full time (80 min + half-time + stoppages)
 export const STALE_MS = 20 * 60_000 // feed older than this → back to the clock
 
@@ -19,13 +19,26 @@ const LIVE_LABEL: Record<string, string> = {
 }
 
 /**
+ * "1ST · ~23'": an estimate (Eddie, 18 Oct). Highlightly gives the half, not the minute, so count from kick-off; the
+ * second half from kick-off + 60 (Round 1: Highlightly showed it 64–69 min after kick-off). Capped at 40' and 80'.
+ * ponytail: ±5 min. Store when the feed first sees each half if that's too rough.
+ */
+function clock(m: Match, now: number) {
+  const min = Math.floor((now - Date.parse(m.kickoff_at)) / 60_000)
+  const est = (lo: number, hi: number, v: number) => `~${Math.min(hi, Math.max(lo, v))}'`
+  if (m.live_state === 'First half') return `1ST · ${est(1, 40, min + 1)}`
+  if (m.live_state === 'Second half') return `2ND · ${est(41, 80, min - 60 + 41)}`
+  return null
+}
+
+/**
  * The feed's score: in play and fresh → { label: '2ND HALF', … }; full time → final: true (shown "being checked":
  * the list's score is live only, the result comes from the standings + ESPN check or an admin, LIVE-FEED.md §4).
  */
 export function liveScore(m: Match, now: number) {
   if (m.status !== 'scheduled' || m.live_home == null || m.live_away == null || !m.live_updated_at) return null
   const final = /^Finished/.test(m.live_state ?? '')
-  const label = final ? 'FULL TIME' : m.live_state ? LIVE_LABEL[m.live_state] : undefined
+  const label = final ? 'FULL TIME' : m.live_state ? (clock(m, now) ?? LIVE_LABEL[m.live_state]) : undefined
   const at = Date.parse(m.live_updated_at)
   if (!label || (!final && now - at > STALE_MS)) return null
   return { label, home: m.live_home, away: m.live_away, at, final }
