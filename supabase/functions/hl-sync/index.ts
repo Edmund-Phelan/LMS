@@ -130,6 +130,34 @@ async function sync(now: number) {
     await db.from('standings_baseline').insert((ps ?? []).map((p) => ({ round_id: roundId, ...p })))
   }
 
+  // Standings at most every 15 min. An admin result can land before they count the game (Northampton v Cardiff,
+  // 18 Oct), so on the day keep refreshing them until every completed pool match is in them.
+  let lastStandings = last('/standings')
+  const refreshStandings = async () => {
+    if (remaining <= 5 || (lastStandings !== null && now - lastStandings < 15 * MIN)) return
+    const s = await hl(`/standings?leagueId=${settings.league_id}&season=${settings.season}`)
+    remaining = s.remaining ?? remaining - 1
+    lastStandings = now
+    await storeStandings(s.json)
+  }
+  const { data: played } = await db.from('pool_standings').select('team_id, played')
+  const { data: base } = await db
+    .from('standings_baseline')
+    .select('round_id, team_id, played')
+    .in('round_id', [...new Set(rows.map((m) => m.round_id))])
+  const behind = rows.some(
+    (m) =>
+      m.round.stage === 'pool' &&
+      m.status === 'completed' &&
+      [m.home_team_id, m.away_team_id].some((id) => {
+        const before =
+          m.round.number === 1 ? 0 : base?.find((b) => b.round_id === m.round_id && b.team_id === id)?.played
+        const after = played?.find((p) => p.team_id === id)?.played ?? 0
+        return before !== undefined && after <= before
+      }),
+  )
+  if (behind) await refreshStandings()
+
   const open = rows.filter((m) => m.status !== 'completed')
   const reserve = 4 + open.length // a standings call per match still to finish, plus the margin
   const plan = planCalls(
@@ -139,7 +167,7 @@ async function sync(now: number) {
     remaining,
     reserve,
   )
-  if (!plan.call) return { plan, remaining }
+  if (!plan.call) return { plan, remaining, behind }
 
   const list = await hl(
     `/matches?leagueId=${settings.league_id}&season=${settings.season}&date=${today}&timezone=Europe/Dublin&limit=100`,
@@ -150,14 +178,9 @@ async function sync(now: number) {
   const rowOf = (a: ApiMatch) =>
     rows.find((r) => r.hl_match_id === a.id) ??
     rows.find((r) => r.home.hl_team_id === a.homeTeam.id && r.away.hl_team_id === a.awayTeam.id)
-  // A finished match not yet written needs the standings (at most every 15 min) and ESPN (free).
+  // A finished match not yet written needs the standings and ESPN (free).
   const finishing = api.some((a) => /^Finished|^Awarded/.test(a.state.description) && rowOf(a)?.status !== 'completed')
-  const lastStandings = last('/standings')
-  if (finishing && remaining > 5 && (lastStandings === null || now - lastStandings >= 15 * MIN)) {
-    const s = await hl(`/standings?leagueId=${settings.league_id}&season=${settings.season}`)
-    remaining = s.remaining ?? remaining - 1
-    await storeStandings(s.json)
-  }
+  if (finishing) await refreshStandings()
   const toStanding = (x: { played: number; points_for: number; points_against: number }): Standing => ({
     played: x.played,
     pointsFor: x.points_for,
