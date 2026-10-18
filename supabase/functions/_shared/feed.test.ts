@@ -167,6 +167,9 @@ describe('planCalls (§5)', () => {
     expect(planCalls(t0, [ko(0)], null, 100, 10)).toEqual({ call: true, interval: 2 })
     expect(planCalls(t0 + MIN, [ko(0)], t0, 100, 10)).toEqual({ call: false, interval: 2 })
   })
+  it('a call that landed a few seconds after the minute still counts the interval from that minute', () => {
+    expect(planCalls(t0 + 6 * MIN, [ko(0)], t0 + 4 * MIN + 1_500, 100, 10)).toEqual({ call: true, interval: 2 })
+  })
   it('overlapping windows: counts to the end of the last one', () => {
     // 13:00, 15:15, 17:30 and 20:00 kick-offs; at 13:00 the live time left runs to 22:10 (550 min), 90 spare → 7 min
     expect(planCalls(t0, [ko(0), ko(135), ko(270), ko(420)], null, 100, 10).interval).toBe(7)

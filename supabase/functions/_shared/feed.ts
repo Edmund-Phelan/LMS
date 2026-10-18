@@ -166,7 +166,8 @@ export function planCalls(
     const left = (end - now) / MIN
     interval = Math.min(15, Math.max(2, Math.ceil(left / (remaining - reserve))))
   } else interval = 15 // running long: a sweep every 15 min until kick-off + 4 h
-  return { call: lastListAt === null || now - lastListAt >= interval * MIN, interval }
+  // The cron fires on the minute and a call lands a few seconds later, so allow 30 s or every interval runs a minute long.
+  return { call: lastListAt === null || now - lastListAt >= interval * MIN - 30_000, interval }
 }
 
 export type PoolRow = Standing & {
