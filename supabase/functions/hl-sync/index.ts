@@ -164,9 +164,13 @@ async function sync(now: number) {
   })
   const { data: ps } = await db.from('pool_standings').select('team_id, played, points_for, points_against')
   const standings = new Map((ps ?? []).map((x) => [x.team_id, toStanding(x)]))
-  const espn = finishing
-    ? espnResults(await fetch(`${ESPN}?dates=${today.replaceAll('-', '')}`).then((r) => (r.ok ? r.json() : {})))
-    : new Map()
+  let espn = new Map<string, { final: boolean; score: [number, number] }>()
+  if (finishing) {
+    // ESPN costs no Highlightly budget; logged with http_status null so it never counts as a Highlightly call.
+    const res = await fetch(`${ESPN}?dates=${today.replaceAll('-', '')}`)
+    espn = espnResults(res.ok ? await res.json() : {})
+    await log('espn', null, null, `HTTP ${res.status}: ${JSON.stringify([...espn])}`)
+  }
 
   const written: unknown[] = []
   for (const a of api) {
