@@ -151,7 +151,7 @@ export function GetBackIn({
               )}
               {buyback ? (
                 <p className="pop rounded-[14px] bg-blue/16 p-3 text-center font-bold text-blue-text">
-                  Claim sent. Back in once Eddie or Conn confirms.
+                  Claim sent. You pick again next round.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-2">

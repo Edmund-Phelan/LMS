@@ -137,6 +137,9 @@ Rulings (Eddie, Oct 2026 — answers to the engine's open questions, Q1–Q13):
 - **Burn order:** each round's picked teams ranked by pick count, ties broken by one random draw made at settle and stored with
   the round (`rounds.tiebreak`, shown in results). A burn walks that list past anything used or burned, then the season-wide
   order (same draw); nothing left, no burn.
+- **Buy-back claim (18 Oct):** "I've paid" puts them back in at once (pick, auto-pick, no jinx), like a Round 1 entry
+  claim. The settle refuses while a claim for that round is unconfirmed; rejecting it drops the pick it allowed. A claim
+  turns a Round 4 resurrection pick into their normal pick.
 - **Resurrection:** postponed = still out, team back, no burns. Costs the same burns as a buy-back (this spec, not the rules doc's
   wording). A team the player would have burned if they came back is unavailable (also for a Round 4 buy-back).
 - **No winner while a way back exists**: none before Round 4 settles; after that, the comp ends when one player is left.

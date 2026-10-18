@@ -38,9 +38,10 @@ describe('rule 11: buy-back', () => {
     ])
     expect(outcomes(s).a).toBe('through')
   })
-  it('only confirmed payments count', () => {
-    const s = settle(hOut(), round(2), r2(), { b: 1, c: 1 }, { payments: [buyback('a', undefined, 'claimed')] })
-    expect(outcomes(s).a).toBe('already_out')
+  it('an unconfirmed claim blocks the settle until it is confirmed or rejected', () => {
+    expect(() =>
+      settle(hOut(), round(2), r2(), { a: 6, b: 1, c: 1 }, { payments: [buyback('a', undefined, 'claimed')] }),
+    ).toThrow(/claim isn't confirmed/)
   })
   it('one per player', () => {
     expect(() => settle(hOut(), round(2), r2(), { b: 1, c: 1 }, { payments: [buyback('a'), buyback('a')] })).toThrow(

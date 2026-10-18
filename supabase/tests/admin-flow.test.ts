@@ -257,8 +257,7 @@ it('knocked out: buy-back burn chips, jinx and the seen flag, as the out player'
     await team('leinster'),
   ])
 
-  // Buy-back claim, jinx, and the overlay's seen flag.
-  await as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10)`, [BEN])
+  // Jinx, then a buy-back claim (which puts Ben back in, so the jinx goes), and the overlay's seen flag.
   await as(
     db,
     BEN,
@@ -268,6 +267,8 @@ it('knocked out: buy-back burn chips, jinx and the seen flag, as the out player'
   )
   expect(await as(db, BEN, 'select target_id from jinxes where round_id = $1', [r2])).toEqual([{ target_id: EDDIE }])
   expect(await as(db, EDDIE, 'select * from jinxes where round_id = $1', [r2])).toEqual([]) // hidden until the lock
+  await as(db, BEN, `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10)`, [BEN])
+  expect(await as(db, BEN, 'select target_id from jinxes where round_id = $1', [r2])).toEqual([])
   await as(db, BEN, 'update players set seen_recap_round = 1 where id = $1', [BEN])
   expect((await db.query('select seen_recap_round s from players where id = $1', [BEN])).rows[0]).toEqual({
     s: 1,
@@ -389,7 +390,7 @@ it('round recap: survivor with an exact score, out player whose jinx landed, no 
 })
 
 // Packet 7: a confirmed buy-back puts Conn back in for Round 2 before the settle, with the engine's burns enforced.
-it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is auto-picked, can’t jinx, settles', async () => {
+it('buy-back: a claim lets them pick (not a burned team), is auto-picked, can’t jinx; settles once confirmed', async () => {
   for (const p of [EDDIE, CONN, BEN, MOSSY]) await as(db, CONN, `select mark_paid($1)`, [p])
   await pick(EDDIE, r1, await team('leinster'))
   await pick(CONN, r1, await team('munster-rugby')) // loses: out
@@ -403,7 +404,7 @@ it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is
   expect((await outcomes(r1))[CONN]).toBe('out')
   await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
 
-  // Claimed only: still out.
+  // Eddie, 18 Oct: claimed is enough to play.
   const [{ id }] = await as<{ id: number }>(
     db,
     CONN,
@@ -411,10 +412,16 @@ it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is
     [CONN],
   )
   await db.query(`update payments set claimed_at = now() - interval '1 hour' where id = $1`, [id]) // well before the lock
-  await expect(pick(CONN, r2, await team('sale-sharks'))).rejects.toThrow(/not in this round/)
+  await pick(CONN, r2, await team('sale-sharks'))
 
-  // Confirmed: back in, and the database agrees with the engine on the burns.
-  await as(db, EDDIE, 'select confirm_payment($1)', [id])
+  // Rejected: out again, and the pick it allowed is gone. Claim again for the rest of the test.
+  await as(db, EDDIE, 'delete from payments where id = $1', [id])
+  expect((await db.query('select 1 from picks where round_id = $1 and player_id = $2', [r2, CONN])).rows).toEqual([])
+  await expect(pick(CONN, r2, await team('sale-sharks'))).rejects.toThrow(/not in this round/)
+  await as(db, CONN, `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10)`, [CONN])
+  await db.query(`update payments set claimed_at = now() - interval '1 hour' where kind = 'buyback'`)
+
+  // Back in, and the database agrees with the engine on the burns.
   expect(await as(db, CONN, 'select * from round_status($1) where player_id = $2', [r2, CONN])).toEqual([
     { player_id: CONN, alive: true, bought_back: true },
   ])
@@ -448,8 +455,10 @@ it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is
   expect(auto.is_auto).toBe(true)
   expect([await team('leinster'), await team('munster-rugby')]).not.toContain(auto.team_id)
 
-  // Round 2 settles with Conn through or out, and the burn written.
+  // Round 2 settles with Conn through or out, and the burn written, but only once the claim is confirmed.
   await db.query(`update matches set status = 'completed', home_score = 20, away_score = 10 where round_id = $1`, [r2])
+  await expect(settle(2)).rejects.toThrow(/claim isn't confirmed/)
+  await as(db, EDDIE, `select mark_paid($1, 'buyback')`, [CONN])
   await settle(2)
   expect(['through', 'out']).toContain((await outcomes(r2))[CONN])
   expect(
@@ -511,11 +520,14 @@ it('resurrection: Round 4 only, out players, away teams, not burned; a buy-back 
   const free = aways.find((t) => !engine.includes(t) && !used.includes(t))!
   expect((await resurrect(CONN, r4, free))[0]).toMatchObject({ team_id: free, is_resurrection: true })
 
-  // A confirmed buy-back wins: the resurrection pick goes, and they can't make another.
-  await as(db, EDDIE, `select mark_paid($1, 'buyback')`, [CONN])
-  expect((await db.query('select 1 from picks where round_id = $1 and player_id = $2', [r4, CONN])).rows).toEqual([])
+  // A buy-back claim wins: the resurrection pick becomes their normal pick, and they can't make another.
+  await as(db, CONN, `insert into payments (player_id, kind, amount_eur) values ($1, 'buyback', 10)`, [CONN])
+  expect(
+    (await db.query('select team_id, is_resurrection from picks where round_id = $1 and player_id = $2', [r4, CONN]))
+      .rows,
+  ).toEqual([{ team_id: free, is_resurrection: false }])
   await expect(resurrect(CONN, r4, free)).rejects.toThrow(/players who are out/)
-  await db.query(`delete from payments where kind = 'buyback'`)
+  await as(db, EDDIE, `delete from payments where kind = 'buyback'`) // rejected: the pick goes, out again
 
   // Away wins everywhere: Conn's resurrection wins → reinstated, with the engine's burns.
   await resurrect(CONN, r4, free)

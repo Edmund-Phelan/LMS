@@ -568,7 +568,7 @@ card, fixtures that silently don't respond and a jinx picker.
 ## 23. Back in after a buy-back
 Prototype: `docs/ui-prototype/BoughtBack.dc.html`. Today (B2 on the design canvas) a confirmed buy-back still shows "You're
 out", can't pick, isn't auto-picked, and the settle then fails. The server half is NEXT.md packet 7.
-- **When:** a confirmed `buyback` payment claimed before this round's lock, unused, pool stage (Rounds 2–4).
+- **When:** a `buyback` claim ("I've paid", confirmed or not: Eddie, 18 Oct) before this round's lock, unused, pool stage (Rounds 2–4).
 - **Hero:** stripes with a gold glow (`radial rgba(242,178,38,.28)`, hairline `rgba(242,178,38,.35)`); a "BOUGHT BACK" pill
   (ticket icon, gold on gold/18); "YOU'RE BACK IN" condensed 44/800; the cost in one line from `reentryBurns()` + used
   teams ("Munster burned · Clermont used · pick like everyone else"); then "Picks lock in" + the countdown (62 px boxes,
@@ -578,4 +578,4 @@ out", can't pick, isn't auto-picked, and the settle then fails. The server half 
   replay.
 - **Squad:** they're listed, subtitle in gold "Conor · Bought back". **Me:** "Bought back" pill (today it's keyed on
   `alive`, which is false until the settle: key it on this state too).
-- Claimed but not confirmed: B1 as built ("Claim sent. Back in once Eddie or Conn confirms.").
+- Claimed after this round's lock: B1 ("Claim sent. You pick again next round.").

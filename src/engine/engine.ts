@@ -266,6 +266,10 @@ export function settleRound(
     if (paid.length > 1) bad(`${id} has ${paid.length} confirmed buy-backs; it's one per player`)
     const buyback = paid.length === 1 && !st.buybackUsed
     if (buyback && round.stage !== 'pool') bad(`${id} has an unused buy-back after the pool stage; refund it`)
+    // Eddie, 18 Oct: a claim puts them back in at once (in_round in SQL), but only confirmed money counts.
+    const claim = payments.find((p) => p.playerId === id && p.kind === 'buyback' && p.status === 'claimed')
+    if (!st.alive && !st.buybackUsed && claim && Date.parse(claim.claimedAt) < Date.parse(round.lockAt))
+      bad(`${id}'s buy-back claim isn't confirmed; confirm or reject it before settling`)
     if (st.alive) contenders.set(id, st.used)
     else if (buyback && Date.parse(paid[0].claimedAt) < Date.parse(round.lockAt)) {
       if (pickOf.get(id)?.isResurrection) bad(`${id}: a buy-back or the resurrection in Round 4, not both`)
