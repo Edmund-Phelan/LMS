@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BBB LMS · Match centre live</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#050a1f}
+a{color:#f2b226}a:hover{color:#ffd166}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif}
+.live-dot{animation:liveDot 1.2s ease-in-out infinite}
+@keyframes liveDot{0%,100%{opacity:1}50%{opacity:.35}}
+.flip{animation:flip .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes flip{from{transform:translateY(-45%);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 1780px; box-sizing: border-box; background: #050a1f; color: #f4f1e8; font-family: 'Barlow', system-ui, sans-serif; padding-top: 40px; overflow: hidden">
+  <div style="height: 100%; border-radius: 24px 24px 0 0; background: #0b1742; box-shadow: 0 -12px 40px rgba(0,0,0,.5); display: flex; flex-direction: column; gap: 18px; padding: 10px 16px 24px; box-sizing: border-box">
+
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a href="Main.dc.html" aria-label="Back to Round 2" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.06); color: #f4f1e8; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></a>
+      <span aria-hidden="true" style="width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2)"></span>
+      <span style="width: 44px"></span>
+    </div>
+
+    <section style="position: relative; border-radius: 24px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08)">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)">
+        <div style="background: #0053a1; height: 210px"></div>
+        <div style="background: #000050; height: 210px"></div>
+      </div>
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(180deg, rgba(5,10,31,0) 40%, rgba(5,10,31,.55))">
+        <div style="display: flex; gap: 6px">
+          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .1em"><span class="live-dot" style="width: 7px; height: 7px; border-radius: 4px; background: #fff"></span>2ND HALF</span>
+          <span style="padding: 4px 10px; border-radius: 999px; background: #f2b226; color: #0b1742; font-size: 11px; font-weight: 800; letter-spacing: .1em">FEATURED</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 110px 130px 110px; align-items: center">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+            <span style="width: 64px; height: 64px; border-radius: 32px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/bf8a9f094f48afafc13394b063804f03" alt="" style="width: 48px; height: 48px; object-fit: contain"></span>
+            <span class="disp" style="font-size: 20px; font-weight: 800">Leinster</span>
+          </div>
+          <p class="disp" style="margin: 0; text-align: center; font-size: 58px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums"><span class="flip" style="display: inline-block">24</span><span style="color: #a8b3d1; font-size: 34px; margin: 0 6px">–</span>10</p>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+            <span style="width: 64px; height: 64px; border-radius: 32px; background: #fff; display: flex; align-items: center; justify-content: center"><img src="/_blob/e970ede6d4c1dd0399418eaa727152a4" alt="" style="width: 48px; height: 48px; object-fit: contain"></span>
+            <span class="disp" style="font-size: 20px; font-weight: 800">Sale</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p style="margin: -6px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; font-size: 12px; color: #cdd5ea">
+      <span>RDS Arena, Dublin</span><span aria-hidden="true">·</span><span>Ref: [from API]</span><span aria-hidden="true">·</span><span>8°, cloudy</span>
+    </p>
+    <p style="margin: -8px 0 0; text-align: center; font-size: 12px; color: #a8b3d1">Score updated 18:22 · next check about 18:29</p>
+
+    <section style="border-radius: 20px; background: #14224f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); padding: 16px; display: flex; flex-direction: column; gap: 12px">
+      <h2 class="disp" style="margin: 0; font-size: 20px; font-weight: 800">Who's riding on it</h2>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px">
+        <div style="border-radius: 16px; padding: 12px; background: rgba(0,83,161,.25); display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 12px; font-weight: 700; color: #9cc3ec; letter-spacing: .08em">BACKING LEINSTER</span>
+          <div style="display: flex; gap: 8px">
+            <sc-for list="{{homeBackers}}" as="b" hint-placeholder-count="2">
+              <span style="display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600"><span style="width: 40px; height: 40px; border-radius: 20px; background: #233873; box-shadow: 0 0 0 3px {{b.kit}}; display: flex; align-items: center; justify-content: center; font-weight: 700">{{b.i}}</span>{{b.name}}</span>
+            </sc-for>
+          </div>
+          <span style="align-self: flex-start; padding: 4px 9px; border-radius: 999px; background: rgba(60,207,122,.16); color: #6fe3a1; font-size: 12px; font-weight: 700">Winning by 14</span>
+        </div>
+        <div style="border-radius: 16px; padding: 12px; background: rgba(255,255,255,.04); display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 12px; font-weight: 700; color: #cdd5ea; letter-spacing: .08em">BACKING SALE</span>
+          <div style="display: flex; gap: 8px">
+            <span style="display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600"><span style="width: 40px; height: 40px; border-radius: 20px; background: #233873; box-shadow: 0 0 0 3px #6b21a8; display: flex; align-items: center; justify-content: center; font-weight: 700">M</span>Mark</span>
+          </div>
+          <span style="align-self: flex-start; padding: 4px 9px; border-radius: 999px; background: rgba(229,72,77,.18); color: #ff8a8a; font-size: 12px; font-weight: 700">Needs 2 scores</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="border-radius: 20px; background: #14224f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="margin: 0; font-size: 20px; font-weight: 800">Before kick-off</h2>
+        <span style="font-size: 12px; color: #a8b3d1">Win chance, pre-match model</span>
+      </div>
+      <div style="display: flex; height: 30px; border-radius: 10px; overflow: hidden; font-size: 12px; font-weight: 800">
+        <span style="width: 81%; background: #0053a1; display: flex; align-items: center; padding-left: 10px">Leinster 81%</span>
+        <span style="width: 3%; background: #a8b3d1"></span>
+        <span style="width: 16%; background: #2b2b6e; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px">16%</span>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #a8b3d1">Draw 3%. The full win-chance swing chart lands at full time.</p>
+    </section>
+
+    <section style="border-radius: 20px; background: #14224f; box-shadow: inset 0 0 0 1px rgba(242,178,38,.35); padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="disp" style="margin: 0; font-size: 20px; font-weight: 800">If it ended now</h2>
+        <span style="font-size: 11px; font-weight: 800; color: #f2b226; letter-spacing: .08em">FEATURED PREDICTIONS</span>
+      </div>
+      <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+        <sc-for list="{{preds}}" as="p" hint-placeholder-count="6">
+          <li style="display: grid; grid-template-columns: 22px minmax(0, 1fr) 58px 64px; align-items: center; gap: 8px; min-height: 44px; border-top: {{p.divider}}">
+            <span class="disp" style="font-size: 16px; font-weight: 800; color: #a8b3d1">{{p.rank}}</span>
+            <span style="font-weight: 600">{{p.name}}</span>
+            <span class="disp" style="font-size: 18px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums">{{p.score}}</span>
+            <span style="justify-self: end; padding: 3px 8px; border-radius: 999px; background: {{p.bg}}; color: {{p.fg}}; font-size: 12px; font-weight: 800">{{p.pts}}</span>
+          </li>
+        </sc-for>
+      </ol>
+      <p style="margin: 0; font-size: 12px; color: #a8b3d1">Points move with every score. Official after full time and the settle.</p>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 class="disp" style="margin: 0; font-size: 20px; font-weight: 800">Highlights</h2>
+      <div style="border-radius: 18px; border: 1px dashed rgba(255,255,255,.18); padding: 16px; display: flex; align-items: center; gap: 12px; color: #cdd5ea">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a8b3d1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="m10 9 5 3-5 3z"></path></svg>
+        <span style="font-size: 13px">The official highlights usually land 1 to 48 hours after full time.</span>
+      </div>
+    </section>
+
+    <section style="border-radius: 20px; background: #14224f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden">
+      <button type="button" style="width: 100%; min-height: 56px; border: 0; background: transparent; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; color: #f4f1e8">
+        <span style="display: flex; flex-direction: column; align-items: flex-start"><span class="disp" style="font-size: 20px; font-weight: 800">Team sheets</span><span style="font-size: 12px; color: #a8b3d1">Named Thu 10 Dec · 1 late change</span></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1780}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var rows = [
+      ['Michael', '24–10', 'EXACT 5', '#f2b226', '#0b1742'],
+      ['Eddie (you)', '24–12', '3 pts', 'rgba(60,207,122,.16)', '#6fe3a1'],
+      ['Conn', '28–10', '3 pts', 'rgba(60,207,122,.16)', '#6fe3a1'],
+      ['Conor', '22–15', '2 pts', 'rgba(94,154,211,.18)', '#9cc3ec'],
+      ['Rory', '31–14', '1 pt', 'rgba(255,255,255,.08)', '#cdd5ea'],
+      ['Mark', '17–20', '0', 'rgba(229,72,77,.18)', '#ff8a8a']
+    ];
+    return {
+      homeBackers: [ { name: 'Eddie', i: 'E', kit: '#c8102e' }, { name: 'Conor', i: 'C', kit: '#000000' } ],
+      preds: rows.map(function (r, i) {
+        return { rank: i + 1, name: r[0], score: r[1], pts: r[2], bg: r[3], fg: r[4], divider: i === 0 ? '0' : '1px solid rgba(255,255,255,.06)' };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

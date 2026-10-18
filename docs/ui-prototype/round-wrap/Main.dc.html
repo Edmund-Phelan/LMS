@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Round wrap highlights</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#7FD3F5}a:hover{color:#B8E8FB}
+button{font-family:inherit}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+</helmet>
+<div style="width:390px;height:844px;overflow-y:auto;background:#0A1633;color:#F2F5FA;font-family:'Barlow',sans-serif;box-sizing:border-box">
+
+  <div style="padding:20px 20px 12px;display:flex;justify-content:space-between;align-items:center">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.14em;color:#C9A43B">BBB LMS</div>
+    <div style="font-size:12px;color:#A9B6CC">Mon 19 Oct</div>
+  </div>
+
+  <div style="padding:4px 20px 18px">
+    <div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#7FD3F5;font-weight:600">Round 1 · Full time</div>
+    <h1 style="margin:4px 0 0;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:40px;line-height:1">Round wrap</h1>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <div style="padding:6px 10px;border-radius:999px;background:#13244A;font-size:13px">8 of 11 through</div>
+      <div style="padding:6px 10px;border-radius:999px;background:#3A1620;color:#FFB4BF;font-size:13px">3 out</div>
+      <div style="padding:6px 10px;border-radius:999px;background:#2E2810;color:#E9CC73;font-size:13px">Featured: +5 Rory</div>
+    </div>
+  </div>
+
+  <div style="padding:0 20px 8px;display:flex;justify-content:space-between;align-items:baseline">
+    <h2 style="margin:0;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700">Results &amp; highlights</h2>
+    <div style="font-size:12px;color:#A9B6CC">Tap a match to watch</div>
+  </div>
+
+  <div style="padding:0 16px 24px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{matches}}" as="m" hint-placeholder-count="6">
+      <div style="border-radius:16px;background:#12224A;overflow:hidden;border:1px solid {{m.border}}">
+        <button onClick="{{m.toggle}}" aria-label="Show highlights" style="all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;padding:14px 14px 12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="width:10px;height:10px;border-radius:3px;background:{{m.hc}}"></div>
+                <div style="flex:1;font-weight:{{m.hw}};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{m.home}}</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;width:30px;text-align:right">{{m.hs}}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:3px;background:{{m.ac}}"></div>
+                <div style="flex:1;font-weight:{{m.aw}};font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{m.away}}</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;width:30px;text-align:right">{{m.as}}</div>
+              </div>
+            </div>
+            <div style="width:64px;height:44px;border-radius:8px;background:#0A1633;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F2F5FA" stroke-width="2" aria-hidden="true"><polygon points="8,5 19,12 8,19" fill="#F2F5FA"></polygon></svg>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+            <sc-if value="{{m.featured}}" hint-placeholder-val="{{false}}">
+              <div style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:#C9A43B;color:#1A1405">FEATURED</div>
+            </sc-if>
+            <div style="font-size:12px;color:#A9B6CC">{{m.picks}}</div>
+          </div>
+        </button>
+        <sc-if value="{{m.open}}" hint-placeholder-val="{{false}}">
+          <div style="padding:0 14px 14px">
+            <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,{{m.hc}},#0A1633 55%,{{m.ac}})">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                <div style="width:62px;height:44px;border-radius:12px;background:#E5252A;display:flex;align-items:center;justify-content:center;animation:pulse 1.6s infinite">
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><polygon points="7,4 20,12 7,20" fill="#fff"></polygon></svg>
+                </div>
+              </div>
+              <div style="position:absolute;left:10px;bottom:8px;right:10px;display:flex;justify-content:space-between;font-size:12px;font-weight:600">
+                <span>Extended highlights</span><span>{{m.dur}}</span>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:#A9B6CC">Plays in the app · EPCR official channel · <a href="https://www.youtube.com/@ChampionsCup">Open in YouTube</a></div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { open: 'm1' }; }
+  renderVals() {
+    const raw = [
+      { id:'m1', home:'Leinster', hs:31, away:'Sale Sharks', as:14, hc:'#1C5BB8', ac:'#2A9D8F', featured:true, picks:'4 picked Leinster · all through', dur:'9:42' },
+      { id:'m2', home:'Toulouse', hs:27, away:'Ulster', as:20, hc:'#D62839', ac:'#E8D9A8', picks:'3 picked Toulouse · Ulster pick out', dur:'8:15' },
+      { id:'m3', home:'Munster', hs:19, away:'Bath', as:22, hc:'#B5121B', ac:'#3B6FB6', picks:'2 picked Munster · both out', dur:'10:03' },
+      { id:'m4', home:'Bordeaux Bègles', hs:38, away:'Glasgow', as:12, hc:'#7A1E3A', ac:'#1D3E8A', picks:'2 picked Bordeaux · through', dur:'7:58' },
+      { id:'m5', home:'Northampton', hs:24, away:'Connacht', as:24, hc:'#2F7D32', ac:'#5A8F3B', picks:'Draw · nobody picked it', dur:'9:11' },
+      { id:'m6', home:'La Rochelle', hs:16, away:'Saracens', as:21, hc:'#F4C20D', ac:'#C8102E', picks:'Saracens picked by 0', dur:'8:47' }
+    ];
+    const items = raw.map(m => ({
+      ...m,
+      hw: m.hs > m.as ? 700 : 500,
+      aw: m.as > m.hs ? 700 : 500,
+      open: this.state.open === m.id,
+      border: this.state.open === m.id ? '#7FD3F5' : (m.featured ? '#C9A43B' : '#1B2E5C'),
+      toggle: () => this.setState({ open: this.state.open === m.id ? null : m.id })
+    }));
+    return { matches: items };
+  }
+}
+</script>
+</body>
+</html>

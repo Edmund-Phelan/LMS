@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LMS rules card</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#E9B949}a:hover{color:#F3D27E}
+</style>
+</helmet>
+<div style="width: 1080px; height: 2800px; box-sizing: border-box; padding: 64px 56px 56px; background: #0D1B2A; color: #F3EEE3; font-family: 'Barlow', sans-serif; font-size: 23px; line-height: 1.38; display: flex; flex-direction: column; justify-content: space-between; gap: 28px">
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 26px; letter-spacing: 0.14em; text-transform: uppercase; color: {{accent}}">Last Man Standing · Champions Cup 26/27</div>
+<h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 92px; line-height: 0.95; text-transform: uppercase; letter-spacing: 0.01em">The rest of the rules</h1>
+<p style="margin: 6px 0 0; font-size: 27px; line-height: 1.35; color: #C9D2DD; max-width: 900px">You know the big one: pick a team to win each round, and each team can only be used once all comp. Here's everything else.</p>
+</div>
+
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: {{accent}}">01</span>
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase; letter-spacing: 0.02em">Picks</h2>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Lock</div>
+<div>First kick-off of the round (pool rounds: Friday 8pm). Change your pick as often as you like till then; the latest one counts.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Hidden</div>
+<div>Nobody sees a pick before the lock, admin included. Every pick is revealed in the group at the lock.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F; border-bottom: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Missed it</div>
+<div>You get a random team you haven't used. Round 1: no pick, no entry.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; align-items: baseline; gap: 14px; padding-bottom: 10px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: {{accent}}">02</span>
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase; letter-spacing: 0.02em">Results</h2>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Pool stage</div>
+<div>The 80-minute result. <strong style="font-weight: 600; color: #F2876C">A draw puts you out.</strong></div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Knockouts</div>
+<div>Whoever goes through, extra time and kicking competition included.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Called off</div>
+<div>Match postponed or abandoned: you survive and get the team back.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">All out</div>
+<div>If everyone left goes out in the same round, you all stay in.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F; border-bottom: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">No teams left</div>
+<div>You're out. If everyone still in is stuck at the same lock, it's a clean slate for all.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: {{accent}}">03</span>
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase; letter-spacing: 0.02em">Out? Two ways back</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="background: #15273B; border-radius: 16px; padding: 24px 26px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+<h3 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; text-transform: uppercase">Buy-back</h3>
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; color: {{accent}}">€10</span>
+</div>
+<div>One per person, pool stage only. Pay into the pot before the next round's lock and you're back in.</div>
+<div style="color: #C9D2DD">Last chance: the Round 4 lock, Fri 15 Jan, 8pm.</div>
+</div>
+<div style="background: #15273B; border-radius: 16px; padding: 24px 26px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+<h3 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; text-transform: uppercase">Resurrection</h3>
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; color: {{accent}}">Free</span>
+</div>
+<div>Round 4 only. Pick an away team you haven't used: if it wins, you're back for the knockouts.</div>
+<div style="color: #C9D2DD">One or the other in Round 4, not both. Out in Round 4 itself? No way back.</div>
+</div>
+</div>
+<div style="border: 1px solid #3A5170; border-radius: 16px; padding: 18px 26px; display: grid; grid-template-columns: 160px minmax(0, 1fr); column-gap: 20px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: #F2876C">The price</div>
+<div>Used teams stay used, and you also lose the most-picked team from the round you went out in, plus one more for every round you sat out.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: {{accent}}">04</span>
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase; letter-spacing: 0.02em">Side game</h2>
+<span style="font-size: 23px; color: #C9D2DD">everyone plays, in or out</span>
+</div>
+<div>Each round, predict the score of one featured match, drawn at random when picks open.</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+<div style="background: #15273B; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 60px; line-height: 1; color: {{accent}}">1<span style="font-size: 26px; color: #C9D2DD"> pt</span></div>
+<div style="font-size: 21px; color: #C9D2DD">Right winner</div>
+</div>
+<div style="background: #15273B; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 60px; line-height: 1; color: {{accent}}">2<span style="font-size: 26px; color: #C9D2DD"> pts</span></div>
+<div style="font-size: 21px; color: #C9D2DD">Within 10 points</div>
+</div>
+<div style="background: #15273B; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 60px; line-height: 1; color: {{accent}}">3<span style="font-size: 26px; color: #C9D2DD"> pts</span></div>
+<div style="font-size: 21px; color: #C9D2DD">Within 5 points</div>
+</div>
+<div style="background: #15273B; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 60px; line-height: 1; color: {{accent}}">5<span style="font-size: 26px; color: #C9D2DD"> pts</span></div>
+<div style="font-size: 21px; color: #C9D2DD">Exact score</div>
+</div>
+</div>
+<div style="color: #C9D2DD">"Within" adds up how far off you were on both scores. Call 30–15, it ends 27–17: off by 3 + 2 = 5, so 3 points. Wrong winner scores nothing.</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Jinx</div>
+<div>Out of the main game? Name one survivor each round. If he goes out, you get 1 point.</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F; border-bottom: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: #F2876C">Forfeit</div>
+<div>Fewest prediction points at the end does it (jinx points don't count). Tied: whoever went out first. The forfeit: [TBC, outfit or the dog cage].</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 26px; color: {{accent}}">05</span>
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase; letter-spacing: 0.02em">Money</h2>
+</div>
+<div>€10 to Eddie on Revolut (revolut.me/eddie1apt) with "LMS" in the note, before <strong style="font-weight: 600">Fri 16 Oct, 8pm</strong>. No payment, no pick.</div>
+<div style="display: flex; height: 92px; border-radius: 16px; overflow: hidden">
+<div style="flex: 80 1 0; background: {{accent}}; color: #0D1B2A; display: flex; align-items: center; gap: 16px; padding: 0 26px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 52px">80%</span>
+<span style="font-weight: 600; font-size: 24px">Last man standing</span>
+</div>
+<div style="flex: 20 1 0; background: #24384F; color: #F3EEE3; display: flex; flex-direction: column; justify-content: center; padding: 0 18px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; line-height: 1">20%</span>
+<span style="font-size: 18px; line-height: 1.2">Top of points table</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 24px; padding: 14px 0; border-top: 1px solid #24384F; border-bottom: 1px solid #24384F">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; text-transform: uppercase; letter-spacing: 0.06em; color: {{accent}}">Joint winners</div>
+<div>More than one survives the final? Higher on the points table wins. Still level: most exact scores, then split.</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 24px; letter-spacing: 0.12em; text-transform: uppercase; color: #C9D2DD">Rounds · pool picks lock Fri 8pm, knockouts at first kick-off</div>
+<div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px">
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">R1</span>
+<span style="font-size: 19px; line-height: 1.25">16–18 Oct</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">R2</span>
+<span style="font-size: 19px; line-height: 1.25">11–13 Dec</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">R3</span>
+<span style="font-size: 19px; line-height: 1.25">8–10 Jan</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">R4</span>
+<span style="font-size: 19px; line-height: 1.25">15–17 Jan</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">R16</span>
+<span style="font-size: 19px; line-height: 1.25">2–4 Apr</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">QF</span>
+<span style="font-size: 19px; line-height: 1.25">9–11 Apr</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">SF</span>
+<span style="font-size: 19px; line-height: 1.25">1–3 May</span>
+</div>
+<div style="background: #15273B; border-radius: 12px; padding: 12px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: {{accent}}">Final</span>
+<span style="font-size: 19px; line-height: 1.25">22 May</span>
+</div>
+</div>
+<div style="font-size: 20px; line-height: 1.4; color: #A7B4C4; padding-top: 6px">The app is the official record of picks, results and payments: edmund-phelan.github.io/LMS. Rules change only between rounds, by majority vote. Anything not covered is the admin's call.</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#E9B949","options":["#E9B949","#5FC2A8","#7FB2F0","#F2876C"]},"$preview":{"width":1080,"height":2800}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#E9B949' };
+}
+}
+</script>
+</body>
+</html>

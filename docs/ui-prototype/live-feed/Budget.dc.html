@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BBB LMS · API calls in a match week</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#f2b226}a:hover{color:#ffd166}
+.disp{font-family:'Barlow Condensed','Barlow',sans-serif}
+</style>
+</helmet>
+<div style="width: 1280px; height: 820px; box-sizing: border-box; padding: 44px 48px; background: #0b1742; color: #f4f1e8; font-family: 'Barlow', system-ui, sans-serif; display: flex; gap: 40px">
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+    <div>
+      <p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .18em; color: #f2b226">HIGHLIGHTLY FREE PLAN · 100 CALLS A DAY</p>
+      <h1 class="disp" style="margin: 4px 0 0; font-size: 40px; font-weight: 800; line-height: 1.05">API calls in a match week · Round 2</h1>
+      <p style="margin: 6px 0 0; font-size: 15px; color: #cdd5ea">The allowance resets daily, so the quiet weekdays go on scouting and team sheets. 354 calls this week; weeks with no Champions Cup use none.</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 18px">
+      <sc-for list="{{legend}}" as="l" hint-placeholder-count="6">
+        <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cdd5ea"><span style="width: 14px; height: 14px; border-radius: 4px; background: {{l.c}}"></span>{{l.label}}</span>
+      </sc-for>
+    </div>
+
+    <div style="position: relative; height: 470px; margin-top: 6px">
+      <div style="position: absolute; left: 0; right: 0; top: 40px; border-top: 2px dashed rgba(255,255,255,.35)"></div>
+      <span style="position: absolute; right: 0; top: 18px; font-size: 12px; font-weight: 700; color: #cdd5ea">Daily limit 100</span>
+      <div style="position: absolute; left: 0; right: 0; top: 60px; border-top: 1px solid rgba(242,178,38,.6)"></div>
+      <span style="position: absolute; right: 0; top: 64px; font-size: 12px; font-weight: 700; color: #f2b226">Our hard stop 95</span>
+      <div style="position: absolute; left: 0; right: 0; bottom: 30px; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 22px; align-items: end">
+        <sc-for list="{{days}}" as="d" hint-placeholder-count="8">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+            <span class="disp" style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">{{d.total}}</span>
+            <div style="width: 64px; display: flex; flex-direction: column-reverse; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,.04)">
+              <sc-for list="{{d.segs}}" as="s" hint-placeholder-count="3">
+                <span style="height: {{s.h}}; background: {{s.c}}; color: #0b1742; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center">{{s.lbl}}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 22px">
+        <sc-for list="{{days}}" as="d" hint-placeholder-count="8">
+          <span style="text-align: center; font-size: 13px; font-weight: 700; color: {{d.fg}}">{{d.label}}</span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <aside style="width: 330px; display: flex; flex-direction: column; gap: 12px; padding-top: 6px">
+    <sc-for list="{{cards}}" as="c" hint-placeholder-count="5">
+      <div style="border-radius: 18px; padding: 14px 16px; background: {{c.bg}}; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: {{c.fg}}">{{c.k}}</span>
+        <span class="disp" style="font-size: 22px; font-weight: 800; line-height: 1.1">{{c.title}}</span>
+        <span style="font-size: 13px; color: #cdd5ea; line-height: 1.35">{{c.body}}</span>
+      </div>
+    </sc-for>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":820}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var C = { live: '#e5484d', res: '#f2b226', hl: '#5e9ad3', std: '#6fe3a1', scout: '#a596ef', sheets: '#dde3f2' };
+    var order = ['std', 'scout', 'sheets', 'live', 'res', 'hl'];
+    var raw = [
+      ['Mon 7', { std: 4 }],
+      ['Tue 8', { scout: 48 }],
+      ['Wed 9', { scout: 12, sheets: 12 }],
+      ['Thu 10', { sheets: 18 }],
+      ['Fri 11', { sheets: 12, live: 65, res: 2 }],
+      ['Sat 12', { live: 80, res: 7, hl: 3, std: 1 }],
+      ['Sun 13', { live: 78, res: 3, hl: 4, std: 1 }],
+      ['Mon 14', { hl: 3, std: 1 }]
+    ];
+    var px = 4;
+    return {
+      legend: [
+        { label: 'Live scores (one call = every match that day)', c: C.live },
+        { label: 'Result details after full time', c: C.res },
+        { label: 'Highlights sweeps', c: C.hl },
+        { label: 'Fixtures + pool table', c: C.std },
+        { label: 'Scouting: form, H2H, season stats', c: C.scout },
+        { label: 'Team sheets + win chance', c: C.sheets }
+      ],
+      days: raw.map(function (d) {
+        var total = 0, segs = [];
+        order.forEach(function (k) {
+          var n = d[1][k];
+          if (n) { total += n; segs.push({ h: (n * px) + 'px', c: C[k], lbl: n >= 6 ? n : '' }); }
+        });
+        var match = d[0].indexOf('Fri') === 0 || d[0].indexOf('Sat') === 0 || d[0].indexOf('Sun') === 0;
+        return { label: d[0], total: total, segs: segs, fg: match ? '#f2b226' : '#a8b3d1' };
+      }),
+      cards: [
+        { k: 'LIVE SCORES', title: 'Every 2 min Fri · 6–7 Sat · 5 Sun', body: 'Spread to fit the day: minutes of live rugby left ÷ calls left. Saturday is the squeeze: 7 games, 13:00 to 22:10.', bg: 'rgba(229,72,77,.12)', fg: '#ff8a8a' },
+        { k: 'RESULTS', title: 'In within one poll of full time', body: 'The score lands from the list call. One detail call 15 min later adds team sheets, the win-chance swing and season stats.', bg: 'rgba(242,178,38,.1)', fg: '#f2b226' },
+        { k: 'TEAM SHEETS', title: 'Thu 14:00, 19:00, Fri 12:00', body: 'One call per match. Teams are usually named Thursday; Friday catches late changes before the 20:00 lock.', bg: 'rgba(221,227,242,.08)', fg: '#dde3f2' },
+        { k: 'BETWEEN ROUNDS', title: 'Zero', body: 'No Champions Cup from 19 Oct to 10 Dec, so nothing to fetch. The budget can’t be banked.', bg: 'rgba(255,255,255,.04)', fg: '#a8b3d1' },
+        { k: 'IF YOU PAY $5.99/MONTH', title: 'Every minute, plus live win chance', body: '7,500 a day. Only worth it on match months: Dec, Jan, Apr, May.', bg: 'rgba(94,154,211,.12)', fg: '#9cc3ec' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

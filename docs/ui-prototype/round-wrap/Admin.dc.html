@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin highlight links</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#7FD3F5}a:hover{color:#B8E8FB}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;overflow-y:auto;background:#0A1633;color:#F2F5FA;font-family:'Barlow',sans-serif;box-sizing:border-box">
+
+  <div style="padding:20px 20px 4px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.14em;color:#C9A43B">ADMIN · ROUND 1</div>
+  <div style="padding:0 20px 14px">
+    <h1 style="margin:2px 0 6px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:34px;line-height:1">Highlights</h1>
+    <div style="font-size:14px;color:#A9B6CC;line-height:1.4">Auto-found on the official Champions Cup channel after full time. Check each one, then publish with the round wrap.</div>
+  </div>
+
+  <div style="margin:0 16px 14px;padding:12px 14px;border-radius:14px;background:#12224A;display:flex;align-items:center;gap:12px">
+    <div style="flex:1">
+      <div style="font-size:13px;color:#A9B6CC">Confirmed</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800">{{doneCount}} / 6</div>
+    </div>
+    <div style="width:120px;height:8px;border-radius:99px;background:#0A1633;overflow:hidden">
+      <div style="height:100%;width:{{pct}};background:#7FD3F5"></div>
+    </div>
+  </div>
+
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+      <div style="padding:12px;border-radius:14px;background:#12224A;border:1px solid {{r.border}}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div style="font-weight:600;font-size:15px">{{r.label}}</div>
+          <div style="font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:{{r.badgeBg}};color:{{r.badgeFg}}">{{r.status}}</div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:10px;align-items:center">
+          <div style="width:72px;height:40px;border-radius:6px;background:linear-gradient(135deg,{{r.hc}},#0A1633 60%,{{r.ac}});flex-shrink:0"></div>
+          <div style="flex:1;min-width:0;font-size:12px;color:#A9B6CC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.title}}</div>
+        </div>
+        <sc-if value="{{r.pending}}" hint-placeholder-val="{{false}}">
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button onClick="{{r.confirm}}" style="flex:1;min-height:44px;border:0;border-radius:10px;background:#7FD3F5;color:#0A1633;font-weight:600;font-size:14px;cursor:pointer">Looks right</button>
+            <button onClick="{{r.swap}}" style="flex:1;min-height:44px;border:1px solid #2B4278;border-radius:10px;background:transparent;color:#F2F5FA;font-weight:600;font-size:14px;cursor:pointer">Paste link</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{r.missing}}" hint-placeholder-val="{{false}}">
+          <div style="margin-top:10px">
+            <label for="paste-{{r.id}}" style="display:block;font-size:12px;color:#A9B6CC;margin-bottom:4px">YouTube link</label>
+            <input id="paste-{{r.id}}" placeholder="https://youtu.be/…" style="width:100%;box-sizing:border-box;min-height:44px;border-radius:10px;border:1px solid #2B4278;background:#0A1633;color:#F2F5FA;padding:0 12px;font-size:14px">
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding:16px">
+    <button style="width:100%;min-height:52px;border:0;border-radius:14px;background:#C9A43B;color:#1A1405;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.04em;cursor:pointer">Publish round wrap</button>
+    <div style="margin-top:8px;font-size:12px;color:#A9B6CC;text-align:center">Missing ones show the score only, no video</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: { m1:'ok', m2:'ok', m3:'found', m4:'found', m5:'found', m6:'none' } }; }
+  renderVals() {
+    const raw = [
+      { id:'m1', label:'Leinster 31–14 Sale', hc:'#1C5BB8', ac:'#2A9D8F', title:'EXTENDED HIGHLIGHTS | Leinster v Sale Sharks | Round 1' },
+      { id:'m2', label:'Toulouse 27–20 Ulster', hc:'#D62839', ac:'#E8D9A8', title:'EXTENDED HIGHLIGHTS | Stade Toulousain v Ulster Rugby' },
+      { id:'m3', label:'Munster 19–22 Bath', hc:'#B5121B', ac:'#3B6FB6', title:'EXTENDED HIGHLIGHTS | Munster v Bath Rugby | Round 1' },
+      { id:'m4', label:'Bordeaux 38–12 Glasgow', hc:'#7A1E3A', ac:'#1D3E8A', title:'EXTENDED HIGHLIGHTS | UBB v Glasgow Warriors' },
+      { id:'m5', label:'Northampton 24–24 Connacht', hc:'#2F7D32', ac:'#5A8F3B', title:'Northampton Saints v Connacht | Highlights' },
+      { id:'m6', label:'La Rochelle 16–21 Saracens', hc:'#F4C20D', ac:'#C8102E', title:'Not posted yet' }
+    ];
+    const st = this.state.s;
+    const set = (id, v) => this.setState({ s: { ...st, [id]: v } });
+    const rows = raw.map(r => {
+      const v = st[r.id];
+      const look = v === 'ok' ? ['Confirmed','#123E34','#8FE3C4','#1B2E5C']
+        : v === 'found' ? ['Found · check','#2E2810','#E9CC73','#C9A43B']
+        : ['No video yet','#3A1620','#FFB4BF','#5A2633'];
+      return { ...r, status: look[0], badgeBg: look[1], badgeFg: look[2], border: look[3],
+        pending: v === 'found', missing: v === 'none',
+        confirm: () => set(r.id, 'ok'), swap: () => set(r.id, 'none') };
+    });
+    const done = Object.values(st).filter(v => v === 'ok').length;
+    return { rows, doneCount: done, pct: Math.round(done / 6 * 100) + '%' };
+  }
+}
+</script>
+</body>
+</html>
