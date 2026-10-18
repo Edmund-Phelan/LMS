@@ -18,6 +18,7 @@ import {
 const HL = 'https://rugby.highlightly.net'
 const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/rugby/271937/scoreboard'
 const MIN = 60_000
+const UA = 'Mozilla/5.0 (compatible; bbb-lms/1.0)'
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 const dublinDate = (t: number | string) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Dublin' }).format(new Date(t)) // YYYY-MM-DD
@@ -167,7 +168,8 @@ async function sync(now: number) {
   let espn = new Map<string, { final: boolean; score: [number, number] }>()
   if (finishing) {
     // ESPN costs no Highlightly budget; logged with http_status null so it never counts as a Highlightly call.
-    const res = await fetch(`${ESPN}?dates=${today.replaceAll('-', '')}`)
+    // ESPN answers 403 to Deno's default User-Agent (checked 18 Oct).
+    const res = await fetch(`${ESPN}?dates=${today.replaceAll('-', '')}`, { headers: { 'User-Agent': UA } })
     espn = espnResults(res.ok ? await res.json() : {})
     await log('espn', null, null, `HTTP ${res.status}: ${JSON.stringify([...espn])}`)
   }
