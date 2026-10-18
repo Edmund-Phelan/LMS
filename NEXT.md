@@ -159,7 +159,9 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    **Step 1 is a gate** (`scripts/highlightly-check.ts`): it must show Gloucester 36–36 Bordeaux `Finished` and report what
    `/matches/{id}` really contains; stop and report to Eddie before step 2. Needs `HIGHLIGHTLY_KEY` in `.env.local` (Eddie).
    **Step 1 done 18 Oct:** gate failed on Sale v Glasgow (list 27–45, real 27–47); Eddie chose option 1 + standings
-   (LIVE-FEED.md §0, §4). Ids mapped (`20261018140000_highlightly_ids.sql`, applied). Next: step 2 schema.
+   (LIVE-FEED.md §0, §4). Ids mapped (`20261018140000_highlightly_ids.sql`, applied). **Steps 2–3 done 18 Oct:** schema
+   (`20261018150000_live_feed_schema.sql`, applied, feed off) and `supabase/functions/_shared/feed.ts` + tests.
+   Next: step 4 (`hl-sync` Edge Function + cron), **deploy only after Eddie OKs**.
    Nothing writes to `matches` until the November shadow test on staging passes (§3 step 5). Never auto-settle.
    **Done means:** `docs/LIVE-FEED.md` §7.
 
