@@ -29,6 +29,7 @@ export function FixtureList({
   teams,
   used,
   burned,
+  awayOnly = false,
   picked,
   featuredId,
   locked,
@@ -40,6 +41,7 @@ export function FixtureList({
   teams: Map<number, Team>
   used: Map<number, number>
   burned?: Set<number> // §23: pending buy-back burns
+  awayOnly?: boolean // rule 12: a Round 4 resurrection pick is an away team
   picked?: number
   featuredId: number | null
   locked: boolean
@@ -113,7 +115,7 @@ export function FixtureList({
                         picked={picked === tid}
                         dim={picked !== undefined && picked !== tid}
                         lost={final && !won(m, tid, knockout) && (knockout || m.home_score !== m.away_score)}
-                        disabled={locked || !onPick}
+                        disabled={locked || !onPick || (awayOnly && i === 0)}
                         onPick={() => onPick?.(tid)}
                       />
                     ),

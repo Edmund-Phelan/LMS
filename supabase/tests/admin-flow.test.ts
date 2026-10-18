@@ -457,3 +457,84 @@ it('buy-back: claimed-only stays out; confirmed can pick (not a burned team), is
       .rows,
   ).toEqual([{ team_id: engine[0], reason: 'buyback_penalty' }])
 })
+
+// Packet 7: the Round 4 resurrection (rule 12): out players only, an away team, not used or burned for the comeback,
+// not with a buy-back; a win settles as reinstated with the engine's burns.
+it('resurrection: Round 4 only, out players, away teams, not burned; a buy-back drops it; a win reinstates', async () => {
+  for (const p of [EDDIE, CONN, BEN, MOSSY]) await as(db, CONN, `select mark_paid($1)`, [p])
+  await pick(EDDIE, r1, await team('leinster'))
+  await pick(CONN, r1, await team('munster-rugby')) // loses: out
+  await pick(BEN, r1, await team('saracens'))
+  await pick(MOSSY, r1, await team('leinster'))
+  await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r1])
+  await db.query(`update matches set status = 'completed', home_score = 20, away_score = 10 where round_id = $1`, [r1])
+  await score('asm-clermont-auvergne', 10, 24)
+  await score('munster-rugby', 10, 20)
+  await settle(1)
+
+  const ids = (await db.query<{ id: number; number: number }>('select id, number from rounds')).rows
+  const r3 = ids.find((r) => r.number === 3)!.id
+  const r4 = ids.find((r) => r.number === 4)!.id
+  const away = async (r: number) =>
+    (await db.query<{ t: number }>('select away_team_id t from matches where round_id = $1', [r])).rows.map((x) => x.t)
+  const resurrect = (uid: string, r: number, t: number) =>
+    as(db, uid, 'select * from make_resurrection_pick($1, $2)', [r, t])
+
+  await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r2])
+  await expect(resurrect(CONN, r2, (await away(r2))[0])).rejects.toThrow(/Round 4 only/)
+  for (const r of [r2, r3]) {
+    await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r])
+    await db.query('select auto_pick_locked_rounds()')
+    await db.query(`update matches set status = 'completed', home_score = 20, away_score = 10 where round_id = $1`, [r])
+    await settle(r === r2 ? 2 : 3)
+  }
+  await db.query(`update rounds set lock_at = now() + interval '1 hour' where id = $1`, [r4])
+
+  const d4 = await load(4)
+  const engine = E.reentryBurns(d4.history, CONN, A.toRound(d4.round), 'resurrection_penalty').map((b) => b.teamId)
+  expect(engine).toHaveLength(3) // out in Round 1, sat out 2 and 3
+  expect(
+    (await as<{ team_id: number }>(db, CONN, 'select * from my_pending_burns($1)', [r4])).map((r) => r.team_id).sort(),
+  ).toEqual([...engine].sort())
+
+  const aways = await away(r4)
+  const homes = (await db.query<{ t: number }>('select home_team_id t from matches where round_id = $1', [r4])).rows
+  await expect(resurrect(CONN, r4, homes[0].t)).rejects.toThrow(/away team/)
+  for (const t of engine.filter((t) => aways.includes(t)))
+    await expect(resurrect(CONN, r4, t)).rejects.toThrow(/burned/)
+  const status = await as<{ player_id: string; alive: boolean }>(db, EDDIE, 'select * from round_status($1)', [r4])
+  const inR4 = status.find((s) => s.alive)!.player_id
+  await expect(resurrect(inR4, r4, aways[0])).rejects.toThrow(/players who are out/)
+  await expect(resurrect(SKINT, r4, aways[0])).rejects.toThrow(/players who are out/) // never in the comp
+
+  const used = (await as<{ team_id: number }>(db, CONN, 'select * from my_used_teams($1)', [r4])).map((u) => u.team_id)
+  const free = aways.find((t) => !engine.includes(t) && !used.includes(t))!
+  expect((await resurrect(CONN, r4, free))[0]).toMatchObject({ team_id: free, is_resurrection: true })
+
+  // A confirmed buy-back wins: the resurrection pick goes, and they can't make another.
+  await as(db, EDDIE, `select mark_paid($1, 'buyback')`, [CONN])
+  expect((await db.query('select 1 from picks where round_id = $1 and player_id = $2', [r4, CONN])).rows).toEqual([])
+  await expect(resurrect(CONN, r4, free)).rejects.toThrow(/players who are out/)
+  await db.query(`delete from payments where kind = 'buyback'`)
+
+  // Away wins everywhere: Conn's resurrection wins → reinstated, with the engine's burns.
+  await resurrect(CONN, r4, free)
+  await db.query(`update rounds set lock_at = now() - interval '1 second' where id = $1`, [r4])
+  await db.query('select auto_pick_locked_rounds()')
+  expect(
+    (await db.query('select is_resurrection from picks where round_id = $1 and player_id = $2', [r4, CONN])).rows,
+  ).toEqual([{ is_resurrection: true }])
+  await db.query(`update matches set status = 'completed', home_score = 10, away_score = 20 where round_id = $1`, [r4])
+  await settle(4)
+  expect((await outcomes(r4))[CONN]).toBe('reinstated')
+  expect(
+    (
+      await db.query<{ team_id: number }>(
+        `select team_id from burned_teams where player_id = $1 and round_id = $2 and reason = 'resurrection_penalty'`,
+        [CONN, r4],
+      )
+    ).rows
+      .map((r) => r.team_id)
+      .sort(),
+  ).toEqual([...engine].sort())
+})

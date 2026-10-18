@@ -547,6 +547,8 @@ export default function RoundPage({ me }: { me: string }) {
 
   const myAlive = data.alive.get(me)
   const outView = myAlive === false && !!data.ko // §17: out of an earlier round
+  // Rule 12: Round 4, out before it (not bought back, or alive would be true): one free away-team pick.
+  const resurrect = outView && round.stage === 'pool' && round.number === 4 && data.ko!.round.number < 4
   const myPick = data.picks.find((p) => p.player_id === me)
   const featured = matches.find((m) => m.id === round.featured_match_id)
   const knockout = round.stage !== 'pool'
@@ -600,7 +602,7 @@ export default function RoundPage({ me }: { me: string }) {
           </div>
         </div>
       )}
-      {confirming !== null && myAlive === true && (
+      {confirming !== null && (myAlive === true || resurrect) && (
         <PickSheet
           team={teams.get(confirming)!}
           match={matches.find((m) => m.home_team_id === confirming || m.away_team_id === confirming)!}
@@ -625,7 +627,10 @@ export default function RoundPage({ me }: { me: string }) {
             thud() // still inside the touch: the hold completes with the finger down
             setConfirming(null)
             setError(null)
-            const { error } = await supabase.rpc('make_pick', { p_round_id: round.id, p_team_id: confirming })
+            const { error } = await supabase.rpc(resurrect ? 'make_resurrection_pick' : 'make_pick', {
+              p_round_id: round.id,
+              p_team_id: confirming,
+            })
             if (error) setError(error.message)
             else {
               setTakeover(teams.get(confirming)!)
@@ -699,7 +704,7 @@ export default function RoundPage({ me }: { me: string }) {
             <GetBackIn me={me} ko={data.ko!} round={round} teams={teams} payments={data.payments} now={now} run={run} />
           )}
 
-          {myAlive === true && (
+          {(myAlive === true || resurrect) && (
             <MyPick
               team={myPick && teams.get(myPick.team_id)}
               locked={locked}
@@ -717,12 +722,13 @@ export default function RoundPage({ me }: { me: string }) {
               }}
             />
           )}
-          {myAlive === true && (
+          {(myAlive === true || resurrect) && (
             <FixtureList
               matches={matches}
               teams={teams}
               used={data.used}
               burned={data.burned}
+              awayOnly={resurrect}
               picked={myPick?.team_id}
               featuredId={round.featured_match_id}
               locked={locked}
@@ -741,7 +747,7 @@ export default function RoundPage({ me }: { me: string }) {
               Round {round.number} fixtures · view only
             </h2>
           )}
-          {myAlive !== true && (
+          {myAlive !== true && !resurrect && (
             <FixtureList
               matches={matches}
               teams={teams}

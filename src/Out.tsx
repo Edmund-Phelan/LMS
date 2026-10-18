@@ -200,7 +200,7 @@ export function GetBackIn({
             </p>
             <p className="mt-0.5 text-[13px] leading-[1.4] text-muted">
               Free. One away team you haven’t used. Win and you’re back for the knockouts, at the same team cost as a
-              buy-back.
+              buy-back.{round.number === 4 && ' Pick it below; a buy-back replaces it.'}
             </p>
           </div>
         </div>

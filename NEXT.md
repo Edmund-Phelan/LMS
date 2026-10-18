@@ -179,9 +179,12 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
 
 6. **Rest of the experience:** the field (avatars on the pitch, out players in the stands), wall of the fallen, elimination
    animation, share cards with banter lines, rules page.
-7. **Built 15 Oct except the resurrection RPC** (migration `20261015170000_buyback_reentry.sql`, NOT yet applied to the
-   live project; test in `admin-flow.test.ts`). Burns are computed in SQL (`reentry_burns`, mirrors the engine; the test
-   checks they agree) and still written by the settle. Resurrection RPC for Round 4: still to do before 15 Jan.
+7. **DONE 18 Oct.** Buy-back re-entry (`20261015170000_buyback_reentry.sql`) and the Round 4 resurrection
+   (`20261018120000_resurrection_pick.sql`: `make_resurrection_pick`, away teams only, not used or burned for the comeback;
+   a confirmed buy-back deletes an unlocked resurrection pick) both **applied to the live project 18 Oct**. Tests in
+   `admin-flow.test.ts`. Burns are computed in SQL (`reentry_burns`, mirrors the engine; the tests check they agree) and
+   still written by the settle. UI: in Round 4 an out player's fixtures become the pick list with home teams disabled.
+   Still to do: eyeball the Round 4 resurrection screen on a real iPhone (no prototype; it reuses the pick flow).
    **Re-entry plumbing + "You're back in" (needed by the Round 2 lock, Fri 11 Dec).** Spec `docs/UI-REDESIGN.md` §23,
    prototype `docs/ui-prototype/BoughtBack.dc.html`. **Today a confirmed buy-back breaks the round:** `alive()` stays false
    until the settle, so `make_pick` refuses them ("You are not in this round"), the lock job doesn't auto-pick them, they're
