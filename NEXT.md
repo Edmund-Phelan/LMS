@@ -174,7 +174,9 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    Northampton v Cardiff still to enter. ESPN 403s Deno's default User-Agent: hl-sync v6 sends its own.
    **Settle, Eddie 18 Oct:** halfway version from Round 2: admins see "All N results are in" on the Round screen →
    the Admin preview (already opens on Settle once all are in) → one tap. Full auto-settle after Round 2 (LIVE-FEED §4).
-   Still to do: step 5 shadow test (November), steps 7–9.
+   **Step 8 (Pools) done 18 Oct:** the Pools tab reads `pool_standings` when it's newer than `standings.json` (bonus
+   points show "–": Highlightly has no split). `standings.json` + `/update-standings` stay as the fallback.
+   Still to do: step 5 shadow test (November), steps 7 and 9.
    Nothing writes to `matches` until the November shadow test on staging passes (§3 step 5). Never auto-settle.
    **Done means:** `docs/LIVE-FEED.md` §7.
 

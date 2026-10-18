@@ -4,21 +4,71 @@ import teamsJson from './data/teams.json'
 import { lockLabel, supabase } from './lib/supabase'
 import Shell from './Shell'
 
-// Pools tab (docs/UI-REDESIGN.md §15). No feed: standings.json is updated every Monday (skill update-standings) and
-// shown in the order it was published; the app never re-ranks a pool.
-type Row = (typeof standings.pools)[number][number]
+// Pools tab (docs/UI-REDESIGN.md §15). The live feed's pool_standings (Highlightly, refreshed as matches finish) when
+// they're newer than standings.json (updated every Monday by the skill update-standings, kept as the fallback). Shown
+// in the order published; the app never re-ranks a pool. Highlightly has no bonus-point split: those show "–".
+type Row = Omit<(typeof standings.pools)[number][number], 'tbp' | 'lbp'> & { tbp: number | null; lbp: number | null }
+type Table = { updated: string; pools: Row[][] }
 const TEAM = new Map(teamsJson.map((t) => [t.slug, t]))
 const crest = (slug: string) => import.meta.env.BASE_URL + TEAM.get(slug)!.crest
 const name = (slug: string) => TEAM.get(slug)!.name
 const pd = (r: Row) => r.pf - r.pa
 
-const played = standings.pools.some((p) => p.some((r) => r.p > 0))
 // Every non-top-3 team, across pools, by points then wins (§15's format). ponytail: further ties keep pool order;
 // EPCR's full tiebreak isn't modelled, so the cut line is a guide until EPCR publishes the last 16.
-const rest = standings.pools
-  .flatMap((p, i) => p.slice(3).map((r) => ({ ...r, pool: i + 1 })))
-  .sort((a, b) => b.pts - a.pts || b.w - a.w)
-const wild = new Set(played ? rest.slice(0, 4).map((r) => r.slug) : [])
+function derive(t: Table) {
+  const played = t.pools.some((p) => p.some((r) => r.p > 0))
+  const rest = t.pools
+    .flatMap((p, i) => p.slice(3).map((r) => ({ ...r, pool: i + 1 })))
+    .sort((a, b) => b.pts - a.pts || b.w - a.w)
+  return { played, rest, wild: new Set(played ? rest.slice(0, 4).map((r) => r.slug) : []) }
+}
+
+/** The feed's standings, if all 24 teams are there and they're newer than the Monday file. */
+async function loadLive(): Promise<Table | null> {
+  const { data } = await supabase
+    .from('pool_standings')
+    .select(
+      'pool, position, played, won, drawn, lost, points_for, points_against, points, updated_at, team:teams(slug)',
+    )
+    .order('position')
+  const rows = (data ?? []) as unknown as {
+    pool: number
+    position: number
+    played: number
+    won: number
+    drawn: number
+    lost: number
+    points_for: number
+    points_against: number
+    points: number
+    updated_at: string
+    team: { slug: string }
+  }[]
+  if (rows.length !== 24) return null
+  const updated = rows
+    .map((r) => r.updated_at)
+    .sort()
+    .at(-1)!
+  if (Date.parse(updated) <= Date.parse(standings.updated)) return null
+  const pools: Row[][] = [1, 2, 3, 4].map((n) =>
+    rows
+      .filter((r) => r.pool === n)
+      .map((r) => ({
+        slug: r.team.slug,
+        p: r.played,
+        w: r.won,
+        d: r.drawn,
+        l: r.lost,
+        pf: r.points_for,
+        pa: r.points_against,
+        tbp: null,
+        lbp: null,
+        pts: r.points,
+      })),
+  )
+  return pools.every((p) => p.length === 6) ? { updated, pools } : null
+}
 
 /** My latest pick's team slug, and whether that team knocked me out. */
 async function loadMyPick(me: string) {
@@ -43,10 +93,13 @@ export default function PoolsPage({ me }: { me: string }) {
   const [mine, setMine] = useState<{ slug?: string; out: boolean } | null>(null)
   const [pool, setPool] = useState<number>()
   const [open, setOpen] = useState<string | null>(null)
+  const [table, setTable] = useState<Table>(standings)
   useEffect(() => {
     loadMyPick(me).then(setMine)
+    loadLive().then((t) => t && setTable(t))
   }, [me])
-  const myPool = standings.pools.findIndex((p) => p.some((r) => r.slug === mine?.slug))
+  const { played, rest, wild } = derive(table)
+  const myPool = table.pools.findIndex((p) => p.some((r) => r.slug === mine?.slug))
   const cur = pool ?? Math.max(0, myPool)
 
   return (
@@ -56,7 +109,7 @@ export default function PoolsPage({ me }: { me: string }) {
           <h1 className="disp text-[34px] font-extrabold">Pools</h1>
           <span className="flex items-center gap-1.5 text-xs text-muted">
             <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-in" />
-            {played ? `Updated ${lockLabel(standings.updated, ', ')}` : 'Updates every Monday'}
+            {played ? `Updated ${lockLabel(table.updated, ', ')}` : 'Updates every Monday'}
           </span>
         </div>
         {!played && (
@@ -66,7 +119,7 @@ export default function PoolsPage({ me }: { me: string }) {
         )}
 
         <div role="tablist" aria-label="Pool" className="grid grid-cols-4 gap-1 rounded-[14px] bg-white/5 p-1">
-          {standings.pools.map((_, i) => (
+          {table.pools.map((_, i) => (
             <button
               key={i}
               type="button"
@@ -90,7 +143,7 @@ export default function PoolsPage({ me }: { me: string }) {
             <span className="text-right">PD</span>
             <span className="text-right">PTS</span>
           </div>
-          {standings.pools[cur].map((r, i) => {
+          {table.pools[cur].map((r, i) => {
             const top = played && i < 3
             const wc = wild.has(r.slug)
             const isPick = mine?.slug === r.slug
@@ -148,7 +201,7 @@ export default function PoolsPage({ me }: { me: string }) {
                       ] as const
                     ).map(([k, v]) => (
                       <span key={k} className="rounded-[10px] bg-white/5 px-0.5 py-1.5 text-center">
-                        <span className="disp block text-[17px] font-extrabold">{v}</span>
+                        <span className="disp block text-[17px] font-extrabold">{v ?? '–'}</span>
                         <span className="block text-[10px] text-muted">{k}</span>
                       </span>
                     ))}
