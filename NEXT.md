@@ -166,7 +166,7 @@ settles, and today they get a normal countdown, a pay card, dead fixtures and a 
    Highlightly's venue/ref/weather/team sheets/live win chance are empty for every R1 match checked (3): show those
    sections only when present ("Couldn't get this for this match"); team sheets from ESPN.
    **Step 6 done 18 Oct:** live states on the Round screen (`src/live.ts` `liveScore`): "2ND HALF · 20–17" pill, score
-   between the cards, "Updated N min ago", pick/squad chips "2ND HALF · Winning 24–10"; Realtime on `matches` + the
+   between the cards, "score at 15:28" (fetch time; no per-score timestamp in the API), pick/squad chips "2ND HALF · Winning 24–10"; Realtime on `matches` + the
    1-minute re-read. Stale > 20 min → the clock's "On now". The feed's full time shows "FULL TIME · CHECKING" with no
    Through/Out or fade until the official result (the list score is live only). Shadow mode writes the live fields only.
    **18 Oct, Eddie: Round 1's 10 finished results written** (ids 37–46, `result_source = admin`) from ESPN, each

@@ -63,7 +63,6 @@ export function FixtureList({
             const state = matchState(m, now)
             const final = state === 'final'
             const ls = liveScore(m, now)
-            const ago = ls && Math.max(0, Math.round((now - ls.at) / 60_000))
             return (
               <div key={m.id} className="flex flex-col gap-1.5">
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-muted">
@@ -85,7 +84,8 @@ export function FixtureList({
                     </span>
                   )}
                   {ls && !ls.final && (
-                    <span className="text-[11px] font-medium">· updated {ago ? `${ago} min ago` : 'just now'}</span>
+                    // Highlightly has no per-score timestamp; this is when we fetched it (its list refreshes once a minute).
+                    <span className="text-[11px] font-medium">· score at {hhmm.format(new Date(ls.at))}</span>
                   )}
                   {m.id === featuredId && (
                     <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold tracking-[.08em] text-navy-900">
