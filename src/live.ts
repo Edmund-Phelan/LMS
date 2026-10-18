@@ -40,6 +40,10 @@ export function matchState(m: Match, now: number): MatchState {
   return now < k ? 'upcoming' : now < k + LIVE_MS ? 'live' : 'waiting'
 }
 
+/** An official result is in (or the match is off): what the settle needs for every match. */
+export const hasResult = (m: Match) =>
+  m.status === 'postponed' || m.status === 'abandoned' || (m.status === 'completed' && m.home_score !== null)
+
 /** Did `teamId` win a final match? Rule 6: pool draw = loss; knockouts = winner_team_id (an admin always sets it). */
 export function won(m: Match, teamId: number, knockout: boolean) {
   if (knockout) return m.winner_team_id === teamId

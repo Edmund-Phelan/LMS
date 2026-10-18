@@ -15,6 +15,7 @@ import {
   type Preview,
 } from './adminData'
 import { crestUrl, lockLabel, supabase, type Match, type Team } from './lib/supabase'
+import { hasResult } from './live'
 import { potEur, type PaymentRow } from './Pay'
 import { Avatar } from './Profile'
 import { Icon, Loading, Pushed } from './Shell'
@@ -27,9 +28,6 @@ import { sfx } from './sound'
 type Run = (p: PromiseLike<{ error: { message: string } | null }>) => Promise<boolean>
 type Names = { data: Data; name: (id: string) => string; team: (id: number) => Team }
 const STEPS = ['Open', 'Locked', 'Results', 'Settle'] as const
-
-const hasResult = (m: Match) =>
-  m.status === 'postponed' || m.status === 'abandoned' || (m.status === 'completed' && m.home_score !== null)
 
 export default function AdminPage() {
   const param = useParams().number

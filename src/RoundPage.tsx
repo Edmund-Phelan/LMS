@@ -17,7 +17,7 @@ import { RevealCards } from './Reveal'
 import Raffle from './Raffle'
 import Shell, { Icon, Loading } from './Shell'
 import { sfx } from './sound'
-import { koReason, liveScore, matchState, pickState, type PickState } from './live'
+import { hasResult, koReason, liveScore, matchState, pickState, type PickState } from './live'
 import { KnockedOut, loadKnockout, type Knockout } from './Elimination'
 import { GetBackIn, OutHero, StillPlaying } from './Out'
 import PlayerSheet from './PlayerSheet'
@@ -705,6 +705,23 @@ export default function RoundPage({ me }: { me: string }) {
               stillIn={players.filter((p) => data.alive.get(p.id) === true).length}
               picked={{ n: data.squad.filter((s) => s.has_pick).length, of: data.squad.length }}
             />
+          )}
+          {/* Admins: every result is in, so the preview is ready (Eddie, 18 Oct: one tap to settle, not automatic). */}
+          {players.find((p) => p.id === me)?.is_admin && locked && !round.settled_at && matches.every(hasResult) && (
+            <Link
+              to={`/admin/${round.number}`}
+              className="press pop flex items-center gap-3 rounded-[20px] bg-gold p-4 font-extrabold text-navy-900"
+            >
+              <span className="flex-1">
+                All {matches.length} results are in
+                <span className="block text-[13px] font-semibold opacity-80">
+                  Check the preview and settle {round.name}
+                </span>
+              </span>
+              <span aria-hidden className="text-xl">
+                ›
+              </span>
+            </Link>
           )}
           {error && (
             <p role="alert" className="rounded-2xl bg-out-text/15 p-3 text-out-text">

@@ -175,7 +175,10 @@ potential: pick-week scouting (form, head-to-head, season record, win chance) an
 - **Postponed / Cancelled** → `status = postponed`; **Abandoned** → `abandoned` (rule 7: survives, team back).
 - **Unknown / To be announced / Not started:** write nothing; log.
 - **Never overwrite a row with `result_source = admin`.** Never move a match backwards (final → live).
-- **Never settle automatically.** The feed only fills the scores the settle preview reads.
+- **Never settle automatically.** The feed only fills the scores the settle preview reads. **Eddie, 18 Oct:** from
+  Round 2, once every result is in, admins get an "All N results are in" banner on the Round screen that opens the
+  ready-made preview (one tap to settle). Fully automatic settling (all in, nothing flagged, no unconfirmed claims,
+  2 h after the last full time, own on/off switch) is to be decided after Round 2 has run this way.
 - **While a round is being settled or after `settled_at`, the feed doesn't write that round's matches.**
 - **Cross-check:** ESPN's scoreboard for that date when a match's score is ready (and every 30 min while ESPN isn't
   final, up to 24 h): it gates the write above; ESPN itself never writes a score.
