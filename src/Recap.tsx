@@ -14,9 +14,17 @@ const CLASH_MS = 4300
 /** App-level: shows the recap once on open after a settle, then stores it as seen. */
 export function RoundRecap({ me, seen }: { me: string; seen: number | null | undefined }) {
   const [recap, setRecap] = useState<Recap | null>(null)
+  const closed = useRef(0)
   const navigate = useNavigate()
   useEffect(() => {
-    loadRecap(me, seen).then(setRecap)
+    // A home-screen app usually resumes rather than relaunches, so look again each time it comes back.
+    const check = () => {
+      if (document.visibilityState === 'visible')
+        loadRecap(me, Math.max(seen ?? 0, closed.current)).then((r) => setRecap((cur) => cur ?? r))
+    }
+    check()
+    document.addEventListener('visibilitychange', check)
+    return () => document.removeEventListener('visibilitychange', check)
   }, [me, seen])
   if (!recap) return null
   return (
@@ -24,6 +32,7 @@ export function RoundRecap({ me, seen }: { me: string; seen: number | null | und
       recap={recap}
       onClose={(go) => {
         void markSeen(me, recap.round.number)
+        closed.current = recap.round.number // `seen` is from the app's open; don't show it again on the next resume
         setRecap(null)
         if (go) navigate(recap.to)
       }}
